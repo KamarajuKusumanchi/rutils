@@ -1,0 +1,8 @@
+whoami
+ls -al
+top
+whoami
+ls -rt
+cd /usr/bin
+whoami
+ls -rt
