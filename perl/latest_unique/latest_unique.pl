@@ -26,3 +26,8 @@ print @latest_unique;
 # cd /usr/bin
 # whoami
 # ls -rt
+#
+# cleaning up bash history
+# rajulocal@hogwarts:~$ ~/work/rutils/perl/latest_unique/latest_unique.pl ~/.bash_history  > ~/.bash_history_tmp
+# rajulocal@hogwarts:~$ mv ~/.bash_history_tmp ~/.bash_history
+
