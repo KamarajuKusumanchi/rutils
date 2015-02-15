@@ -55,3 +55,10 @@ sub upgrade_by_keyword()
         system($cmd);
     }
 }
+
+# sample usage
+# % app_status_by_keyword.pl mouse
+# kmousetool:amd64/jessie 4:4.12.2-1 uptodate
+# mousetweaks:amd64/jessie 3.12.0-1 uptodate
+# xserver-xorg-input-mouse:amd64/jessie 1:1.9.0-1+b3 upgradeable to 1:1.9.1-1
+# xserver-xorg-input-vmmouse:amd64/jessie 1:13.0.0-1+b3 uptodate
