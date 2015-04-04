@@ -7,7 +7,11 @@
 #  % for i in 2015-01-02.txt  2015-02-04.txt  2015-03-17.txt
 # do
 # echo $i | cut -f 1 -d'.'
-# perl -p -e "s/([\000-\037]{3})./\n/g" $i | perl -p -e "s/\015<br>/\n/g" | grep -v '^$'; done
+# perl -p -e "s/([\000-\037]{3})./\n/g" $i |
+# perl -p -e "s/\015<br>/\n/g" |
+# grep -v '^$';
+# done
+#
 # 2015-01-02
 # IBM     100
 # SPY     200
