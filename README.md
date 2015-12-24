@@ -11,10 +11,15 @@ Some highlights:
   print unique lines in a file by preserving the order and retaining the 
   latest of duplicated lines.
   
-* perl/overlap/overlap.pl - Analyze the overlap between two sets of data
+* [overlap.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/overlap/overlap.pl) - 
+  Analyze the overlap between two sets of data
 
-* perl/vim_swap.pl - makes it easy to recover from vim swap files
-* zsh/lswap - show vim swap files
+* [vim_swap.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/vim_swap.pl) - 
+  makes it easy to recover from vim swap files
+* [lswap](https://gitlab.com/d3k2mk7/rutils/blob/master/zsh/lswap) - 
+  show vim swap files
 
-* perl/script_name.pl - get the script name
-* perl/dictvim.pl - query dictionary and show results in gvim
+* [script_name.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/script_name.pl) - 
+  get the script name
+* [dictvim.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/dictvim.pl) - 
+  query dictionary and show results in gvim
