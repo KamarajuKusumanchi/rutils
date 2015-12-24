@@ -5,7 +5,7 @@ any of the scripts please send me a pull request.
 Some highlights:
 
 
-* [https://gitlab.com/d3k2mk7/rutils/blob/master/perl/stuff.pl stuff.pl] - show file after removing empty lines and comments
+* [stuff.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/stuff.pl) - show file after removing empty lines and comments
 
 * perl/latest_unique/latest_unique.pl - print unique lines in a file by 
   preserving the order and retaining the latest of duplicated lines.
