@@ -7,8 +7,9 @@ Some highlights:
 
 * [stuff.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/stuff.pl) - show file after removing empty lines and comments
 
-* perl/latest_unique/latest_unique.pl - print unique lines in a file by 
-  preserving the order and retaining the latest of duplicated lines.
+* [latest_unique.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/latest_unique/latest_unique.pl) -
+  print unique lines in a file by preserving the order and retaining the 
+  latest of duplicated lines.
   
 * perl/overlap/overlap.pl - Analyze the overlap between two sets of data
 
