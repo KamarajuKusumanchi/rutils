@@ -1,0 +1,34 @@
+The tests/__init__.py is not needed if you specify the test script manually.
+But it is needed if you want the tests to be automatically discovered. In any
+case you do not need __init__.py in the current directory. For example
+
+ % tree
+.
+├── scottrade.py
+└── tests
+    └── test_scottrade.py
+
+1 directory, 2 files
+
+Here there is no tests/__init__.py . So this command works
+
+ % python3 -m unittest -v tests/test_scottrade.py
+test_new_format (tests.test_scottrade.TestScottrade) ... ok
+Ran 1 test in 0.000s
+OK
+
+But this does not
+
+rajulocal@hogwarts ~/work/gitlab/rutils/python3
+ % python3 -m unittest -v 
+Ran 0 tests in 0.000s
+OK
+
+However it will work if you create an empty __init__.py file
+
+ % touch tests/__init__.py
+
+ % python3 -m unittest -v 
+test_new_format (tests.test_scottrade.TestScottrade) ... ok
+Ran 1 test in 0.000s
+OK

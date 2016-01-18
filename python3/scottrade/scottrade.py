@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 
-def new_name(s):
+def new_format(s):
     """ Change the order of month and year, replace month name with the month
     number. For example
     Monthly_Statement_Apr_2010_12345678.pdf will be changed to
@@ -50,5 +50,31 @@ def month_name_to_num(s):
         print("month name = ", s)
         raise ValueError("Invalid month name")
 
-s = "Monthly_Statement_Apr_2010_12345678.pdf"
-ns = new_name(s)
+def is_native_format(s):
+    """ Return True if string s is in the native format such as
+    Monthly_Statement_Apr_2010_12345678.pdf
+    Otherwise return False
+    """
+    res = True;
+    if (s[0:18] != 'Monthly_Statement_'):
+        res = False;
+    elif (not s[18:21].isalpha()):
+        res = False;
+    elif (s[21] != '_' or s[26] != '_'):
+        res = False;
+    elif (not s[22:26].isdigit()):
+        res = False;
+    elif (not s[27:35].isdigit()):
+        res = False;
+    elif (s[35:39] != '.pdf'):
+        res = False;
+    return res;
+
+
+if __name__ == "__main__":
+    s = "Monthly_Statement_Apr_2010_12345678.pdf"
+    ns = new_format(s)
+    s_need_conversion = is_native_format(s)
+    ns_need_conversion = is_native_format(ns)
+    print("s_need_conversion = ", s_need_conversion);
+    print("ns_need_conversion = ", ns_need_conversion);
