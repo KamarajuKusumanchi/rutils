@@ -1,3 +1,6 @@
+-------------------------------------------------------------------------------
+Notes on running the unit tests
+
 The tests/__init__.py is not needed if you specify the test script manually.
 But it is needed if you want the tests to be automatically discovered. In any
 case you do not need __init__.py in the current directory. For example
@@ -32,3 +35,4 @@ However it will work if you create an empty __init__.py file
 test_new_format (tests.test_scottrade.TestScottrade) ... ok
 Ran 1 test in 0.000s
 OK
+-------------------------------------------------------------------------------
