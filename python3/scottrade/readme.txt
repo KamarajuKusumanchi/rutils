@@ -22,20 +22,23 @@ case you do not need __init__.py in the current directory. For example
 
 1 directory, 2 files
 
-Here there is no tests/__init__.py . However, this command works
+Here there is no tests/__init__.py . 
+
+The command below specifies the test script explicitly. So it works
+irrespective of whether there is tests/__init__.py
 
  % python3 -m unittest -v tests/test_scottrade.py
 test_new_format (tests.test_scottrade.TestScottrade) ... ok
 Ran 1 test in 0.000s
 OK
 
-But this does not
+But this one does not
 
  % python3 -m unittest -v 
 Ran 0 tests in 0.000s
 OK
 
-However it will work if you create an empty __init__.py file
+But it will work if you create an empty __init__.py file in tests directory.
 
  % touch tests/__init__.py
 
