@@ -1,5 +1,35 @@
 #! /usr/bin/env python3
 
+# Statements downloaded from Scottrade brokerage account are of the form
+# Monthly_Statement_<abbreviated month name>_<year>_<account number>.pdf .
+# The idea here is to rename them as
+# Monthly_Statement_<YYYY>_<MM>_<account_number>.pdf .
+# For example, Monthly_Statement_Jul_2014_12345678.pdf will be changed to
+# Monthly_Statement_2014_07_12345678.pdf
+#
+# sample usage:
+# % ls -1 .
+# [Content_Types].xml
+# DownloadStatements_20151011233051.zip
+# Monthly_Statement_Jul_2014_12345678.pdf
+# 
+# % scottrade.py . --dry
+# Trial run. No changes are made
+# ./Monthly_Statement_Jul_2014_12345678.pdf  ->  ./Monthly_Statement_2014_07_12345678.pdf
+# 
+# % ls -1 .
+# [Content_Types].xml
+# DownloadStatements_20151011233051.zip
+# Monthly_Statement_Jul_2014_12345678.pdf
+# 
+# % scottrade.py .
+# ./Monthly_Statement_Jul_2014_12345678.pdf  ->  ./Monthly_Statement_2014_07_12345678.pdf
+# 
+# % ls -1 .
+# [Content_Types].xml
+# DownloadStatements_20151011233051.zip
+# Monthly_Statement_2014_07_12345678.pdf
+
 
 def new_format(s):
     """ Change the order of month and year, replace month name with the month
@@ -70,11 +100,46 @@ def is_native_format(s):
         res = False;
     return res;
 
+def rename_files(args):
+    """ Change all the filenames in native format to a new
+    format for a given directory.
+
+    For example, Monthly_Statement_Apr_2010_12345678.pdf will be changed to
+    Monthly_Statement_2010_04_12345678.pdf
+
+    Pass the dry option to perform a trial run where by the changes are shown
+    but not actually executed.
+
+    Todo:- Have to write an unit test for this function.
+    """
+    dirname = args.dir
+    dry = args.dry
+
+    if (dry):
+        print("Trial run. No changes are made")
+
+    import os
+    files = os.listdir(dirname)
+    for orig in files:
+        if (is_native_format(orig)):
+            dest = new_format(orig)
+            orig_abs = os.path.join(dirname, orig)
+            dest_abs = os.path.join(dirname, dest)
+            print(orig_abs, " -> ", dest_abs)
+            if (not dry):
+                os.rename(orig_abs, dest_abs)
 
 if __name__ == "__main__":
-    s = "Monthly_Statement_Apr_2010_12345678.pdf"
-    ns = new_format(s)
-    s_need_conversion = is_native_format(s)
-    ns_need_conversion = is_native_format(ns)
-    print("s_need_conversion = ", s_need_conversion);
-    print("ns_need_conversion = ", ns_need_conversion);
+
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='rename scottrade statements',
+        )
+    parser.add_argument("dir", action="store",
+        help="directory to operate on")
+    parser.add_argument("--dry", action="store_true",
+        default=False, dest="dry",
+        help="perform a trial run with no changes made")
+    args = parser.parse_args()
+
+    rename_files(args)
