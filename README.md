@@ -6,6 +6,7 @@ Some highlights:
 
 
 * [stuff.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/stuff.pl) - show file after removing empty lines and comments
+* [make_bkup.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/make_bkup.pl) - quickly make a backup of a file
 
 * [latest_unique.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/latest_unique/latest_unique.pl) -
   print unique lines in a file by preserving the order and retaining the 
