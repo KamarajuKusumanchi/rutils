@@ -1,7 +1,12 @@
-#! /usr/local/bin/perl5.12 -w
+#! /usr/bin/env perl
 
 # Sample usage
-# <to be updated>
+#
+# % make_bkup.pl ~/.vimrc
+# /home/rajulocal/.vimrc -> /home/rajulocal/.vimrc_RK_20160302_073829
+#
+# % make_bkup.pl ~/.vimrc
+# /home/rajulocal/.vimrc --> /home/rajulocal/.vimrc_RK_20160302_073829
 
 use strict;
 use warnings;
