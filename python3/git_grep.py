@@ -26,8 +26,8 @@ def get_gitroot(dirname):
 
 def do_grep(args):
     pattern = args.pattern
-    # conversion to absolute path becomes important if something like ../.. is
-    # passed.
+    # conversion to absolute path seems to be important if something like ../..
+    # is passed.
     directory = get_gitroot( os.path.abspath(args.dir) )
     
     # enclose the pattern in double quotes.
