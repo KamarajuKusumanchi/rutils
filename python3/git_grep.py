@@ -4,6 +4,17 @@ import subprocess
 import argparse
 import os
 
+''' A handy utility to grep a git repository while excluding the .git directory.
+
+Call it as
+  <scriptname> pattern [directory]
+The directory name is optional. If missing, the current directory will be used.
+
+If the directory belongs to a .git repository, the top level directory of the
+repository will be used in searching. Otherwise an error message is printed and
+grepping is done in the original directory.
+'''
+
 def do_it(cmd, debug):
     if (debug):
         print(cmd)
@@ -40,15 +51,13 @@ if __name__ == "__main__":
         description='grep a git repository',
         )
     parser.add_argument("pattern", action="store",
-        help="pattern to search for"
-        )
+        help="pattern to search for")
     parser.add_argument("dir", nargs='?',
         default=os.getcwd(),
-        help="directory"
-        )
+        help="directory")
     parser.add_argument("--debug", action="store_true",
         default=False, dest="debug",
-        help="show debug output"
-        )
+        help="show debug output")
     args = parser.parse_args()
+
     do_grep(args)
