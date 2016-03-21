@@ -6,8 +6,9 @@ do_it()
   date
   echo ---------------------------------------------
   set -x
-  cd ~/dev
+  cd ~/repo
+  svn commit -m "message"
   ls
 }
 
-do_it 2>&1 | tee -a ~/x/junk2.log
+do_it 2>&1 | tee -a ~/logs/commit.log
