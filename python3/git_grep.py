@@ -50,16 +50,18 @@ def do_grep(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='grep a git repository',
-        )
-    parser.add_argument("pattern", action="store",
-                        help="pattern to search for")
-    parser.add_argument("dir", nargs='?',
-                        default=os.getcwd(),
-                        help="directory")
-    parser.add_argument("--debug", action="store_true",
-                        default=False, dest="debug",
-                        help="show debug output")
+        description='grep a git repository')
+    parser.add_argument(
+        "pattern", action="store",
+        help="pattern to search for")
+    parser.add_argument(
+        "dir", nargs='?',
+        default=os.getcwd(),
+        help="directory")
+    parser.add_argument(
+        "--debug", action="store_true",
+        default=False, dest="debug",
+        help="show debug output")
     args = parser.parse_args()
 
     do_grep(args)
