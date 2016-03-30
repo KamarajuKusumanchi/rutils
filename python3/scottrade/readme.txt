@@ -2,8 +2,12 @@
 To run the unit tests simply do
 
  % python3 -m unittest -v
+test_is_native_format (tests.test_scottrade.TestScottrade) ... ok
 test_new_format (tests.test_scottrade.TestScottrade) ... ok
-Ran 1 test in 0.000s
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
 OK
 -------------------------------------------------------------------------------
 

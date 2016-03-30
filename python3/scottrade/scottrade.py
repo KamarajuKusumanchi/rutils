@@ -12,19 +12,21 @@
 # [Content_Types].xml
 # DownloadStatements_20151011233051.zip
 # Monthly_Statement_Jul_2014_12345678.pdf
-# 
+#
 # % scottrade.py . --dry
 # Trial run. No changes are made
-# ./Monthly_Statement_Jul_2014_12345678.pdf  ->  ./Monthly_Statement_2014_07_12345678.pdf
-# 
+# ./Monthly_Statement_Jul_2014_12345678.pdf \
+#   ->  ./Monthly_Statement_2014_07_12345678.pdf
+#
 # % ls -1 .
 # [Content_Types].xml
 # DownloadStatements_20151011233051.zip
 # Monthly_Statement_Jul_2014_12345678.pdf
-# 
+#
 # % scottrade.py .
-# ./Monthly_Statement_Jul_2014_12345678.pdf  ->  ./Monthly_Statement_2014_07_12345678.pdf
-# 
+# ./Monthly_Statement_Jul_2014_12345678.pdf \
+#   ->  ./Monthly_Statement_2014_07_12345678.pdf
+#
 # % ls -1 .
 # [Content_Types].xml
 # DownloadStatements_20151011233051.zip
@@ -80,25 +82,27 @@ def month_name_to_num(s):
         print("month name = ", s)
         raise ValueError("Invalid month name")
 
+
 def is_native_format(s):
     """ Return True if string s is in the native format such as
     Monthly_Statement_Apr_2010_12345678.pdf
     Otherwise return False
     """
-    res = True;
+    res = True
     if (s[0:18] != 'Monthly_Statement_'):
-        res = False;
+        res = False
     elif (not s[18:21].isalpha()):
-        res = False;
+        res = False
     elif (s[21] != '_' or s[26] != '_'):
-        res = False;
+        res = False
     elif (not s[22:26].isdigit()):
-        res = False;
+        res = False
     elif (not s[27:35].isdigit()):
-        res = False;
+        res = False
     elif (s[35:39] != '.pdf'):
-        res = False;
-    return res;
+        res = False
+    return res
+
 
 def rename_files(args):
     """ Change all the filenames in native format to a new
@@ -135,9 +139,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='rename scottrade statements',
         )
-    parser.add_argument("dir", action="store",
+    parser.add_argument(
+        "dir", action="store",
         help="directory to operate on")
-    parser.add_argument("--dry", action="store_true",
+    parser.add_argument(
+        "--dry", action="store_true",
         default=False, dest="dry",
         help="perform a trial run with no changes made")
     args = parser.parse_args()
