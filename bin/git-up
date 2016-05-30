@@ -1,0 +1,10 @@
+#! /usr/bin/env zsh
+
+# The idea here is to rebase the current git repository to the origin even if
+# there are uncommitted changes
+
+set -x
+
+git stash
+git pull --rebase origin
+git stash pop
