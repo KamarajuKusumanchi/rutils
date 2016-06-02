@@ -17,8 +17,8 @@ issue at hand.
 
 Todo:
 Move functions such as compact_print into a standalone
-module instead of copying them everywhere. For example these functions
-already exist in ../stuff.py
+module instead of copying them everywhere. For example this function
+already exists in python3/stuff.py
 '''
 
 
