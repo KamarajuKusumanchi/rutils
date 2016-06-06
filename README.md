@@ -4,6 +4,7 @@ any of the scripts please send me a pull request.
 
 Some highlights:
 
+* [popsort.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/bin/popsort.py) - Sort output of "apt-cache search" by popularity
 
 * [stuff.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/stuff.pl) - show file after removing empty lines and comments
 * [make_bkup.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/make_bkup.pl) - quickly make a backup of a file
