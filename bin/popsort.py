@@ -8,7 +8,9 @@ popularity. The popularity ranking is obtained from the popularity contest
 website http://popcon.debian.org/by_inst
 
 Sample usage:
-  % apt-cache search "^vim-" --names-only | ./popsort.py
+  % apt-cache search "^vim-" --names-only | popsort.py
+  % apt-cache search sqlite browser | popsort.py
+  % apt-cache search sqlite browser | popsort.py --show-ranks
 '''
 
 import urllib.request
@@ -181,5 +183,6 @@ Pros: script is simple, easy to understand
 Cons: written in Python2
 features lacking:
   The rankings data has to be downloaded manually.
-  Does not maintain a local cache of the rankings
+  Does not maintain a local cache of the rankings.
+  Does not show ranks.
 '''
