@@ -119,7 +119,8 @@ def sort_lines(lines, all_ranks):
     ranks = {}
     for pkg in d.keys():
         ranks[pkg] = get_rank(pkg, all_ranks)
-    sorted_ranks = sorted(ranks.items(), key=operator.itemgetter(1))
+    sorted_ranks = sorted(ranks.items(), key=operator.itemgetter(1),
+            reverse=True)
 
     sorted_lines = []
     for (key, val) in sorted_ranks:
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Sort output of "apt-cache search" by popularity')
     parser.add_argument(
-        '--show-rank', action='store_true',
+        '--show-ranks', action='store_true',
         default=False, dest='show_rank',
         help='show popularity rank')
 
