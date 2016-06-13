@@ -6,5 +6,5 @@
 set -x
 
 git stash
-git pull --rebase origin
+git pull --rebase -v origin
 git stash pop
