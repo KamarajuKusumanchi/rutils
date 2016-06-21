@@ -3,6 +3,9 @@
 # print unique lines in a file by preserving the order and retaining the latest
 # of duplicated lines.
 
+# You can also do this as a one liner. For example
+# % cat input.txt | perl -MList::MoreUtils=uniq -e 'print reverse uniq reverse <>'
+
 use List::MoreUtils qw(uniq);	# uniq guarantees the original order
 
 @lines = <>;
