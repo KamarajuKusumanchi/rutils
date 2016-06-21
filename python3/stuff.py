@@ -9,6 +9,13 @@ Sample usage:
 % stuff.py /etc/apt/sources.list
 """
 
+# Todo:
+# Add functionality so that the script reads stdin if a filename is not
+# specified. For example,
+# % cat /etc/apt/sources.list | stuff.py
+# should produce the same output as
+# % stuff.py /etc/apt/sources.list
+
 import argparse
 import re
 
