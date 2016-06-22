@@ -1,28 +1,30 @@
 #! /usr/bin/env python3
 
-""" Print a file after removing comments and empty lines.
+""" Print a file after removing comments and empty lines. If file is not
+specified, input is read from stdin.
 
 Usage:
 stuff.py filename
 
 Sample usage:
 % stuff.py /etc/apt/sources.list
+% cat /etc/apt/sources.list | stuff.py
+% stuff.py < /etc/apt/sources.list
 """
-
-# Todo:
-# Add functionality so that the script reads stdin if a filename is not
-# specified. For example,
-# % cat /etc/apt/sources.list | stuff.py
-# should produce the same output as
-# % stuff.py /etc/apt/sources.list
 
 import argparse
 import re
+import sys
 
 def compact_print(fname, comment_pattern):
     empty_pattern = "^\s*$"
 
-    fh = open(fname)
+    using_stdin = fname is None
+    if (using_stdin):
+        fh = sys.stdin
+    else:
+        fh = open(fname)
+
     for line in fh:
         line = line.rstrip()
         if re.search(comment_pattern, line):
@@ -32,13 +34,16 @@ def compact_print(fname, comment_pattern):
         else:
             print(line)
 
+    if (not using_stdin):
+        fh.close()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='''Print a file after removing comments and
-        empty lines.''')
+        empty lines. If file is not specified, input is read from stdin.''')
     parser.add_argument(
-        "fname", action="store",
-        help = "Input file name")
+        "fname", nargs='?', action='store',
+        help = "Input file name. Leave empty for stdin.")
     args = parser.parse_args()
 
     compact_print(args.fname, "^\s*#")
