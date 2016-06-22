@@ -11,6 +11,10 @@ Sample usage:
   % apt-cache search "^vim-" --names-only | popsort.py
   % apt-cache search sqlite browser | popsort.py
   % apt-cache search sqlite browser | popsort.py --show-ranks
+
+  # To find out which photo management software, shotwell or digikam, is more
+  # popular
+  % apt-cache search "shotwell|digikam" --names-only | popsort.py --show-ranks
 '''
 
 import urllib.request
