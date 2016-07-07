@@ -16,10 +16,11 @@ grepping is done in the original directory.
 '''
 
 
-def do_it(cmd, debug):
+def do_it(cmd, debug=0, dry=0):
     if (debug):
         print(cmd)
-    subprocess.call([cmd], shell=True)
+    if (not dry):
+        subprocess.call([cmd], shell=True)
 
 
 def get_gitroot(dirname):

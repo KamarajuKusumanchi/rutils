@@ -2,9 +2,11 @@ import subprocess
 import argparse
 
 
-def do_it(cmd):
-    print(cmd)
-    subprocess.call([cmd], shell=True)
+def do_it(cmd, debug=0, dry=0):
+    if (debug):
+        print(cmd)
+    if (not dry):
+        subprocess.call([cmd], shell=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
