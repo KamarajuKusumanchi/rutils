@@ -9,12 +9,13 @@ website http://popcon.debian.org/by_inst
 
 Sample usage:
   % apt-cache search "^vim-" --names-only | popsort.py
+  % apt-cache search sqlite browser | popsort.py --no-show-ranks
   % apt-cache search sqlite browser | popsort.py
-  % apt-cache search sqlite browser | popsort.py --show-ranks
+  % (apt-cache search ^python3$; apt-cache search ^python$) | popsort.py
 
   # To find out which photo management software, shotwell or digikam, is more
   # popular
-  % apt-cache search "shotwell|digikam" --names-only | popsort.py --show-ranks
+  % apt-cache search "shotwell|digikam" --names-only | popsort.py
 '''
 
 import urllib.request
