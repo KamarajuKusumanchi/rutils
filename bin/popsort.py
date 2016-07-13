@@ -141,8 +141,12 @@ if __name__ == "__main__":
         description='Sort output of "apt-cache search" by popularity')
     parser.add_argument(
         '--show-ranks', action='store_true',
-        default=False, dest='show_rank',
+        default=True, dest='show_rank',
         help='show popularity rank')
+    parser.add_argument(
+        '--no-show-ranks', action='store_false',
+        default=True, dest='show_rank',
+        help='do not show popularity rank')
 
     parser.add_argument(
         '--use-cache', action='store_true',
