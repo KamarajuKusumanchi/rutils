@@ -24,6 +24,7 @@ import time
 import sys
 import operator
 import argparse
+import xdg.BaseDirectory
 
 ''' Retrieve the contents of a url and store it in a file.
 If the file already exists, it may or may not be overwritten depending on its
@@ -37,25 +38,28 @@ fname - file name
 age_threshold - threshold in seconds to determine whether a file is new or old.
 
 Sample usage:
-retrieve_url('http://popcon.debian.org/by_inst', '~/data/popcon/by_inst', 86400)
+retrieve_url('http://popcon.debian.org/by_inst',
+             '~/data/popcon/by_inst', 86400)
 '''
-def retrieve_url(url, fname, age_threshold, debug = 1):
+
+
+def retrieve_url(url, fname, age_threshold, debug=1):
     # Convert fname to absolute path name since
     # os.makedirs() will become confused if the path elements to create include
     # pardir (eg ".." on Unix systems).
     # Ref:- https://docs.python.org/3/library/os.html
-    fname = os.path.abspath( os.path.expanduser(fname) )
+    fname = os.path.abspath(os.path.expanduser(fname))
 
     if os.path.exists(fname):
         age = time.time() - os.path.getmtime(fname)
         if (age < age_threshold):
             if (debug >= 2):
                 print('The file', fname, 'is new. Its age',
-                age, 's is less than the threshold', age_threshold, 's.')
+                      age, 's is less than the threshold', age_threshold, 's.')
                 print('Nothing to retrieve.')
             return
     else:
-        os.makedirs( os.path.dirname(fname), exist_ok=True)
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
 
     url_handle = urllib.request.urlopen(url)
     if (debug >= 1):
@@ -66,13 +70,13 @@ def retrieve_url(url, fname, age_threshold, debug = 1):
     file_handle = open(fname, "wb")
     if (debug >= 1):
         print("writing to", fname)
-    file_handle.write( contents)
+    file_handle.write(contents)
     file_handle.close()
 
 
 def get_all_package_ranks(args):
     use_cache = args.use_cache
-    refresh_cache = args.refresh_cache;
+    refresh_cache = args.refresh_cache
 
     debug = args.debug
 
@@ -81,8 +85,10 @@ def get_all_package_ranks(args):
     url = 'http://popcon.debian.org/by_inst'
 
     if (use_cache):
-        fname = '~/data/popcon/by_inst'
-        fname = os.path.abspath( os.path.expanduser(fname) )
+        fname = os.path.join(
+            xdg.BaseDirectory.xdg_cache_home,
+            'popsort', 'by_inst')  # implements BASEDIRSPEC
+        fname = os.path.abspath(os.path.expanduser(fname))
         if (refresh_cache):
             age_threshold = 0
         else:
@@ -102,37 +108,38 @@ def get_all_package_ranks(args):
         # 1. comments that begin with #
         # 2. There is a line with '-' characters at the end that separates
         # individual package ranks with the Total line
-        line=line.decode("utf-8")
+        line = line.decode("utf-8")
         if line.startswith('#') or line.startswith('----'):
             continue
         parts = line.split()
-        package_ranks[ parts[1] ] = int( parts[0] )
+        package_ranks[parts[1]] = int(parts[0])
     data_handle.close()
 
     return package_ranks
 
 
 def get_rank(package, ranks):
-    if not package in ranks:
+    if package not in ranks:
         return sys.maxsize
     return ranks[package]
+
 
 def sort_lines(lines, all_ranks):
     d = {}
     for line in lines:
-        pkg = line.split(' ',1)[0]
+        pkg = line.split(' ', 1)[0]
         d[pkg] = line
 
     ranks = {}
     for pkg in d.keys():
         ranks[pkg] = get_rank(pkg, all_ranks)
     sorted_ranks = sorted(ranks.items(), key=operator.itemgetter(1),
-            reverse=True)
+                          reverse=True)
 
     sorted_lines = []
     for (key, val) in sorted_ranks:
         # sorted_lines.append( str(val) + ' ' + d[key] )
-        sorted_lines.append( d[key] )
+        sorted_lines.append(d[key])
 
     return sorted_lines
 
@@ -183,11 +190,11 @@ if __name__ == "__main__":
             print(get_rank(pkg, all_ranks), line)
 
 
-''' 
+'''
 Similar software:
 
 http://www.linuxonly.nl/docs/56/155_Sort_Ubuntu_packages_by_popularity.html
-contains a python script to do the same. 
+contains a python script to do the same.
 Pros: script is simple, easy to understand
 Cons: written in Python2
 features lacking:
