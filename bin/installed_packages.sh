@@ -1,7 +1,13 @@
 #! /usr/bin/env zsh
 
+# The idea here is to keep track of the list of installed packages over time.
+# The list is saved in ~/logs with a timestamp appended in the file name. It
+# can come in handy to debug issues related to package upgrades.  For example,
+# the user can run the script before and after the upgrade to figure out what
+# all packages got upgraded and narrow down the package causing the issue.
+#
 # sample usage
-# % ~/bin/installed_packages.sh
+# % installed_packages.sh
 # stored the list of installed packages in /home/rajulocal/logs/installed_packages_list_20150606_002619.txt
 
 
