@@ -6,6 +6,7 @@
 
 
 LOGDIR=~/logs
+mkdir -p $LOGDIR
 LOGFILE=$LOGDIR/installed_packages_list_$(date +%Y%m%d_%H%M%S).txt
 dpkg -l | grep ^ii > $LOGFILE;
 printf "stored the list of installed packages in $LOGFILE\n";
