@@ -108,7 +108,15 @@ def get_all_package_ranks(args):
         # 1. comments that begin with #
         # 2. There is a line with '-' characters at the end that separates
         # individual package ranks with the Total line
-        line = line.decode("utf-8")
+
+        try:
+            line = line.decode("utf-8")
+        except:
+            if (debug):
+                print("Encountered errors while decoding the line\n",
+                      line,
+                      "\nusing utf-8. Trying latin-1")
+            line = line.decode("latin-1")
         if line.startswith('#') or line.startswith('----'):
             continue
         parts = line.split()
