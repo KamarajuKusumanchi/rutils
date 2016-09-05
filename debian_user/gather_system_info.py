@@ -1,5 +1,6 @@
 import re
 import subprocess
+import shutil
 
 ''' This script aims to gather system information for common configuration
 tasks such as sound, graphics, wireless, network, printer etc., Initially, only
@@ -23,13 +24,27 @@ already exists in python3/stuff.py
 
 
 def sound():
-    run_lspci()
-    run_lsmod()
-    print_sources_list()
-    kernel_version()
+    ''' Use inxi if it exists. Otherwise get the information by running
+    individual commands.'''
+    have_inxi = shutil.which('inxi')
+    if (have_inxi):
+        run_inxi()
+    else:
+        run_lspci()
+        run_lsmod()
+        kernel_version()
+        print_sources_list()
+
+
+def run_inxi():
+    cmd = "inxi -Ar"
+    print(cmd)
+    output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
+    print(output)
 
 
 def run_lspci():
+    # This tells what audio drivers are currently in use
     cmd = "lspci -nnk | grep -i audio"
     print(cmd)
     output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
