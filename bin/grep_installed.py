@@ -1,15 +1,17 @@
 #! /usr/bin/env python3
 
 '''
-Filter the input and only show the list of installed packages.
+See parse_arguments() for a description of what this script is about.
+'''
 
-For each input line, the first word is assumed to be the package name.
-
-This is useful, for example to filter the output of apt-cache search and show
-only the installed packages.
-
-Sample usage:
-  % apt-cache search python apt | show_installed.py
+'''
+To download the files
+wget "https://packages.debian.org/jessie/allpackages?format=txt.gz" \
+        -O /home/rajulocal/x/jessie.tgz
+wget "https://packages.debian.org/stretch/allpackages?format=txt.gz" \
+        -O /home/rajulocal/x/stretch.tgz
+wget "https://packages.debian.org/sid/allpackages?format=txt.gz" \
+        -O /home/rajulocal/x/sid.tgz
 '''
 
 import sys
@@ -58,12 +60,45 @@ def show_installed_simple():
     for line in installed:
         print(line)
 
-# def parse_arguments(args):
-#     import argparse
-#     parser = argparse.ArgumentParser(
-#         description='
+
+def parse_arguments(args):
+    import argparse
+    import textwrap    # for dedent
+
+    parser = argparse.ArgumentParser(
+        description="Filter lines corresponding to installed packages.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=textwrap.dedent('''\
+        Show the list of installed packages that are in one
+        distribution but not in another. For example, this script can help
+        figure out the list of installed packages that are part of Jessie but
+        are neither part of Stretch nor Sid.
+
+        The input is read from stdin and output is written to stdout.
+
+        Only the first word of each input line is assumed to be the package
+        name. This becomes useful to filter "apt-cache search" output and only
+        show the lines corresponding to the installed packages.
+
+        Sample usage:
+        % apt-cache search python apt | show_installed.py
+
+        '''))
+    parser.add_argument(
+        "--include-dist", action="store",
+        dest="include_dist",
+        help='''Show only if the package is from this distribution. It can be a
+        comma separated list if multiple distributions are involved.
+        ''')
+    parser.add_argument(
+        "--exclude-dist", action="store",
+        dest="exclude_dist",
+        help='''Show only if the package is not from this distribution. It can be a
+        comma separated list if mutliple distributions are involved.
+       ''')
+    args = parser.parse_args()
 
 if __name__ == "__main__":
-    # args = parse_arguments()
+    args = parse_arguments(sys.argv[1:])
     show_installed()
     # show_installed_simple()
