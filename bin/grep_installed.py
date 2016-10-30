@@ -7,20 +7,22 @@ See parse_arguments() for a description of what this script is about.
 '''
 To download the files
 wget "https://packages.debian.org/jessie/allpackages?format=txt.gz" \
-        -O /home/rajulocal/x/jessie.tgz
+        -O /home/rajulocal/x/jessie.txt.gz
 wget "https://packages.debian.org/stretch/allpackages?format=txt.gz" \
-        -O /home/rajulocal/x/stretch.tgz
+        -O /home/rajulocal/x/stretch.txt.gz
 wget "https://packages.debian.org/sid/allpackages?format=txt.gz" \
-        -O /home/rajulocal/x/sid.tgz
+        -O /home/rajulocal/x/sid.txt.gz
 '''
 
 import sys
 import apt
 import pandas as pd
+import gzip
 
 
 def get_input_as_df():
     data = sys.stdin.read().splitlines()
+
     pkgs = [line.split(' ', 1)[0] for line in data]
     df = pd.DataFrame(
         {'pkg': pkgs,
@@ -37,13 +39,91 @@ def add_is_installed_column(df):
     ]
 
 
-def show_installed():
+def add_distribution_columns(df, args):
+    all_dists = get_all_dists(args)
+    if (not all_dists):
+        return
+
+    for distribution in all_dists:
+        fname = '/home/rajulocal/x/' + distribution + '.txt.gz'
+
+        try:
+            # Check if the file can be opened.
+            with gzip.open(fname, 'rt') as f:
+                for i in range(6):
+                    ignore = f.readline()
+                dist_packages = [line.split(' ', 1)[0] for line in f]
+            df[distribution] = [
+                True if pkg in dist_packages else False
+                for pkg in df['pkg']
+            ]
+        except:
+            print("Unable to open", fname, "while processing", distribution,
+                  "distribution")
+            continue
+
+
+def get_all_dists(args):
+    dists_to_include = get_dists_to_include(args)
+    dists_to_exclude = get_dists_to_exclude(args)
+
+    all_dists = dists_to_include + dists_to_exclude
+    return all_dists
+
+
+def get_dists_to_include(args):
+    include_dist = args.include_dist
+
+    dists_to_include = []
+    if (include_dist is not None):
+        dists_to_include = [x.strip() for x in include_dist.split(',')]
+    return dists_to_include
+
+
+def get_dists_to_exclude(args):
+    exclude_dist = args.exclude_dist
+
+    dists_to_exclude = []
+    if (exclude_dist is not None):
+        dists_to_exclude = [x.strip() for x in exclude_dist.split(',')]
+    return dists_to_exclude
+
+
+def show_installed(args):
+    debug = args.debug
+
     df = get_input_as_df()
     add_is_installed_column(df)
+    add_distribution_columns(df, args)
 
-    b = df[df['is_installed']]
-    for line in b['data']:
-        print(line)
+    if debug:
+        out_file = "agg.csv"
+        print("dumping dataframe to", out_file)
+        df.to_csv(out_file, index=False)
+
+    condition = get_condition(df, args)
+    b = df[condition]
+
+    if (not b.empty):
+        for line in b['data']:
+            print(line)
+
+
+def get_condition(df, args):
+    dists_to_include = get_dists_to_include(args)
+    dists_to_exclude = get_dists_to_exclude(args)
+
+    condition = df['is_installed']
+
+    for distribution in dists_to_include:
+        if (distribution in df.columns):
+            condition &= df[distribution]
+
+    for distribution in dists_to_exclude:
+        if (distribution in df.columns):
+            condition &= ~df[distribution]
+
+    return condition
 
 
 # Not using this function anymore.
@@ -96,9 +176,14 @@ def parse_arguments(args):
         help='''Show only if the package is not from this distribution. It can be a
         comma separated list if mutliple distributions are involved.
        ''')
-    args = parser.parse_args()
+    parser.add_argument(
+        "--debug", action='store_true',
+        default=False, dest='debug',
+        help='show debug output')
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
-    show_installed()
+    show_installed(args)
     # show_installed_simple()
