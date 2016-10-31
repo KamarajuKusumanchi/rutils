@@ -18,6 +18,8 @@ import sys
 import apt
 import pandas as pd
 import gzip
+import urllib.request
+import io
 
 
 def get_input_as_df():
@@ -87,6 +89,27 @@ def get_dists_to_exclude(args):
 #
 # The idea here is to process this file and return a data frame containing the
 # list of packages.
+#
+# The current implementation of this function has a few limitations. It only
+# looks at the first word of each line to figure out whether the package is
+# part of the distribution or not. But this is not enough. To get the correct
+# list, we need to filter based on the architecture, type of package etc.,.
+# Doing all that requires some regex magic.
+#
+# For example, the file contains lines such as
+#
+# python3.4 (3.4.2-1) [debports] Interactive high-level object-oriented \
+# language (version 3.4)
+#
+# python3.4-tk virtual package provided by python3-tk
+#
+# which means these packages do not actually exist on my architecture (ex:-
+# amd64) but the function below returns them as valid package names.
+#
+# In the future, I need to enhance this function to address all these
+# limitations. But for now, I will take a shortcut and use
+# http://httpredir.debian.org/debian/dists/<distribution>/<section>/binary-amd64/Packages.gz
+# to get the list of packages.
 def read_compact_compressed_allpackages_list(distribution):
     fname = '/home/rajulocal/x/' + distribution + '.txt.gz'
 
@@ -100,6 +123,44 @@ def read_compact_compressed_allpackages_list(distribution):
     except:
         print("Unable to open", fname, "while processing", distribution,
               "distribution")
+    return df
+
+
+def get_pkg_data(distribution, section, args):
+    debug=args.debug
+
+    df = pd.DataFrame(None)
+
+    # Assuming that the architecture is always going to be amd64.
+    # Todo:- Need to enhance this later and make it architecture independent.
+    request = "http://httpredir.debian.org/debian/dists/" + distribution \
+              + "/" + section + "/binary-amd64/Packages.gz"
+    if debug:
+        print("processing url", request)
+
+    try:
+        response = urllib.request.urlopen(request)
+        with gzip.open(response, 'rt') as gzipFile:
+            # for i in range(10):
+            #     print(gzipFile.readline().strip())
+            dictList = []
+            for line in gzipFile:
+                d = {}
+                if line[:8] == 'Package:':
+                    pkg = line.split(' ')[1].strip()
+                elif line[:8] == 'Version:':
+                    version = line.split(' ')[1].strip()
+                    d['pkg'] = pkg
+                    d['version'] = version
+                    dictList.append(d)
+                else:
+                    continue
+            df = pd.DataFrame(dictList)
+            df.drop_duplicates(inplace='True')
+            print('Processed:', request)
+    except:
+        print("Unable to get data from", request)
+
     return df
 
 
@@ -204,6 +265,8 @@ def parse_arguments(args):
 
 def run_code():
     args = parse_arguments(sys.argv[1:])
+    # type(args)
+    # print(args)
     show_installed(args)
     # show_installed_simple()
 
