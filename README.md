@@ -4,6 +4,8 @@ any of the scripts please send me a pull request.
 
 Some highlights:
 
+* [grep_installed.py](https://gitlab.com/d3k2mk7/rutils/blob/master/bin/grep_installed.py) - List installed packages by filtering on distribution
+
 * [git_grep.py](https://gitlab.com/d3k2mk7/rutils/blob/master/python3/git_grep.py) - grep a git repository
 
 * [popsort.py](https://gitlab.com/d3k2mk7/rutils/blob/master/bin/popsort.py) - Sort output of "apt-cache search" by popularity

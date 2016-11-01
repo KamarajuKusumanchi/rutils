@@ -294,7 +294,7 @@ def parse_arguments(args):
     import textwrap    # for dedent
 
     parser = argparse.ArgumentParser(
-        description="Filter lines corresponding to installed packages.",
+        description="List installed packages by filtering on distribution.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent('''\
 Show the list of installed packages that are in one distribution but not in
