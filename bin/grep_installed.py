@@ -319,11 +319,11 @@ From a given set of packages, show all the installed packages that are
 in jessie, but are neither in stretch nor in sid. This involves multiple steps:
 
 step 1: For each distribution of interest, create/cache the packages list
-% grep_installed.py --update-cache --include-dists='jessie' --exclude-dists='sid,stretch'
+% grep_installed.py --update-cache --include-dists='jessie' --exclude-dists='stretch,sid'
 The cache files are stored as <distribution>.gz in the cache directory (~/.cache/grep_installed/)
 
 step2: run the query
-% echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='sid,stretch'
+% echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid'
 
 step3 (optional): clear the cache
 % grep_installed.py --clear-cache
@@ -334,7 +334,7 @@ Use case4:
 For a given set of pacakges, print a matrix showing whether the package is
 installed, and its availability in various distributions.
 /* update the cache as shown before */
- % echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='sid,stretch' --report matrix | column -ts ','
+ % echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid' --report matrix | column -ts ','
 data       pkg        is_installed  jessie  sid    stretch
 python3.4  python3.4  True          True    False  False
 python3.5  python3.5  True          False   True   True
