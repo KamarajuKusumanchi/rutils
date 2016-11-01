@@ -1,17 +1,10 @@
 #! /usr/bin/env python3
 
 '''
-See parse_arguments() for a description of what this script is about.
-'''
+Run the script with -h to see what it is about. For example
+grep_installed.py -h
 
-'''
-To download the files
-wget "https://packages.debian.org/jessie/allpackages?format=txt.gz" \
-        -O /home/rajulocal/x/jessie.txt.gz
-wget "https://packages.debian.org/stretch/allpackages?format=txt.gz" \
-        -O /home/rajulocal/x/stretch.txt.gz
-wget "https://packages.debian.org/sid/allpackages?format=txt.gz" \
-        -O /home/rajulocal/x/sid.txt.gz
+This information can also be found in parse_arguments().
 '''
 
 import sys
@@ -20,6 +13,9 @@ import pandas as pd
 import gzip
 import urllib.request
 import io
+import xdg.BaseDirectory
+import os
+import glob
 
 
 def get_input_as_df():
@@ -47,7 +43,8 @@ def add_distribution_columns(df, args):
         return
 
     for distribution in all_dists:
-        dist_packages = read_compact_compressed_allpackages_list(distribution)
+        # dist_packages = read_compact_compressed_allpackages_list(distribution)
+        dist_packages = read_pkg_data(distribution, args)
         if (dist_packages.empty):
             continue
 
@@ -78,6 +75,13 @@ def get_dists_to_exclude(args):
     if (exclude_dist is not None):
         dists_to_exclude = [x.strip() for x in exclude_dist.split(',')]
     return dists_to_exclude
+
+
+def cache_dir():
+    cache_dir = os.path.join(
+        xdg.BaseDirectory.xdg_cache_home, 'grep_insalled'
+    )
+    return cache_dir
 
 
 # For a given distribution, a list of all available packages on all
@@ -111,7 +115,8 @@ def get_dists_to_exclude(args):
 # http://httpredir.debian.org/debian/dists/<distribution>/<section>/binary-amd64/Packages.gz
 # to get the list of packages.
 def read_compact_compressed_allpackages_list(distribution):
-    fname = '/home/rajulocal/x/' + distribution + '.txt.gz'
+    fname = os.path.join(
+        cache_dir(), distribution + '.txt.gz')
 
     df = pd.DataFrame(None)
     try:
@@ -125,8 +130,63 @@ def read_compact_compressed_allpackages_list(distribution):
               "distribution")
     return df
 
+def read_pkg_data(distribution, args):
+    fname = os.path.join(
+        cache_dir(), distribution+'.gz')
+    fname = os.path.abspath(os.path.expanduser(fname))
 
-def get_pkg_data(distribution, section, args):
+    try:
+        df = pd.read_csv(fname, compression='gzip')
+    except:
+        print('Failed to read package list from', fname)
+        df = pd.DataFrame(None)
+    return df
+
+
+def update_cache_files(args):
+    all_dists = get_all_dists(args)
+    for distribution in all_dists:
+        write_pkg_data(distribution, args)
+
+
+def clear_cache_files(args):
+    directory = cache_dir()
+    files = os.path.join(directory, '*.gz')
+    for fname in glob.glob(files):
+        print('removing', fname)
+        os.unlink(fname)
+
+    if not os.listdir(directory):
+        print('removing', directory)
+        os.rmdir(directory)
+
+
+
+def write_pkg_data(distribution, args):
+    df = get_pkg_data(distribution, args)
+
+    directory = cache_dir()
+    fname = os.path.join(
+        directory, distribution+'.gz')
+    fname = os.path.abspath(os.path.expanduser(fname))
+
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+    print('writing:', fname)
+    df.to_csv(fname, index=False, compression='gzip')
+
+
+def get_pkg_data(distribution, args):
+    sections = ['main', 'contrib', 'non-free']
+
+    frames = [get_packages_in_a_section(distribution, s, args) for s in sections]
+    df = pd.concat(frames)
+
+    return df
+
+
+def get_packages_in_a_section(distribution, section, args):
     debug=args.debug
 
     df = pd.DataFrame(None)
@@ -152,6 +212,7 @@ def get_pkg_data(distribution, section, args):
                     version = line.split(' ')[1].strip()
                     d['pkg'] = pkg
                     d['version'] = version
+                    d['section'] = section
                     dictList.append(d)
                 else:
                     continue
@@ -166,6 +227,7 @@ def get_pkg_data(distribution, section, args):
 
 def show_installed(args):
     debug = args.debug
+    report = args.report
 
     df = get_input_as_df()
     add_is_installed_column(df)
@@ -176,12 +238,17 @@ def show_installed(args):
         print("dumping dataframe to", out_file)
         df.to_csv(out_file, index=False)
 
-    condition = get_condition(df, args)
-    b = df[condition]
+    if (report == "matrix"):
+        df.to_csv(sys.stdout, index=False)
+    elif (report == "packages"):
+        condition = get_condition(df, args)
+        b = df[condition]
 
-    if (not b.empty):
-        for line in b['data']:
-            print(line)
+        if (not b.empty):
+            for line in b['data']:
+                print(line)
+    else:
+        print("report = ", report, "is not a valid option")
 
 
 def get_condition(df, args):
@@ -224,38 +291,76 @@ def parse_arguments(args):
         description="Filter lines corresponding to installed packages.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent('''\
-        Show the list of installed packages that are in one
-        distribution but not in another. For example, this script can help
-        figure out the list of installed packages that are part of Jessie but
-        are neither part of Stretch nor Sid.
+Show the list of installed packages that are in one distribution but not in
+another. For example, this script can help figure out the list of installed
+packages that are part of Jessie but are neither part of Stretch nor Sid.
 
-        The input is read from stdin and output is written to stdout.
+The input is read from stdin and output is written to stdout.
 
-        Only the first word of each input line is assumed to be the package
-        name. This becomes useful to filter "apt-cache search" output and only
-        show the lines corresponding to the installed packages.
+Only the first word of each input line is assumed to be the package name. This
+becomes useful when processing "apt-cache search" output.
 
-        Sample usage:
-        % apt-cache search python apt | show_installed.py
+Use case1:
+Filter apt-cache search output and show information for installed packages only
+% apt-cache search python apt | grep_installed.py
+
+Use case2:
+From a given set of packages, show the installed ones
+% echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py
+
+Use case3:
+From a given set of packages, show all the installed packages that are
+in jessie, but are neither in stretch nor in sid. This involves multiple steps:
+
+step 1: For each distribution of interest, create/cache the packages list
+% grep_installed.py --update-cache --include-dists='jessie' --exclude-dists='sid,stretch'
+The cache files are stored as <distribution>.gz in the cache directory (~/.cache/grep_installed/)
+
+step2: run the query
+% echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='sid,stretch'
+
+step3 (optional): clear the cache
+% grep_installed.py --clear-cache
+This will remove all *.gz files in the cache directory
+(~/.cache/grep_installed) and the directory itself (if it is empty).
+
+Use case4:
+For a given set of pacakges, print a matrix showing whether the package is
+installed, and its availability in various distributions.
+/* update the cache as shown before */
+ % echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='sid,stretch' --report matrix | column -ts ','
+data       pkg        is_installed  jessie  sid    stretch
+python3.4  python3.4  True          True    False  False
+python3.5  python3.5  True          False   True   True
 
         '''))
     parser.add_argument(
-        "--include-dist", action="store",
+        "--include-dists", action="store",
         dest="include_dist",
         help='''Show only if the package is from this distribution. It can be a
         comma separated list if multiple distributions are involved.
         ''')
     parser.add_argument(
-        "--exclude-dist", action="store",
+        "--exclude-dists", action="store",
         dest="exclude_dist",
         help='''Show only if the package is not from this distribution. It can be a
         comma separated list if mutliple distributions are involved.
        ''')
-    # parser.add_argument(
-    #     "--update", action="store_true",
-    #     dest="update_cache",
-    #     help='''update the package lists'''
-    #     )
+    parser.add_argument(
+        "--update-cache", action="store_true",
+        dest="update_cache",
+        help='''update the package lists'''
+        )
+    parser.add_argument(
+        "--clear-cache", action="store_true",
+        dest="clear_cache",
+        help="clear cache files and directory"
+        )
+    parser.add_argument(
+        '--report', action='store',
+        dest="report", default='packages', choices=['packages', 'matrix'],
+        help='''Type of reports to produce.'''
+        )
     parser.add_argument(
         "--debug", action='store_true',
         default=False, dest='debug',
@@ -265,10 +370,16 @@ def parse_arguments(args):
 
 def run_code():
     args = parse_arguments(sys.argv[1:])
-    # type(args)
-    # print(args)
-    show_installed(args)
+    if (args.debug):
+        print("args\n", args)
+    if (args.update_cache):
+        update_cache_files(args)
+    elif (args.clear_cache):
+        clear_cache_files(args)
+    else:
+        show_installed(args)
     # show_installed_simple()
+
 
 if __name__ == "__main__":
     run_code()
