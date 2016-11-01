@@ -83,7 +83,13 @@ def cache_dir():
     )
     return cache_dir
 
-
+# This function is not currently used.
+# In the future, I need to enhance it to address its limitations as
+# outlined below. For now, I will take a shortcut and use
+# http://httpredir.debian.org/debian/dists/<distribution>/<section>/binary-amd64/Packages.gz
+# to get the list of packages. This is done in get_packages_in_a_section().
+# The update_cache_files() is the top level function that builds all the cache.
+#
 # For a given distribution, a list of all available packages on all
 # architectures can be downloaded from
 # https://packages.debian.org/${distribution}/allpackages?format=txt.gz . Here
@@ -109,11 +115,6 @@ def cache_dir():
 #
 # which means these packages do not actually exist on my architecture (ex:-
 # amd64) but the function below returns them as valid package names.
-#
-# In the future, I need to enhance this function to address all these
-# limitations. But for now, I will take a shortcut and use
-# http://httpredir.debian.org/debian/dists/<distribution>/<section>/binary-amd64/Packages.gz
-# to get the list of packages.
 def read_compact_compressed_allpackages_list(distribution):
     fname = os.path.join(
         cache_dir(), distribution + '.txt.gz')
@@ -144,24 +145,14 @@ def read_pkg_data(distribution, args):
     return df
 
 
+# Update cache for all distributions of interest
 def update_cache_files(args):
     all_dists = get_all_dists(args)
     for distribution in all_dists:
         write_pkg_data(distribution, args)
 
 
-def clear_cache_files(args):
-    directory = cache_dir()
-    files = os.path.join(directory, '*.gz')
-    for fname in glob.glob(files):
-        print('removing', fname)
-        os.unlink(fname)
-
-    if not os.listdir(directory):
-        print('removing', directory)
-        os.rmdir(directory)
-
-
+# Build a list of packages for a give distribution and write it to a file
 def write_pkg_data(distribution, args):
     df = get_pkg_data(distribution, args)
 
@@ -187,6 +178,8 @@ def get_pkg_data(distribution, args):
     return df
 
 
+# Returns a dataframe containing the lit of packages in a distribution for a
+# given section. The section is one of 'main', 'contrib', 'non-free'.
 def get_packages_in_a_section(distribution, section, args):
     debug = args.debug
 
@@ -224,6 +217,18 @@ def get_packages_in_a_section(distribution, section, args):
         print("Unable to get data from", request)
 
     return df
+
+
+def clear_cache_files(args):
+    directory = cache_dir()
+    files = os.path.join(directory, '*.gz')
+    for fname in glob.glob(files):
+        print('removing', fname)
+        os.unlink(fname)
+
+    if not os.listdir(directory):
+        print('removing', directory)
+        os.rmdir(directory)
 
 
 def show_installed(args):
