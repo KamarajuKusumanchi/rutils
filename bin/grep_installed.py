@@ -130,6 +130,7 @@ def read_compact_compressed_allpackages_list(distribution):
               "distribution")
     return df
 
+
 def read_pkg_data(distribution, args):
     fname = os.path.join(
         cache_dir(), distribution+'.gz')
@@ -161,7 +162,6 @@ def clear_cache_files(args):
         os.rmdir(directory)
 
 
-
 def write_pkg_data(distribution, args):
     df = get_pkg_data(distribution, args)
 
@@ -180,14 +180,15 @@ def write_pkg_data(distribution, args):
 def get_pkg_data(distribution, args):
     sections = ['main', 'contrib', 'non-free']
 
-    frames = [get_packages_in_a_section(distribution, s, args) for s in sections]
+    frames = [get_packages_in_a_section(distribution, s, args)
+              for s in sections]
     df = pd.concat(frames)
 
     return df
 
 
 def get_packages_in_a_section(distribution, section, args):
-    debug=args.debug
+    debug = args.debug
 
     df = pd.DataFrame(None)
 
