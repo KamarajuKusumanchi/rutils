@@ -152,7 +152,7 @@ def update_cache_files(args):
         write_pkg_data(distribution, args)
 
 
-# Build a list of packages for a give distribution and write it to a file
+# Build a list of packages for a given distribution and write it to a file
 def write_pkg_data(distribution, args):
     df = get_pkg_data(distribution, args)
 
@@ -178,7 +178,7 @@ def get_pkg_data(distribution, args):
     return df
 
 
-# Returns a dataframe containing the lit of packages in a distribution for a
+# Returns a dataframe containing the list of packages in a distribution for a
 # given section. The section is one of 'main', 'contrib', 'non-free'.
 def get_packages_in_a_section(distribution, section, args):
     debug = args.debug
