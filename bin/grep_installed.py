@@ -79,7 +79,7 @@ def get_dists_to_exclude(args):
 
 def cache_dir():
     cache_dir = os.path.join(
-        xdg.BaseDirectory.xdg_cache_home, 'grep_insalled'
+        xdg.BaseDirectory.xdg_cache_home, 'grep_installed'
     )
     return cache_dir
 
