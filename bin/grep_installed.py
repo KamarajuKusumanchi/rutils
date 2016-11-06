@@ -39,8 +39,12 @@ def add_is_installed_column(df):
 
 def add_distribution_columns(df, args):
     all_dists = get_all_dists(args)
+    report = args.report
     if (not all_dists):
-        return
+        if (report == "packages"):
+            return
+        elif (report == "matrix" or report == "tabulate"):
+            all_dists = ["stable", "testing", "unstable"]
 
     for distribution in all_dists:
         # dist_packages = read_compact_compressed_allpackages_list(distribution)
@@ -148,6 +152,11 @@ def read_pkg_data(distribution, args):
 # Update cache for all distributions of interest
 def update_cache_files(args):
     all_dists = get_all_dists(args)
+
+    # If no distributions are specified, the package lists of stable, testing,
+    # and unstable are written.
+    if (not all_dists):
+        all_dists = ["stable", "testing", "unstable"]
     for distribution in all_dists:
         write_pkg_data(distribution, args)
 
@@ -246,6 +255,8 @@ def show_installed(args):
 
     if (report == "matrix"):
         df.to_csv(sys.stdout, index=False)
+    elif (report == "tabulate"):
+        tabulate_data_frame(df)
     elif (report == "packages"):
         condition = get_condition(df, args)
         b = df[condition]
@@ -255,6 +266,16 @@ def show_installed(args):
                 print(line)
     else:
         print("report = ", report, "is not a valid option")
+
+
+def tabulate_data_frame(df):
+    try:
+        from tabulate import tabulate
+        print( tabulate([list(row) for row in df.values], headers=list(df.columns), tablefmt='plain'))
+    except:
+        print("\nWarning: tabulate package is not found. Dumping it to csv instead.\n")
+        df.to_csv(sys.stdout, index=False)
+
 
 
 def get_condition(df, args):
@@ -312,7 +333,7 @@ Filter apt-cache search output and show information for installed packages only
 
 Use case2:
 From a given set of packages, show the installed ones
-% echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py
+% echo "python3.4 python3.5" | tr ' ' '\\n' | grep_installed.py
 
 Use case3:
 From a given set of packages, show all the installed packages that are
@@ -323,7 +344,7 @@ step 1: For each distribution of interest, create/cache the packages list
 The cache files are stored as <distribution>.gz in the cache directory (~/.cache/grep_installed/)
 
 step2: run the query
-% echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid'
+% echo "python3.4 python3.5" | tr ' ' '\\n' | grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid'
 
 step3 (optional): clear the cache
 % grep_installed.py --clear-cache
@@ -334,7 +355,7 @@ Use case4:
 For a given set of pacakges, print a matrix showing whether the package is
 installed, and its availability in various distributions.
 /* update the cache as shown before */
- % echo "python3.4 python3.5" | tr ' ' '\\n' | ./grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid' --report matrix | column -ts ','
+ % echo "python3.4 python3.5" | tr ' ' '\\n' | grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid' --report matrix | column -ts ','
 data       pkg        is_installed  jessie  sid    stretch
 python3.4  python3.4  True          True    False  False
 python3.5  python3.5  True          False   True   True
@@ -364,7 +385,7 @@ python3.5  python3.5  True          False   True   True
         )
     parser.add_argument(
         '--report', action='store',
-        dest="report", default='packages', choices=['packages', 'matrix'],
+        dest="report", default='packages', choices=['packages', 'matrix', 'tabulate'],
         help='''Type of reports to produce.'''
         )
     parser.add_argument(
