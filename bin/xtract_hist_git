@@ -1,0 +1,16 @@
+#! /bin/sh
+#
+# Author               : Kamaraju S. Kusumanchi
+# Email                : kamaraju at gmail dot com
+# File                 : bin/xtract_hist_git
+# Date (last modified) : Sun Nov  6 01:27:58 EST 2016
+
+revs=$1
+file=$2
+
+for i in `seq -w 0 $revs`
+do
+  git checkout master~$i $file
+  mv $file m${i}_$file
+done
+git checkout master $file
