@@ -1,10 +1,53 @@
 #! /usr/bin/env python3
 
 '''
-Run the script with -h to see what it is about. For example
+For documentation on this script, see
+http://raju.shoutwiki.com/wiki/Grep_installed.py
+
+To see what it is about, run it with -h which produces brief help.  For example
 grep_installed.py -h
 
-This information can also be found in parse_arguments().
+The brief help can also be found in parse_arguments().
+'''
+
+'''
+Use case1:
+Filter apt-cache search output and show information for installed packages only
+% apt-cache search python apt | grep_installed.py
+
+Use case2:
+From a given set of packages, show the installed ones
+% echo "python3.4 python3.5" | tr ' ' '\n' | grep_installed.py
+
+Use case3:
+From a given set of packages, show all the installed packages that are
+in jessie, but are neither in stretch nor in sid. This involves multiple steps:
+
+step 1: For each distribution of interest, create/cache the packages list
+% grep_installed.py --update-cache --include-dists='jessie' \
+--exclude-dists='stretch,sid'
+The cache files are stored as <distribution>.gz in the cache directory
+(~/.cache/grep_installed/)
+
+step2: run the query
+% echo "python3.4 python3.5" | tr ' ' '\n' | \
+grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid'
+
+step3 (optional): clear the cache
+% grep_installed.py --clear-cache
+This will remove all *.gz files in the cache directory
+(~/.cache/grep_installed) and the directory itself (if it is empty).
+
+Use case4:
+For a given set of pacakges, print a matrix showing whether the package is
+installed, and its availability in various distributions.
+/* update the cache as shown before */
+ % echo "python3.4 python3.5" | tr ' ' '\n' | \
+grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid' \
+--report matrix | column -ts ','
+data       pkg        is_installed  jessie  sid    stretch
+python3.4  python3.4  True          True    False  False
+python3.5  python3.5  True          False   True   True
 '''
 
 import sys
@@ -86,6 +129,7 @@ def cache_dir():
         xdg.BaseDirectory.xdg_cache_home, 'grep_installed'
     )
     return cache_dir
+
 
 # This function is not currently used.
 # In the future, I need to enhance it to address its limitations as
@@ -271,11 +315,12 @@ def show_installed(args):
 def tabulate_data_frame(df):
     try:
         from tabulate import tabulate
-        print( tabulate([list(row) for row in df.values], headers=list(df.columns), tablefmt='plain'))
+        print(tabulate([list(row) for row in df.values],
+              headers=list(df.columns), tablefmt='plain'))
     except:
-        print("\nWarning: tabulate package is not found. Dumping it to csv instead.\n")
+        print("\nWarning: tabulate package is not found.",
+              "Dumping it to csv instead.\n")
         df.to_csv(sys.stdout, index=False)
-
 
 
 def get_condition(df, args):
@@ -315,51 +360,26 @@ def parse_arguments(args):
     import textwrap    # for dedent
 
     parser = argparse.ArgumentParser(
-        description="List installed packages by filtering on distribution.",
+        description='Show installed packages after filtering them by ' +
+        'their availability in different distributions.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent('''\
-Show the list of installed packages that are in one distribution but not in
-another. For example, this script can help figure out the list of installed
-packages that are part of Jessie but are neither part of Stretch nor Sid.
+This script can be used to show the list of installed packages that are in one
+distribution but not in another. For example, it can be used to figure out the
+list of installed packages that are part of Debian Stable but are neither part
+of Debian Testing nor Debian Unstable. The script can handle both symbolic
+distribution names such as Stable/Testing/Unstable and actual distribution
+names such as Jessie/Stretch/Sid etc., The script can process "apt-cache
+search" output. The output from the script can be shown in different "report"
+formats.
 
 The input is read from stdin and output is written to stdout.
 
 Only the first word of each input line is assumed to be the package name. This
 becomes useful when processing "apt-cache search" output.
 
-Use case1:
-Filter apt-cache search output and show information for installed packages only
-% apt-cache search python apt | grep_installed.py
-
-Use case2:
-From a given set of packages, show the installed ones
-% echo "python3.4 python3.5" | tr ' ' '\\n' | grep_installed.py
-
-Use case3:
-From a given set of packages, show all the installed packages that are
-in jessie, but are neither in stretch nor in sid. This involves multiple steps:
-
-step 1: For each distribution of interest, create/cache the packages list
-% grep_installed.py --update-cache --include-dists='jessie' --exclude-dists='stretch,sid'
-The cache files are stored as <distribution>.gz in the cache directory (~/.cache/grep_installed/)
-
-step2: run the query
-% echo "python3.4 python3.5" | tr ' ' '\\n' | grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid'
-
-step3 (optional): clear the cache
-% grep_installed.py --clear-cache
-This will remove all *.gz files in the cache directory
-(~/.cache/grep_installed) and the directory itself (if it is empty).
-
-Use case4:
-For a given set of pacakges, print a matrix showing whether the package is
-installed, and its availability in various distributions.
-/* update the cache as shown before */
- % echo "python3.4 python3.5" | tr ' ' '\\n' | grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid' --report matrix | column -ts ','
-data       pkg        is_installed  jessie  sid    stretch
-python3.4  python3.4  True          True    False  False
-python3.5  python3.5  True          False   True   True
-
+For complete documentation with sample use cases see
+http://raju.shoutwiki.com/wiki/Grep_installed.py
         '''))
     parser.add_argument(
         "--include-dists", action="store",
@@ -385,7 +405,8 @@ python3.5  python3.5  True          False   True   True
         )
     parser.add_argument(
         '--report', action='store',
-        dest="report", default='packages', choices=['packages', 'matrix', 'tabulate'],
+        dest="report", default='packages',
+        choices=['packages', 'matrix', 'tabulate'],
         help='''Type of reports to produce.'''
         )
     parser.add_argument(
