@@ -26,7 +26,7 @@ in jessie, but are neither in stretch nor in sid. This involves multiple steps:
 step 1: For each distribution of interest, create/cache the packages list
 % grep_installed.py --update-cache --include-dists='jessie' \
 --exclude-dists='stretch,sid'
-The cache files are stored as <distribution>.gz in the cache directory
+The cache files are stored as <distribution>.xz in the cache directory
 (~/.cache/grep_installed/)
 
 step2: run the query
@@ -35,7 +35,7 @@ grep_installed.py --include-dists='jessie' --exclude-dists='stretch,sid'
 
 step3 (optional): clear the cache
 % grep_installed.py --clear-cache
-This will remove all *.gz files in the cache directory
+This will remove all *.xz files in the cache directory
 (~/.cache/grep_installed) and the directory itself (if it is empty).
 
 Use case4:
@@ -53,7 +53,7 @@ python3.5  python3.5  True          False   True   True
 import sys
 import apt
 import pandas as pd
-import gzip
+import lzma
 import urllib.request
 import io
 import xdg.BaseDirectory
@@ -164,6 +164,7 @@ def cache_dir():
 # which means these packages do not actually exist on my architecture (ex:-
 # amd64) but the function below returns them as valid package names.
 def read_compact_compressed_allpackages_list(distribution):
+    import gzip
     fname = os.path.join(
         cache_dir(), distribution + '.txt.gz')
 
@@ -182,11 +183,11 @@ def read_compact_compressed_allpackages_list(distribution):
 
 def read_pkg_data(distribution, args):
     fname = os.path.join(
-        cache_dir(), distribution+'.gz')
+        cache_dir(), distribution+'.xz')
     fname = os.path.abspath(os.path.expanduser(fname))
 
     try:
-        df = pd.read_csv(fname, compression='gzip')
+        df = pd.read_csv(fname, compression='xz')
     except:
         print('Failed to read package list from', fname)
         df = pd.DataFrame(None)
@@ -211,14 +212,14 @@ def write_pkg_data(distribution, args):
 
     directory = cache_dir()
     fname = os.path.join(
-        directory, distribution+'.gz')
+        directory, distribution+'.xz')
     fname = os.path.abspath(os.path.expanduser(fname))
 
     if not os.path.exists(directory):
         os.makedirs(directory, exist_ok=True)
 
     print('writing:', fname)
-    df.to_csv(fname, index=False, compression='gzip')
+    df.to_csv(fname, index=False, compression='xz')
 
 
 def get_pkg_data(distribution, args):
@@ -241,17 +242,15 @@ def get_packages_in_a_section(distribution, section, args):
     # Assuming that the architecture is always going to be amd64.
     # Todo:- Need to enhance this later and make it architecture independent.
     request = "http://httpredir.debian.org/debian/dists/" + distribution \
-              + "/" + section + "/binary-amd64/Packages.gz"
+              + "/" + section + "/binary-amd64/Packages.xz"
     if debug:
         print("processing url", request)
 
     try:
         response = urllib.request.urlopen(request)
-        with gzip.open(response, 'rt') as gzipFile:
-            # for i in range(10):
-            #     print(gzipFile.readline().strip())
+        with lzma.open(response, 'rt') as lzmaFile:
             dictList = []
-            for line in gzipFile:
+            for line in lzmaFile:
                 d = {}
                 if line[:8] == 'Package:':
                     pkg = line.split(' ')[1].strip()
@@ -274,7 +273,7 @@ def get_packages_in_a_section(distribution, section, args):
 
 def clear_cache_files(args):
     directory = cache_dir()
-    files = os.path.join(directory, '*.gz')
+    files = os.path.join(directory, '*.xz')
     for fname in glob.glob(files):
         print('removing', fname)
         os.unlink(fname)
