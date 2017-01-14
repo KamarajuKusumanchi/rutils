@@ -78,6 +78,8 @@ def determine_category(msg, args):
         'repository': 'apt',
         'repositories': 'apt'}
 
+    # Todo: checking for single words at the moment. Have to extend this to
+    # check for two word combos (ex:- 'wire less').
     words = msg.split()
     for w in words:
         if w in word_to_category:
