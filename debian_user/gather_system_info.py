@@ -1,6 +1,8 @@
+#! /usr/bin/env python3
 import re
 import subprocess
 import shutil
+import sys
 
 ''' This script aims to gather system information for common configuration
 tasks such as sound, graphics, wireless, network, printer etc., Initially, only
@@ -23,7 +25,86 @@ already exists in python3/stuff.py
 '''
 
 
-def sound():
+def parse_arguments(args):
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Script to gather system information."
+        )
+    parser.add_argument(
+        "--debug", "-d", action='store_true',
+        default=False, dest='debug',
+        help='show debug output. Default is false.')
+    parser.add_argument(
+        "--verbose", "-v", action='store_true',
+        default=False, dest='verbose',
+        help='show verbose output. Default is false.')
+
+    res = parser.parse_args(args)
+    if res.debug:
+        print(res)
+    return res
+
+
+def determine_category(msg, args):
+    import operator
+
+    debug = args.debug
+
+    known_categories = ['audio', 'video', 'wireless', 'apt']
+
+    category_count = {k: 0 for k in known_categories}
+
+    word_to_category = {
+        'audio': 'audio',
+        'sound': 'audio',
+
+        'video': 'video',
+        'graphics': 'video',
+        'display': 'video',
+
+        'wireless': 'wireless',
+        'wire less': 'wireless',
+        'wifi': 'wireless',
+
+        'apt-get': 'apt',
+        'aptget': 'apt',
+        'apt': 'apt',
+        'aptitude': 'apt',
+        'install': 'apt',
+        'update': 'apt',
+        'package': 'apt',
+        'packages': 'apt',
+        'packaging': 'apt',
+        'repository': 'apt',
+        'repositories': 'apt'}
+
+    words = msg.split()
+    for w in words:
+        if w in word_to_category:
+            category = word_to_category[w]
+            category_count[category] += 1
+
+    if (debug):
+        print('category_count')
+        print(category_count)
+
+    # get the category that occurred most number of times
+    max_count_category = max(category_count.items(),
+                             key=operator.itemgetter(1))[0]
+    if (debug):
+        print("max_count_category = ", max_count_category)
+    return max_count_category
+
+
+def collect_system_info(category):
+    if category == 'audio':
+        print('collecting info on:', category)
+        collect_audio_info()
+    else:
+        print("unknown category:", category)
+
+
+def collect_audio_info():
     ''' Use inxi if it exists. Otherwise get the information by running
     individual commands.'''
     have_inxi = shutil.which('inxi')
@@ -88,4 +169,7 @@ def kernel_version():
 
 
 if __name__ == "__main__":
-    sound()
+    args = parse_arguments(sys.argv[1:])
+    topic = input("Enter a brief description of the issue:\n")
+    category = determine_category(topic, args)
+    collect_system_info(category)
