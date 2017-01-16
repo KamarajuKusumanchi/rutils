@@ -45,8 +45,9 @@ def do_grep(args):
     directory = get_gitroot(os.path.abspath(args.dir))
 
     # enclose the pattern in double quotes.
+    # ignore swap files created by vim.
     cmd = 'grep -sir "' + pattern + '" ' + directory +  \
-        ' --exclude-dir=".git" --color'
+        ' --exclude-dir=".git" --exclude="*.swp" --color'
     do_it(cmd, args.debug)
 
 if __name__ == "__main__":
