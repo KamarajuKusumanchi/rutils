@@ -172,6 +172,6 @@ def kernel_version():
 
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
-    topic = input("Enter a brief description of the issue:\n")
+    topic = input("Describe the issue in one line:\n")
     category = determine_category(topic, args)
     collect_system_info(category)
