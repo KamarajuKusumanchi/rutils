@@ -101,16 +101,17 @@ def determine_category(msg, args):
 def collect_system_info(category):
     if category == 'audio':
         print('collecting info on:', category)
-        collect_audio_info()
+        collect_audio_info(prefer_inxi=True)
     else:
         print("unknown category:", category)
 
 
-def collect_audio_info():
-    ''' Use inxi if it exists. Otherwise get the information by running
-    individual commands.'''
-    have_inxi = shutil.which('inxi')
-    if (have_inxi):
+def collect_audio_info(prefer_inxi=True):
+    '''If prefer_inxi is True, inxi will be used if it exists. Otherwise get
+    the information by running individual commands.'''
+    inxi_path = shutil.which('inxi')
+    have_inxi = inxi_path is not None
+    if (prefer_inxi & have_inxi):
         run_inxi()
     else:
         run_lspci()
@@ -161,6 +162,7 @@ def compact_print(fname, comment_pattern):
             continue
         else:
             print(line)
+    fh.close()
 
 
 def kernel_version():
