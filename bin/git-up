@@ -1,7 +1,7 @@
 #! /usr/bin/env zsh
 
-# The idea here is to rebase the current git repository to the origin even if
-# there are uncommitted changes
+# The idea here is to rebase a git repository to origin even if there are
+# uncommitted changes
 
 set -x
 
