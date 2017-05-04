@@ -29,3 +29,6 @@ Some highlights:
   get the script name
 * [dictvim.pl](https://gitlab.com/d3k2mk7/rutils/blob/master/perl/dictvim.pl) - 
   query dictionary and show results in gvim
+
+* [git-up](https://gitlab.com/d3k2mk7/rutils/blob/master/bin/git-up) -
+  rebase a git repository to origin even if there are uncommitted changes
