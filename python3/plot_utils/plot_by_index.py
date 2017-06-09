@@ -6,6 +6,8 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import os
+
 def parse_arguments(args):
     import argparse
     parser = argparse.ArgumentParser(
@@ -47,9 +49,19 @@ if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
     
     header = args.header
-    if (header):
-        df = pd.read_csv(sys.stdin)
-        plot_col_by_index(df[ df.columns[0] ], df.columns[0])
+
+    # Do the plotting on a separate process so we can get back the command
+    # prompt.
+    # Ref:- https://stackoverflow.com/questions/12467280/how-can-i-tell-python-to-end-after-pylab-show
+    if os.fork():
+        # Parent
+        pass
     else:
-        df = pd.read_csv(sys.stdin, header=None)
-        plot_col_by_index(df[ df.columns[0] ], 'data')
+        # Child
+        os.setsid()
+        if (header):
+            df = pd.read_csv(sys.stdin)
+            plot_col_by_index(df[ df.columns[0] ], df.columns[0])
+        else:
+            df = pd.read_csv(sys.stdin, header=None)
+            plot_col_by_index(df[ df.columns[0] ], 'data')
