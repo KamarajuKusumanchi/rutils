@@ -50,8 +50,7 @@ if __name__ == "__main__":
     
     header = args.header
 
-    # Do the plotting on a separate process so we can get back the command
-    # prompt.
+    # Do all the plotting in the background
     # Ref:- https://stackoverflow.com/questions/12467280/how-can-i-tell-python-to-end-after-pylab-show
     if os.fork():
         # Parent
