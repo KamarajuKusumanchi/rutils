@@ -178,7 +178,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--refresh-cache', action='store_true',
         default=False, dest='refresh_cache',
-        help='''refresh cache. It will be ignored is --no-use-cache
+        help='''refresh cache. It will be ignored if --no-use-cache
         is specified.''')
     parser.add_argument(
         '--debug', action='store_true',
