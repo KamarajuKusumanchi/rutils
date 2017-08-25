@@ -132,7 +132,9 @@ def get_rank(package, ranks):
     return ranks[package]
 
 
-def sort_lines(lines, all_ranks):
+def sort_lines(lines, all_ranks, args):
+    most_popular_last = args.most_popular_last
+
     d = {}
     for line in lines:
         pkg = line.split(' ', 1)[0]
@@ -142,7 +144,7 @@ def sort_lines(lines, all_ranks):
     for pkg in d.keys():
         ranks[pkg] = get_rank(pkg, all_ranks)
     sorted_ranks = sorted(ranks.items(), key=operator.itemgetter(1),
-                          reverse=True)
+                          reverse=most_popular_last)
 
     sorted_lines = []
     for (key, val) in sorted_ranks:
@@ -178,8 +180,20 @@ if __name__ == "__main__":
     parser.add_argument(
         '--refresh-cache', action='store_true',
         default=False, dest='refresh_cache',
-        help='''refresh cache. It will be ignored if --no-use-cache
-        is specified.''')
+        help='''refresh cache. It is ignored if --no-use-cache is
+        specified.''')
+
+    parser.add_argument(
+        '--most-popular-last', action='store_true',
+        default=True, dest='most_popular_last',
+        help='''sort output by increasing order of popularity. This is the
+        default.''')
+    parser.add_argument(
+        '-r',  # where 'r' stands for reverse
+        '--most-popular-first', action='store_false',
+        default=True, dest='most_popular_last',
+        help='''sort output by decreasing order of popularity.''')
+
     parser.add_argument(
         '--debug', action='store_true',
         default=False, dest='debug',
@@ -188,7 +202,7 @@ if __name__ == "__main__":
 
     all_ranks = get_all_package_ranks(args)
     lines = sys.stdin.read().splitlines()
-    sorted_lines = sort_lines(lines, all_ranks)
+    sorted_lines = sort_lines(lines, all_ranks, args)
 
     for line in sorted_lines:
         if not args.show_rank:
