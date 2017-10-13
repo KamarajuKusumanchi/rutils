@@ -1,4 +1,4 @@
-#! /usr/bin/env zsh
+#! /usr/bin/env dash
 
 # The idea here is to rebase a git repository to origin even if there are
 # uncommitted changes
