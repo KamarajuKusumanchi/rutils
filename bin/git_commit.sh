@@ -6,7 +6,7 @@ do_it()
   date
   echo ---------------------------------------------
   set -x
-  cd ~/work/gitlab/rutils
+  cd ~/work/github/rutils
   git commit -m "Initial commit of bin/popsort.py"
 
   # This calls git-up which is a custom script.
