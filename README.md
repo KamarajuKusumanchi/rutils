@@ -4,14 +4,24 @@ any of the scripts please send me a pull request.
 
 Some highlights:
 
+* [git-up](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/git-up) -
+  rebase a git repository to origin even if there are uncommitted changes
+
+* [popsort.py](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/popsort.py) - Sort output of "apt-cache search" by popularity 
+
+* [stuff.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/stuff.pl) - show file after removing empty lines and comments
+
+* [make_bkup.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/make_bkup.pl) - quickly make a backup of a file
+ 
 * [grep_installed.py](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/grep_installed.py) - List installed packages by filtering on distribution
 
 * [git_grep.py](https://github.com/KamarajuKusumanchi/rutils/blob/master/python3/git_grep.py) - grep a git repository
 
-* [popsort.py](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/popsort.py) - Sort output of "apt-cache search" by popularity
+* [vim_swap.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/vim_swap.pl) - 
+  makes it easy to recover from vim swap files
 
-* [stuff.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/stuff.pl) - show file after removing empty lines and comments
-* [make_bkup.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/make_bkup.pl) - quickly make a backup of a file
+* [lswap](https://github.com/KamarajuKusumanchi/rutils/blob/master/zsh/lswap) - 
+  show vim swap files
 
 * [latest_unique.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/latest_unique/latest_unique.pl) -
   print unique lines in a file by preserving the order and retaining the 
@@ -20,15 +30,8 @@ Some highlights:
 * [overlap.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/overlap/overlap.pl) - 
   Analyze the overlap between two sets of data
 
-* [vim_swap.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/vim_swap.pl) - 
-  makes it easy to recover from vim swap files
-* [lswap](https://github.com/KamarajuKusumanchi/rutils/blob/master/zsh/lswap) - 
-  show vim swap files
-
 * [script_name.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/script_name.pl) - 
   get the script name
+
 * [dictvim.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/dictvim.pl) - 
   query dictionary and show results in gvim
-
-* [git-up](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/git-up) -
-  rebase a git repository to origin even if there are uncommitted changes
