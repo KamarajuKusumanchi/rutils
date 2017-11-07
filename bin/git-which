@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+# Get the path of a git custom command.
+
+set -e
+set -u
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 custom_command" >&2
+    exit 1
+fi
+command=$1
+which git-$command
