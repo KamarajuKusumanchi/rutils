@@ -1,0 +1,40 @@
+#! /usr/bin/env sh
+
+# Summary:
+# Script to convert files to text
+#
+# Description:
+# This script converts all the PDF and DOC files in a directory to
+# corresponding text files. The text file will have the same name as the
+# original document but will end with the .txt extension. For example, foo.doc
+# will generate foo.txt.
+
+if [ "$1" = "" ]; then
+    echo "Usage: $0 directory"
+    exit
+fi
+# Get list of files in the directory
+find "$1" -type f |
+while read filename; do
+    # Based on the file name, perform the conversion
+    case "$filename" in
+        (*.pdf) # convert pdf to text
+            filenameTxt="${filename%.pdf}.txt"
+            if [ ! -f "${filenameTxt}" ]; then
+                pdftotext "${filename}" "${filenameTxt}";
+                echo "${filename}" "->" "${filenameTxt}"
+            fi
+            ;;
+        (*.doc) # convert doc to text
+            filenameTxt="${filename%.doc}.txt"
+            if [ ! -f "${filenameTxt}" ]; then
+                antiword "${filename}" > "${filenameTxt}";
+                echo "${filename}" "->" "${filenameTxt}"
+            fi
+            ;;
+    esac
+done
+
+# Credits:
+# The initial version of this script is copied from the book
+# Ubuntu - Powerful Hacks and Customizations by Dr. Neal Krawetz
