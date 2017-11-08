@@ -10,7 +10,7 @@
 # will generate foo.txt.
 
 if [ "$1" = "" ]; then
-    echo "Usage: $0 directory"
+    echo "Usage: $0 <directory>"
     exit
 fi
 # Get list of files in the directory
