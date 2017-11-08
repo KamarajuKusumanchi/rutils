@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 # Get the path of a git custom command.
+# google search | which git custom command am I running, script executed by git
 
 set -e
 set -u
