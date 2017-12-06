@@ -31,5 +31,14 @@ do
             echo $abs_path
             git -C $abs_path status -sb
         fi
+
+        # Check if upstream has changes that needs merging
+        local_head=`git -C $abs_path rev-parse HEAD`
+        remote_head=`git -C $abs_path ls-remote origin -h refs/heads/master | cut -f1`
+        if [ $local_head != $remote_head ]; then
+            echo "$abs_path needs to be updated. Local and remote heads are different."
+            echo "local_head = " $local_head
+            echo "remote_head = " $remote_head
+        fi
     done
 done
