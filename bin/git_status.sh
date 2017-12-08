@@ -2,10 +2,15 @@
 
 # Run git status on a bunch of directories
 
-dirs=(
-    "$HOME/work/github"
-    "$HOME/work/gitlab"
-    )
+if [ "$#" -eq 0 ]; then
+    dirs=(
+        "$HOME/work/github"
+        "$HOME/work/gitlab"
+        )
+else
+    dirs="$@"
+fi
+
 for i in ${dirs[@]}
 do
     for project in `ls $i`
