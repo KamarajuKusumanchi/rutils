@@ -1,2 +1,0 @@
-#! /usr/bin/env zsh
-ls -al .?*.sw*

@@ -20,7 +20,7 @@ Some highlights:
 * [vim_swap.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/vim_swap.pl) - 
   makes it easy to recover from vim swap files
 
-* [lswap](https://github.com/KamarajuKusumanchi/rutils/blob/master/zsh/lswap) - 
+* [lswap](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/lswap) - 
   show vim swap files
 
 * [latest_unique.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/latest_unique/latest_unique.pl) -
