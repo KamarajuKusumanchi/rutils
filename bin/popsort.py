@@ -24,7 +24,6 @@ import time
 import sys
 import operator
 import argparse
-import xdg.BaseDirectory
 
 ''' Retrieve the contents of a url and store it in a file.
 If the file already exists, it may or may not be overwritten depending on its
@@ -85,9 +84,14 @@ def get_all_package_ranks(args):
     url = 'http://popcon.debian.org/by_inst'
 
     if (use_cache):
-        fname = os.path.join(
-            xdg.BaseDirectory.xdg_cache_home,
-            'popsort', 'by_inst')  # implements BASEDIRSPEC
+        try:
+            import xdg.BaseDirectory
+            home = xdg.BaseDirectory.xdg_cache_home
+        except:
+            home = os.getenv("HOME")
+
+        fname = os.path.join(home,
+                             'popsort', 'by_inst')  # implements BASEDIRSPEC
         fname = os.path.abspath(os.path.expanduser(fname))
         if (refresh_cache):
             age_threshold = 0
