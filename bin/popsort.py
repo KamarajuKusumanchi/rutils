@@ -86,11 +86,13 @@ def get_all_package_ranks(args):
     if (use_cache):
         try:
             import xdg.BaseDirectory
-            home = xdg.BaseDirectory.xdg_cache_home
         except:
             home = os.getenv("HOME")
+            xdg_cache_home = os.path.join(home, '.cache')
+        else:
+            xdg_cache_home = xdg.BaseDirectory.xdg_cache_home
 
-        fname = os.path.join(home,
+        fname = os.path.join(xdg_cache_home,
                              'popsort', 'by_inst')  # implements BASEDIRSPEC
         fname = os.path.abspath(os.path.expanduser(fname))
         if (refresh_cache):
