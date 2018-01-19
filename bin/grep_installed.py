@@ -56,7 +56,6 @@ import pandas as pd
 import lzma
 import urllib.request
 import io
-import xdg.BaseDirectory
 import os
 import glob
 
@@ -125,9 +124,14 @@ def get_dists_to_exclude(args):
 
 
 def cache_dir():
-    cache_dir = os.path.join(
-        xdg.BaseDirectory.xdg_cache_home, 'grep_installed'
-    )
+    try:
+        import xdg.BaseDirectory
+    except:
+        home = os.getenv("HOME")
+        xdg_cache_home = os.path.join(home, '.cache')
+    else:
+        xdg_cache_home = xdg.BaseDirectory.xdg_cache_home
+    cache_dir = os.path.join(xdg_cache_home, 'grep_installed')
     return cache_dir
 
 
