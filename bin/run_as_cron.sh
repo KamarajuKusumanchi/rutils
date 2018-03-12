@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# Script to test something that is to be run under cron.
+# Run any script in an emulated cron environment.
 #
 # To generate the cron environment, add this to crontab and wait for a minute
 #* * * * *   /usr/bin/env > $HOME/x/cron-env
