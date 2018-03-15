@@ -1,0 +1,32 @@
+
+# quote string for sql "in clause"
+
+# To use the script, run it and enter the strings that need to be quoted and
+# combined. Use <ctrl+d> to end the input. The output is printed at the end.
+#
+# Sample usage:
+# % sqlin
+# 06739FHV6
+# 655844AJ7
+# 06738C828
+# 61747YCM5
+# 084664CE9
+# ("06739FHV6","655844AJ7","06738C828","61747YCM5","084664CE9")
+#
+# If the input is available as a comma separated string, convert it into multiple lines first.
+# % echo "06739FHV6,655844AJ7,06738C828,61747YCM5,084664CE9" | tr ',' '\n' | sqlin
+# ("06739FHV6","655844AJ7","06738C828","61747YCM5","084664CE9")
+# 
+# Another way is to store the input in a file and pass it as an input. For example
+# % cat ~/x/foo.txt
+# cusip
+# 06739FHV6
+# 655844AJ7
+# 06738C828
+# 61747YCM5
+# 084664CE9
+# 
+# % cat ~/x/foo.txt | tail -n +2 | sqlin
+# ("06739FHV6","655844AJ7","06738C828","61747YCM5","084664CE9")
+
+sed 's/\(.*\)/"\1"/g' | tr '\n' ',' | sed -e 's/^/(/g' -e 's/,$/)\n/g'
