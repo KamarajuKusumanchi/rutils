@@ -21,10 +21,6 @@ LOCAL=$(git rev-parse @)
 REMOTE=$(git rev-parse "$UPSTREAM")
 BASE=$(git merge-base @ "$UPSTREAM")
 
-if [ -z $BASE ]; then
-    echo "\$BASE is empty"
-fi
-
 if [ $LOCAL = $REMOTE ]; then
     echo "Up-to-date"
 elif [ -z $BASE ] || [ $LOCAL = $BASE ]; then
