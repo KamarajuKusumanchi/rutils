@@ -27,7 +27,6 @@ elif [ -z $BASE ] || [ $LOCAL = $BASE ]; then
     # The "-z $BASE" checks if the BASE variable is empty. This happens when
     # trying to update a local copy of <https://github.com/stamparm/ipsum>.
     # Pull the latest version in this scenario.
-
     echo "Need to pull"
     git stash
     git pull --rebase
