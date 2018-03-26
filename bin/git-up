@@ -4,11 +4,9 @@
 # rebase a git repository to the remote.
 # Requirement:
 # It should work even if there are any uncommitted changes in the local repository.
-# If the repository needs a push or if it has diverged, then just inform the
-# user and do not update the local repository.
+# If the repository needs a push or if it has diverged, then inform about it but
+# do not update the local repository.
 #
-# Todo:
-# Can this replace git-up script?
 
 # This script is adapted from the code snippet in
 # https://stackoverflow.com/a/3278427/6305733 .
@@ -30,9 +28,9 @@ fi
 if [ $LOCAL = $REMOTE ]; then
     echo "Up-to-date"
 elif [ -z $BASE ] || [ $LOCAL = $BASE ]; then
-    # The "-z $BASE" checks if the BASE variable is empty. This happens
-    # when trying to update a local copy of https://github.com/stamparm/ipsum .
-    # Pull the latest version even for this case.
+    # The "-z $BASE" checks if the BASE variable is empty. This happens when
+    # trying to update a local copy of <https://github.com/stamparm/ipsum>.
+    # Pull the latest version in this scenario.
 
     echo "Need to pull"
     git stash
