@@ -1,7 +1,24 @@
 #! /usr/bin/env bash
 
-# Initial copy is from https://github.com/lukebayes/dotfiles/blob/master/bin/git-delete-merged.sh
+set -x
 
-git branch --merged | \
-	grep -v '^\*' | \
-	(xargs -n1 git branch -d || true)
+
+# Initial copy is from https://github.com/santi-h/git-scripts/blob/master/git_clean_merged
+
+CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+MERGED=`git branch --merged | grep -v "^\* $CURRENT_BRANCH"`
+for branch in $MERGED
+do
+	# if [[ $branch != $CURRENT_BRANCH ]]; then
+	# 	git branch -d $branch
+	# fi
+	git branch -d $branch
+done
+
+# For a one-liner, we can use something like
+# git branch --merged | grep -v '^\*' | xargs -n1 git branch -d
+# But that will throw an error when there are no branches to delete
+# We can work around that error, by doing something like
+# git branch --merged | grep -v '^\*' | (xargs -n1 git branch -d || true)
+# which will complain if there are no branches to delete but exits succesfully.
+# Instead of all those, for loop much more explicit.
