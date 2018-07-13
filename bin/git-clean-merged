@@ -5,19 +5,19 @@
 dry_run=0
 
 while getopts ":nh" opt; do
-	case ${opt} in
-		n) # process option n
-			dry_run=1
-			;;
-		h) # process option h
-			echo "Usage: $0 [-n] [-h]"
-			exit 0
-			;;
-		*) # fall back
-		    echo "error in command line parsing" >&2
-			echo "Usage: $0 [-n] [-h]"
-			exit 1
-	esac
+    case ${opt} in
+        n) # process option n
+            dry_run=1
+            ;;
+        h) # process option h
+            echo "Usage: $0 [-n] [-h]"
+            exit 0
+            ;;
+        *) # fall back
+            echo "error in command line parsing" >&2
+            echo "Usage: $0 [-n] [-h]"
+            exit 1
+    esac
 done
 
 
@@ -25,14 +25,14 @@ CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 MERGED=`git branch --merged | grep -v "^\* $CURRENT_BRANCH"`
 for branch in $MERGED
 do
-	# if [[ $branch != $CURRENT_BRANCH ]]; then
-	# 	git branch -d $branch
-	# fi
-	if [ "$dry_run" -eq 1 ]; then
-		echo "will delete branch $branch"
-	else
-		git branch -d $branch
-	fi
+    # if [[ $branch != $CURRENT_BRANCH ]]; then
+    #     git branch -d $branch
+    # fi
+    if [ "$dry_run" -eq 1 ]; then
+        echo "will delete branch $branch"
+    else
+        git branch -d $branch
+    fi
 done
 
 # For a one-liner, we can use something like
