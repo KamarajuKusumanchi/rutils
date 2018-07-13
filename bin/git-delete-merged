@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+# Initial copy is from https://github.com/lukebayes/dotfiles/blob/master/bin/git-delete-merged.sh
+
+git branch --merged | \
+	grep -v '^\*' | \
+	(xargs -n1 git branch -d || true)
