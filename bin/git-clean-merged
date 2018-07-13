@@ -37,11 +37,15 @@ done
 
 # For a one-liner, we can use something like
 # git branch --merged | grep -v '^\*' | xargs -n1 git branch -d
-# But that will throw an error when there are no branches to delete
-# We can work around that error, by doing something like
+# But it will throw an error when there are no branches to delete
+#
+# We can work around that error, by doing
 # git branch --merged | grep -v '^\*' | (xargs -n1 git branch -d || true)
-# which will complain if there are no branches to delete but exits succesfully.
-# Instead of all those, for loop much more explicit.
+# which will still complain that there is no branch to delete but atleast exit
+# succesfully.
+#
+# Using a for loop not only makes the logic more explicit but gives flexibility
+# to run the script in dry mode.
 
 # Initial copy is from https://github.com/santi-h/git-scripts/blob/master/git_clean_merged
 # getopts
