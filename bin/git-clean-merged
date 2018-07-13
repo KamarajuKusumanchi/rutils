@@ -1,9 +1,25 @@
 #! /usr/bin/env bash
 
-set -x
+# set -x
 
+dry_run=0
 
-# Initial copy is from https://github.com/santi-h/git-scripts/blob/master/git_clean_merged
+while getopts ":nh" opt; do
+	case ${opt} in
+		n) # process option n
+			dry_run=1
+			;;
+		h) # process option h
+			echo "Usage: $0 [-n] [-h]"
+			exit 0
+			;;
+		*) # fall back
+		    echo "error in command line parsing" >&2
+			echo "Usage: $0 [-n] [-h]"
+			exit 1
+	esac
+done
+
 
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 MERGED=`git branch --merged | grep -v "^\* $CURRENT_BRANCH"`
@@ -12,7 +28,11 @@ do
 	# if [[ $branch != $CURRENT_BRANCH ]]; then
 	# 	git branch -d $branch
 	# fi
-	git branch -d $branch
+	if [ "$dry_run" -eq 1 ]; then
+		echo "will delete branch $branch"
+	else
+		git branch -d $branch
+	fi
 done
 
 # For a one-liner, we can use something like
@@ -22,3 +42,8 @@ done
 # git branch --merged | grep -v '^\*' | (xargs -n1 git branch -d || true)
 # which will complain if there are no branches to delete but exits succesfully.
 # Instead of all those, for loop much more explicit.
+
+# Initial copy is from https://github.com/santi-h/git-scripts/blob/master/git_clean_merged
+# getopts
+# * https://unix.stackexchange.com/questions/433801/add-some-dry-run-option-to-script
+# * https://sookocheff.com/post/bash/parsing-bash-script-arguments-with-shopts/
