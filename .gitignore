@@ -1,0 +1,12 @@
+# The Python stuff is obtained from
+# https://github.com/github/gitignore/blob/master/Python.gitignore
+# Python Byte-compiled / optimized / DLL files
+__pycache__
+*.pyc
+
+# Unit test / coverage reports
+.cache
+
+# Pycharm files
+.idea/
+
