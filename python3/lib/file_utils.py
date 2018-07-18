@@ -28,7 +28,7 @@ def rename_with_timestamp(src):
     # take a backup before something else overwrites the original source.
     #
     # If the destination file/directory already exists, do not overwrite it.
-    src = os.path.abspath(os.path.expanduser(src))
+    src = os.path.expanduser(src)
     if not os.path.exists(src):
         return
     mtime = os.path.getmtime(src)
@@ -47,7 +47,7 @@ def backup_with_timestamp(src):
     # take a backup before something else overwrites the original source.
     #
     # If the destination file/directory already exists, do not overwrite it.
-    src = os.path.abspath(os.path.expanduser(src))
+    src = os.path.expanduser(src)
     if not os.path.exists(src):
         return
     mtime = os.path.getmtime(src)
