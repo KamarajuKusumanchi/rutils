@@ -6,6 +6,12 @@
 # file or directory and YYYYMMDD_HHmmSS is its last modified time.
 
 import sys
+import os
+
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
 from lib.file_utils import backup_with_timestamp
 
 src = sys.argv[1]
