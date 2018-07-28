@@ -13,13 +13,13 @@ major_version=`echo $git_version | cut -f1 -d.`
 minor_version=`echo $git_version | cut -f2 -d.`
 
 if (( $major_version >= 2 )) && (( $minor_version >= 6 )); then
-	use_autostash=1
+    use_autostash=1
 else
-	use_autostash=0
+    use_autostash=0
 fi
 
 if [ $use_autostash == 1 ]; then
-	git pull --rebase --autostash -v origin
+    git pull --rebase --autostash -v origin
 else
     git stash
     git pull --rebase -v origin
