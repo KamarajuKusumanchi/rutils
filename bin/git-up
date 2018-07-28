@@ -14,6 +14,28 @@
 
 # set -x
 
+function do_pull()
+{
+    # --autostash is available only if git version is >= 2.6
+    local git_version=`git --version | cut -f3 -d' '`
+    local major_version=`echo $git_version | cut -f1 -d.`
+    local minor_version=`echo $git_version | cut -f2 -d.`
+
+    if (( $major_version >= 2 )) && (( $minor_version >= 6 )); then
+        local use_autostash=1
+    else
+        local use_autostash=0
+    fi
+
+    if [ $use_autostash == 1 ]; then
+        git pull --rebase --autostash -v origin
+    else
+        git stash
+        git pull --rebase -v origin
+        git stash pop
+    fi
+}
+
 git remote update
 
 UPSTREAM=${1:-'@{u}'}
@@ -41,27 +63,5 @@ elif [ $REMOTE = $BASE ]; then
 else
     echo "Diverged"
 fi
-
-function do_pull()
-{
-    # --autostash is available only if git version is >= 2.6
-    local git_version=`git --version | cut -f3 -d' '`
-    local major_version=`echo $git_version | cut -f1 -d.`
-    local minor_version=`echo $git_version | cut -f2 -d.`
-
-    if (( $major_version >= 2 )) && (( $minor_version >= 6 )); then
-        local use_autostash=1
-    else
-        local use_autostash=0
-    fi
-
-    if [ $use_autostash == 1 ]; then
-        git pull --rebase --autostash -v origin
-    else
-        git stash
-        git pull --rebase -v origin
-        git stash pop
-    fi
-}
 
 
