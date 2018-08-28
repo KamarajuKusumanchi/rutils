@@ -14,7 +14,7 @@ import sys
 #     E402 module level import not at top of file
 # This work around was suggested in
 # https://stackoverflow.com/questions/36827962/pep8-import-not-at-top-of-file-with-sys-path/36829884
-import path_magic
+from path_magic import add_project_root_to_path
 
 from lib.file_utils import backup_with_timestamp
 
