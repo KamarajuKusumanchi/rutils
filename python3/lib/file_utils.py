@@ -43,12 +43,14 @@ def rename_with_timestamp(src):
         print(src, ' --> ', dst)
 
 
-def backup_with_timestamp(src):
+def backup_with_timestamp(src, target_dir=None):
     # Given a file or directory src, copy it to src_asof_YYYYMMDD_HHmmSS where
     # YYYYMMDD_HHmmSS is the last modified time. This function is useful to
     # take a backup before something else overwrites the original source.
     #
     # If the destination file/directory already exists, do not overwrite it.
+    #
+    # If target_dir is specified, src is copied into it.
     #
     # Get the absolute path since src can contain something like '.' and '..'
     src = os.path.abspath(os.path.expanduser(src))
@@ -56,7 +58,14 @@ def backup_with_timestamp(src):
         return
     mtime = os.path.getmtime(src)
     timestamp = datetime.fromtimestamp(mtime).strftime('%Y%m%d_%H%M%S')
-    dst = src + '_asof_' + timestamp
+
+    if target_dir is None:
+        target_dir = os.path.dirname(src)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    base_name = os.path.basename(src)
+    dst = os.path.join(target_dir, base_name + '_asof_' + timestamp)
+
     if not os.path.exists(dst):
         if os.path.isfile(src):
             shutil.copy(src, dst)
