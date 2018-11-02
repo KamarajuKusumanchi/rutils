@@ -3,12 +3,12 @@ import os
 import sys
 
 def get_size(path):
-    '''
+    """
     Get size of a file or folder.
     Should give the same output as "du -sb <path>"
     :param path: The absolute path of a file or directory.
     :return:
-    '''
+    """
     size = 0
 
     # If path is a file, os.walk(path) for loop  will not even run once.
