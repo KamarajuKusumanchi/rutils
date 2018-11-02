@@ -1,6 +1,6 @@
 import unittest
 
-import time_calc
+from time_utils import time_calc
 
 
 class ConvertTime(unittest.TestCase):

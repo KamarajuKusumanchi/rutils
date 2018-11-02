@@ -2,7 +2,7 @@
 
 import unittest
 
-import scottrade
+from scottrade import scottrade
 
 class TestScottrade(unittest.TestCase):
     def test_new_format(self):
