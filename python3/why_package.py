@@ -10,6 +10,7 @@ def do_it(cmd, debug=0, dry=0):
     if (not dry):
         subprocess.call([cmd], shell=True)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='''Utility script that tells why a given set of packages

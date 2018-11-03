@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 import os
 
+
 def parse_arguments(args):
     import argparse
     parser = argparse.ArgumentParser(
@@ -44,6 +45,7 @@ def plot_col_by_index(y, ylabel):
     plt.ylabel(ylabel, fontsize=12)
     plt.grid()
     plt.show()
+
 
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])

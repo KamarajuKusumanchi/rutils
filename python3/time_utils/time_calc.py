@@ -49,6 +49,7 @@ class HourMinute:
         print("hours = ", self.hours)
         print("minutes = ", self.mins)
 
+
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
     print(diff_time(args.start, args.end))

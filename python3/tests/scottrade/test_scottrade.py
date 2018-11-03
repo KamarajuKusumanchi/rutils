@@ -4,6 +4,7 @@ import unittest
 
 from scottrade import scottrade
 
+
 class TestScottrade(unittest.TestCase):
     def test_new_format(self):
         s = "Monthly_Statement_Apr_2010_12345678.pdf"

@@ -13,6 +13,7 @@ Sample usage:
 
 import sys
 
+
 def strip_trailing_whitespace(args):
     fname = args.fname
     using_stdin = (fname == "-")
@@ -28,6 +29,7 @@ def strip_trailing_whitespace(args):
 
     if (not using_stdin):
         fh.close()
+
 
 if __name__ == "__main__":
 

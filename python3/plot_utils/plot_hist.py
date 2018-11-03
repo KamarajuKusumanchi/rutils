@@ -8,12 +8,14 @@ import matplotlib.pyplot as plt
 
 import os
 
+
 def plot_hist(df, ycol):
     plt.figure(figsize=(8,6))
     plt.hist(df[ycol].values)
     plt.xlabel(ycol, fontsize=12)
     plt.grid()
     plt.show()
+
 
 if __name__ == "__main__":
     if os.fork():

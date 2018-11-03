@@ -50,6 +50,7 @@ def do_grep(args):
         ' --exclude-dir=".git" --exclude="*.swp" --color'
     do_it(cmd, args.debug)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='grep a git repository')

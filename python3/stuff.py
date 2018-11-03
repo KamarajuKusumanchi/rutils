@@ -16,6 +16,7 @@ import argparse
 import re
 import sys
 
+
 def compact_print(fname, comment_pattern):
     empty_pattern = "^\s*$"
 
@@ -36,6 +37,7 @@ def compact_print(fname, comment_pattern):
 
     if (not using_stdin):
         fh.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

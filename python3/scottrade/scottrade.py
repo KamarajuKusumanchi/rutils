@@ -133,6 +133,7 @@ def rename_files(args):
             if (not dry):
                 os.rename(orig_abs, dest_abs)
 
+
 if __name__ == "__main__":
 
     import argparse
