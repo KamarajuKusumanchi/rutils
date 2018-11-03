@@ -40,7 +40,7 @@ if __name__ == "__main__":
         is send to stdout''')
     parser.add_argument(
         "fname", action="store",
-        help = "file to read from. Use '-' to read from stdin")
+        help="file to read from. Use '-' to read from stdin")
     args = parser.parse_args()
 
     strip_trailing_whitespace(args)

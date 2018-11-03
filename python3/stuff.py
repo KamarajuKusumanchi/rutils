@@ -45,7 +45,7 @@ if __name__ == "__main__":
         empty lines. If file is not specified, input is read from stdin.''')
     parser.add_argument(
         "fname", nargs='?', action='store',
-        help = "Input file name. Leave empty for stdin.")
+        help="Input file name. Leave empty for stdin.")
     args = parser.parse_args()
 
     compact_print(args.fname, "^\s*#")
