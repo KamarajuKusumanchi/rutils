@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 
+
 def get_size(path):
     """
     Get size of a file or folder.
@@ -22,6 +23,7 @@ def get_size(path):
             size += os.path.getsize(file_path)
     return size
 
+
 def parse_arguments(args):
     parser = argparse.ArgumentParser(
         description='Get disk usage.'
@@ -32,6 +34,7 @@ def parse_arguments(args):
     )
     args = parser.parse_args()
     return args
+
 
 if __name__ == '__main__':
     args = parse_arguments(sys.argv[1:])
