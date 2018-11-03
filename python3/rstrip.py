@@ -6,7 +6,7 @@ or from stdin if the file name is '-'. The output is sent to stdout.
 Sample usage:
  % python3 ./rstrip.py ~/x/junk73.txt > ~/x/junk74.txt
  % cat ~/x/junk73.txt | python3 ./rstrip.py - > ~/x/junk75.txt
- 
+
  % python3 ./rstrip.py ~/x/isp.txt | rev | cut -f 1 -d ',' | rev | sort | uniq -c | sort -n | wc -l
 46
 """

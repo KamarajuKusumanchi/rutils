@@ -49,7 +49,7 @@ def plot_col_by_index(y, ylabel):
 
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
-    
+
     header = args.header
 
     # Do all the plotting in the background
