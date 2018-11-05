@@ -10,7 +10,7 @@ import os
 
 
 def plot_hist(df, ycol):
-    plt.figure(figsize=(8,6))
+    plt.figure(figsize=(8, 6))
     plt.hist(df[ycol].values)
     plt.xlabel(ycol, fontsize=12)
     plt.grid()

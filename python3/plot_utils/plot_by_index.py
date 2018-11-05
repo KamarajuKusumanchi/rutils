@@ -38,7 +38,7 @@ def parse_arguments(args):
 # y is a pandas.core.series.Series
 # ylabel is a string
 def plot_col_by_index(y, ylabel):
-    plt.figure(figsize=(8,6))
+    plt.figure(figsize=(8, 6))
     plt.scatter(range(y.shape[0]), y)
     plt.title('plot by Index')
     plt.xlabel('index', fontsize=12)
