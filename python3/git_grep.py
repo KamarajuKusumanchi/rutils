@@ -32,7 +32,7 @@ def get_gitroot(dirname):
     try:
         os.chdir(dirname)
         base = subprocess.check_output(['git', 'rev-parse', '--show-toplevel'])
-    except ValueError:
+    except:
         print("No git repository found for ", dirname)
         return dirname
     return base.decode('utf-8').strip()
