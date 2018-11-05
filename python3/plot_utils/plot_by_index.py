@@ -62,7 +62,7 @@ if __name__ == "__main__":
         os.setsid()
         if (header):
             df = pd.read_csv(sys.stdin)
-            plot_col_by_index(df[ df.columns[0] ], df.columns[0])
+            plot_col_by_index(df[df.columns[0]], df.columns[0])
         else:
             df = pd.read_csv(sys.stdin, header=None)
-            plot_col_by_index(df[ df.columns[0] ], 'data')
+            plot_col_by_index(df[df.columns[0]], 'data')
