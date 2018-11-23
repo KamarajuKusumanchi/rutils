@@ -19,7 +19,7 @@ from path_magic import add_project_root_to_path
 from lib.file_utils import backup_with_timestamp
 
 
-def parse_arguments(args):
+def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Make backup"
     )
@@ -44,7 +44,7 @@ def parse_arguments(args):
 
 
 # src = sys.argv[1]
-args = parse_arguments(sys.argv[1:])
+args = parse_arguments()
 src = args.source
 target_dir = args.target_dir
 backup_with_timestamp(src, target_dir)
