@@ -6,6 +6,12 @@ import os
 # python3 -m pytest
 
 
+# Todo:- Integrate with latest changes in market_data_processor/tests/test_pep8.py
+#   * ignore E501
+#   * print statistics at the end
+#   * if pycodestyle is not there, use pep8
+#   * change variable name result to report
+
 def test_codestyle_conformance():
     '''Test that all code conforms to pep8 standard'''
     codestyle = pycodestyle.StyleGuide(show_source=True)

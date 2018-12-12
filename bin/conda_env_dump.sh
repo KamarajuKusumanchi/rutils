@@ -4,12 +4,13 @@ set -e
 set -u
 if [ "$#" -ne 2 ]; then
   echo "Usage: $0 env_name out_dir" >&2
+  echo 'output stored in out_dir/environment_${env_name}_${asof}.yml'
   exit 1
 fi
 
 env_name="$1"
 out_dir="$2"
-asof=`date +%Y%m%d`
+asof=`date +"%Y%m%d_%H%M%S"`
 out_fname=environment_${env_name}_${asof}.yml
 out_file=${out_dir}/${out_fname}
 
