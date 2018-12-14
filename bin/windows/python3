@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+# This script provides a pass through for python3
+#
+# Situation:
+# A lot of python3 utility scripts expect an executable called python3.
+# However, When using (Windows 7, Anaconda), there is no such executable. The
+# idea here is to create a pass through that calls python from a particular
+# environment.
+
+# set -x
+current_env=$CONDA_DEFAULT_ENV
+# desired environment is set to py36. Change it as needed.
+desired_env=py36
+
+if [[ $current_env != $desired_env ]];
+then
+    echo "setting environment to $desired_env"
+    source activate $desired_env
+fi
+# echo "using" $(which python)
+python "$@"
