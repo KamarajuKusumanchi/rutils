@@ -9,7 +9,7 @@
 # Using the ImageMagick's command
 #     convert -colorspace GRAY color.pdf gray.pdf
 # significantly reduces the quality. So it is better to use the gs command
-# below instead.
+# below.
 
 set -e
 set -u
