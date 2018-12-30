@@ -32,3 +32,4 @@ gs \
  -dNOPAUSE \
  -dBATCH \
  $input
+
