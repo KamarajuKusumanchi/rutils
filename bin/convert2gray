@@ -3,7 +3,7 @@
 # Script to convert a pdf to grayscale.
 #
 # Initial version is from https://superuser.com/a/164857/679081 and
-# the comments there in.
+# comments there in.
 # 
 # Note:-
 # Using the ImageMagick's command
