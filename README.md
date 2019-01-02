@@ -9,7 +9,8 @@ Some highlights:
 
 * [popsort.py](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/popsort.py) - Sort output of "apt-cache search" by popularity 
 
-* [stuff.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/stuff.pl) - show file after removing empty lines and comments
+* [stuff.py](https://github.com/KamarajuKusumanchi/rutils/blob/master/python3/stuff.py) - show file contents after removing empty lines and comments
+* [stuff.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/stuff.pl) - perl implementation of the above.
 
 * [make_bkup.pl](https://github.com/KamarajuKusumanchi/rutils/blob/master/perl/make_bkup.pl) - quickly make a backup of a file
  
