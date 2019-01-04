@@ -1,0 +1,15 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+
+name: py36
+channels:
+  - anaconda-fusion
+#  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6
+  - pycodestyle
