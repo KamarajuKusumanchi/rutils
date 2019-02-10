@@ -1,4 +1,4 @@
-import pycodestyle
+from pycodestyle import StyleGuide
 import os
 
 # To run the tests
@@ -6,18 +6,11 @@ import os
 # python3 -m pytest
 
 
-# Todo:- Integrate with latest changes in
-# market_data_processor/tests/test_pep8.py
-#   * ignore E501
-#   * print statistics at the end
-#   * if pycodestyle is not there, use pep8
-#   * change variable name result to report
-
 def test_codestyle_conformance():
-    '''Test that all code conforms to pep8 standard'''
+    """Test that all code conforms to pep8 standard"""
     test_path = os.path.dirname(__file__)
-    codestyle = pycodestyle.StyleGuide(show_source=True,
-                                       config_file=os.path.join(test_path, '../setup.cfg'))
+    codestyle = StyleGuide(show_source=True,
+                           config_file=os.path.join(test_path, '../setup.cfg'))
 
     # list of python files
     path = '.'
@@ -27,6 +20,7 @@ def test_codestyle_conformance():
              for file in files
              if file.endswith(extension)]
     print('Checking', files, 'for codestyle conformance.')
-    result = codestyle.check_files(files)
-    assert result.total_errors == 0, \
-        'Found ' + str(result.total_errors) + ' code style errors.'
+    report = codestyle.check_files(files)
+    report.print_statistics()
+    assert report.total_errors == 0, \
+        'Found ' + str(report.total_errors) + ' code style errors.'
