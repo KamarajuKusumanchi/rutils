@@ -138,8 +138,7 @@ if __name__ == "__main__":
 
     import argparse
     parser = argparse.ArgumentParser(
-        description='rename scottrade statements',
-        )
+        description='rename scottrade statements')
     parser.add_argument(
         "dir", action="store",
         help="directory to operate on")

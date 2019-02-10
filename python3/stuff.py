@@ -18,7 +18,7 @@ import sys
 
 
 def compact_print(fname, comment_pattern):
-    empty_pattern = "^\s*$"
+    empty_pattern = r"^\s*$"
 
     using_stdin = fname is None
     if (using_stdin):
@@ -48,4 +48,4 @@ if __name__ == "__main__":
         help="Input file name. Leave empty for stdin.")
     args = parser.parse_args()
 
-    compact_print(args.fname, "^\s*#")
+    compact_print(args.fname, r"^\s*#")

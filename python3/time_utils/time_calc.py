@@ -12,8 +12,7 @@ Sample usage:
 def parse_arguments(args):
     import argparse
     parser = argparse.ArgumentParser(
-        description='get difference between two timestamps'
-        )
+        description='get difference between two timestamps')
     parser.add_argument(
         "--start", action='store',
         default="0:0", dest="start",
@@ -43,7 +42,7 @@ class HourMinute:
         self.mins = float(tokens[1])
 
     def total_minutes(self):
-        return self.hours*60 + self.mins
+        return self.hours * 60 + self.mins
 
     def dump(self):
         print("hours = ", self.hours)

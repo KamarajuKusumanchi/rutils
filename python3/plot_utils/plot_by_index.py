@@ -12,8 +12,7 @@ import os
 def parse_arguments(args):
     import argparse
     parser = argparse.ArgumentParser(
-        description='Plot a column of data read from stdin'
-        )
+        description='Plot a column of data read from stdin')
 
     parser.add_argument(
         "--header", action='store_true',
