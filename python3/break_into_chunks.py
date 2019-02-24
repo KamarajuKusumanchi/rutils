@@ -3,8 +3,9 @@
 
 import pandas as pd
 
+
 def partition_tasks(N, p):
-    '''
+    """
     The idea here is to uniformly partition N tasks over p workers
     by breaking a hypothetical N element array into p contiguous chunks.
     When N is divisible by p, each chunk will have equal number of tasks.
@@ -16,25 +17,40 @@ def partition_tasks(N, p):
 
     Example: For N=13, p=4 the return Series is [0,4,7,10,13] which means
     the partitions are [0:4], [4:7], [7:10], [10:13]
-    :param N:
-    :param p:
-    :return:
-    '''
-    # assume N >0, p>0
-    quotient = int(N/p)
+    :param N: positive integer
+    :param p: positive integer
+    :return: a pd.Series with p+1 elements
+    """
+    quotient = int(N / p)
     remainder = N % p
-    nelem = pd.Series([quotient]* p)
+    nelem = pd.Series([quotient] * p)
     nelem[0:remainder] += 1
     partitionIndex = pd.Series([0]).append(nelem.cumsum(), ignore_index=True)
     return partitionIndex
 
-a = partition_tasks(12, 4)
-print(a)
-a = partition_tasks(13, 4)
-print(a)
-a = partition_tasks(14, 4)
-print(a)
-a = partition_tasks(15, 4)
-print(a)
-a = partition_tasks(16, 4)
-print(a)
+
+if __name__ == '__main__':
+    N = 12; p = 4
+    a = partition_tasks(N, p)
+    assert a.equals(pd.Series([0, 3, 6, 9, 12])),\
+        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+
+    N = 13; p = 4
+    a = partition_tasks(N, p)
+    assert a.equals(pd.Series([0, 4, 7, 10, 13])),\
+        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+
+    N = 14; p = 4
+    a = partition_tasks(N, p)
+    assert a.equals(pd.Series([0, 4, 8, 11, 14])),\
+        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+
+    N = 15; p = 4
+    a = partition_tasks(N, p)
+    assert a.equals(pd.Series([0, 4, 8, 12, 15])),\
+        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+
+    N = 16; p = 4
+    a = partition_tasks(N, p)
+    assert a.equals(pd.Series([0, 4, 8, 12, 16])),\
+        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
