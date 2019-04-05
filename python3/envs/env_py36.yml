@@ -7,9 +7,10 @@
 
 name: py36
 channels:
-  - anaconda-fusion
+#  - anaconda-fusion
 #  - conda-forge
   - defaults
 dependencies:
   - python=3.6
   - pycodestyle
+  - fastavro
