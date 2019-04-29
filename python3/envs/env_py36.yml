@@ -15,3 +15,6 @@ dependencies:
   - pandas
   - pycodestyle
   - fastavro
+    # Need pandas-datareader >= 0.7 for
+    # https://github.com/pydata/pandas-datareader/pull/520
+  - pandas-datareader >= 0.7
