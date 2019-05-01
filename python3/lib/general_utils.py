@@ -16,6 +16,13 @@ def worker_count(keep_free=1):
     return available
 
 
+def in_chunks(seq, size):
+    """
+    Return sequence in 'chunks' of size defined by size
+    """
+    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+
 if __name__ == '__main__':
     workers_available = worker_count()
     print('workers available = ', workers_available)
