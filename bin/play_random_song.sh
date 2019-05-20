@@ -4,6 +4,10 @@
 
 # The song links are obtained from this repo
 REPO=$HOME/work/github/telugu_song_lyrics
+if [ ! -d "$REPO" ]; then
+    echo "ERROR: $REPO does not exist"
+    exit 1
+fi
 cd $REPO
 
 songs=`git grep -h youtube | cut -f 2- -d ' ' | cut -f 1 -d ','`
