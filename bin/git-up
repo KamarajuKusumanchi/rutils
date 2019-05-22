@@ -36,6 +36,12 @@ function do_pull()
     fi
 }
 
+git rev-parse @ > /dev/null 2>&1
+if [[ $? != 0 ]]; then
+    echo "Not a local repository. Exiting."
+    exit 1
+fi
+
 git remote update
 
 UPSTREAM=${1:-'@{u}'}
