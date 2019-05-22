@@ -37,8 +37,8 @@ function do_pull()
 }
 
 git rev-parse @ > /dev/null 2>&1
-if [[ $? != 0 ]]; then
-    echo "Not a local repository. Exiting."
+if [[ $? == 128 ]]; then
+    echo "Not a git repository. Exiting."
     exit 1
 fi
 
