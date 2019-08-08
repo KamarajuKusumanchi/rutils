@@ -23,11 +23,16 @@ base_dir=$(realpath $1)
 
 cd "$base_dir"
 find . -maxdepth 2 -name .git -type d -prune | while read d; do
-    # Remove "./" from the beginning and "/.git" from the end
-    repo_dir=${d:2:-5}
-    echo "$repo_dir"
+    # Put everything in a subshell, so we do not have to reset the directory
+    # back once the for loop finishes.
+    (
+    # We need the directory that holds the .git directory.
+    repo_dir="$(dirname "$d")"
+    # Remove the leading "./" from the repo_dir when printing it.
+    repo_name=${repo_dir:2}
+    echo "$repo_name"
     cd "$repo_dir"
     # call my custom git-up script to update the repository
     git up
-    cd "$base_dir"
+    )
 done
