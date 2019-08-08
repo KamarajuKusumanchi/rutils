@@ -6,8 +6,8 @@
 # generalize it?
 #
 # Todo:- By default, the action is hardcoded (ex:- "git up"). But sometimes we
-# might want to apply a different action (ex:- "git grep -i foo"). How to
-# generalize for this?
+# might want to apply a slightly different action (ex:- "git grep -i foo"). How
+# to generalize for this?
 
 # set -x
 set -e
@@ -28,9 +28,14 @@ find . -maxdepth 2 -name .git -type d -prune | while read d; do
     (
     # We need the directory that holds the .git directory.
     repo_dir="$(dirname "$d")"
+
+    # Print the repo name in green
+    green=$(tput setaf 2)
+    reset=$(tput sgr0)
     # Remove the leading "./" from the repo_dir when printing it.
     repo_name=${repo_dir:2}
-    echo "$repo_name"
+    echo "$green$repo_name$reset"
+
     cd "$repo_dir"
     # call my custom git-up script to update the repository
     git up
