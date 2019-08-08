@@ -11,4 +11,4 @@ if [ "$#" -ne 1 ]; then
 fi
 
 cd "$(dirname "$0")"
-./git_repos_handler.sh "$1" up
+./git_shelf.sh "$1" up

@@ -12,4 +12,4 @@ if [ "$#" -lt 1 ]; then
 fi
 
 cd "$(dirname "$0")"
-./git_repos_handler.sh "$1" grep "${@:2}"
+./git_shelf.sh "$1" grep "${@:2}"
