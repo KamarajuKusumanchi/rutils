@@ -9,7 +9,7 @@
 # might want to apply a different action (ex:- "git grep -i foo"). How to
 # generalize for this?
 
-set -x
+# set -x
 set -e
 set -u
 if [ "$#" -ne 1 ]; then
