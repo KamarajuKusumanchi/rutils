@@ -3,14 +3,22 @@
 # Author               : Kamaraju S. Kusumanchi
 # Email                : kamaraju at gmail dot com
 # File                 : bin/xtract_hist_git
-# Date (last modified) : Sun Nov  6 01:27:58 EST 2016
+# Date (last modified) : Tue, Oct 22, 2019 12:16:39 PM
 
+set -x
 revs=$1
 file=$2
 
-for i in `seq -w 0 $revs`
+hashes=`git log -n $revs --pretty=format:"%H" -- $file`
+
+i=0
+for hash in $hashes
 do
-  git checkout master~$i $file
-  mv $file m${i}_$file
+    git checkout $hash -- $file
+    mv $file m${i}_$file
+    ((i++))
 done
-git checkout master $file
+git checkout -- $file
+git reset HEAD $file
+git checkout -- $file
+
