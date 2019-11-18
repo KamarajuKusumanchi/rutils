@@ -1,0 +1,25 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+
+name: rutils
+channels:
+  - defaults
+dependencies:
+  - python=3.6
+  - pandas
+  - pycodestyle
+  - fastavro
+    # Need pandas-datareader >= 0.7 for
+    # https://github.com/pydata/pandas-datareader/pull/520
+  - pandas-datareader >= 0.7
+  - ipython
+  - pytest
+  - psutil
+  - pip
+  - pip:
+    - textract
+

@@ -13,6 +13,9 @@ if [ "$1" = "" ]; then
     echo "Usage: $0 <directory>"
     exit
 fi
+
+SCRIPT_DIR="$(dirname "$0")"
+
 # Get list of files in the directory
 find "$1" -type f |
 while read filename; do
@@ -21,8 +24,12 @@ while read filename; do
         (*.pdf) # convert pdf to text
             filenameTxt="${filename%.pdf}.txt"
             if [ ! -f "${filenameTxt}" ]; then
-                pdftotext "${filename}" "${filenameTxt}";
                 echo "${filename}" "->" "${filenameTxt}"
+
+                # pdftotext "${filename}" "${filenameTxt}";
+
+                # Activate the rutils conda environment for the following script to work.
+                python $SCRIPT_DIR/../python3/pdf_to_text_using_textract.py "${filename}" -o "${filenameTxt}"
             fi
             ;;
         (*.doc) # convert doc to text
