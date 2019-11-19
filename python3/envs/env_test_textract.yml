@@ -1,0 +1,22 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+
+# Using this for https://github.com/deanmalmgren/textract/issues/313. Clean
+# this up once that issue is fixed.
+
+name: test_textract
+channels:
+  - defaults
+dependencies:
+  # - python=3.8
+  - python=3.7
+  # - python=3.5
+  - pip
+  - pip:
+    # - textract
+    # - textract==1.6.1
+    - git+https://github.com/deanmalmgren/textract
