@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+
+# Summary:
+# Deamonize jupyter notebook
+#
+# Description:
+# Start and stop jupyter notebook server in background on windows
+#
+# Advantages:
+# Frees up the terminal to do other things
+#
+# Assume:
+# git bash is installed on windows
+
+set -e
+set -u
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    echo "Usage: $0 [start|stop|status] <root_dir>"
+    echo "root_dir is optional. It is set to home directory by default."
+    exit
+fi
+
+action="$1"
+root_dir="${2:-$HOME}"
+
+case "$action" in
+    (start)
+        echo "starting jupyter notebook in $root_dir"
+        cd $root_dir &&
+        jupyter notebook > /dev/null 2>&1 &
+        ;;
+    (status)
+        echo "jupyter notbooks currently running:"
+        ps -W | grep "jupyter-notebook" | awk "{print \$1}"
+        ;;
+    (stop)
+        echo "stopping all jupyter notebooks"
+        ps -W | grep "jupyter-notebook" | awk "{print \$1}" | xargs kill -f
+        ;;
+esac
+
