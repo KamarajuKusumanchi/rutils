@@ -16,12 +16,12 @@ set -e
 set -u
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     echo "Usage: $0 [start|stop|status] <root_dir>"
-    echo "root_dir is optional. It is set to home directory by default."
+    echo "root_dir is optional. It is set to current directory by default."
     exit
 fi
 
 action="$1"
-root_dir="${2:-$HOME}"
+root_dir="${2:-$PWD}"
 
 case "$action" in
     (start)
