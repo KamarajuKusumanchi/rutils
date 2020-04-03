@@ -9,7 +9,7 @@ name: rutils
 channels:
   - defaults
 dependencies:
-  - python=3.6
+  - python=3.8
   - pandas
   - pycodestyle
   - fastavro
