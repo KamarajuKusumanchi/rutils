@@ -1,5 +1,7 @@
+# remove columns with the same value
 import pandas as pd
 import sys
+
 
 def drop_single_value_columns(df):
     nunique = df.apply(pd.Series.nunique)
@@ -10,6 +12,7 @@ def drop_single_value_columns(df):
     cols_to_drop = nunique[nunique == 1].index
     result = df.drop(cols_to_drop, axis=1)
     return result
+
 
 if __name__ == '__main__':
     df = pd.read_csv(sys.stdin)
