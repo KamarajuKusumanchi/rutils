@@ -2,6 +2,19 @@
 import pandas as pd
 import sys
 
+# Todo:- How to extend this concept when grouping on some index columns.
+# For example, consider
+# df = pd.DataFrame({'id': [1, 1, 2, 2, 3, 3],
+#                    'fld': [4, 4, 5, 5, 6, 6],
+#                    'A':[None, None, None, None, None, None],
+#                    'B': [None, 1, 1, 1, None, 1],
+#                    'C': [2,3, 2, 3, 4, 4],
+#                    'D': [4,4, 4, 5, 6, 7]})
+# grps = df.groupby(['id', 'fld'])
+# For group in grps, we want to apply the drop_single_value_columns
+# function, then aggregate the results back up
+
+
 
 def drop_single_value_columns(df):
     nunique = df.apply(pd.Series.nunique)
