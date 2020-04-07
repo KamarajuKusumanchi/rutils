@@ -11,5 +11,5 @@ def test_drop_single_value_columns():
                        'D': [4, 4]})
     df_got = drop_single_value_columns(df)
     df_expected = pd.DataFrame({'B': [None, 1],
-                           'C': [2, 3]})
+                                'C': [2, 3]})
     assert_frame_equal(df_got, df_expected)
