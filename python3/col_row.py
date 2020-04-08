@@ -10,7 +10,7 @@
 #  Shaunak,   35,   Mumbai,    135
 #    Shaun,   35,  Colombo,    111
 #
-# and given a set of value [31, 81, 'Veena'] we want to output
+# and given a set of values [31, 81, 'Veena'] we want to output
 #
 # row, col, value
 # 6,  Name, Veena
