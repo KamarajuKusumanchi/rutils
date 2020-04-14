@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 # Find the column name and row number of a given set of values in a csv file.
 #
 # For example, if we have a csv file
@@ -70,7 +72,8 @@ if __name__ == '__main__':
     pd.set_option('display.max_columns', None)
 
     df_new = get_col_rows(df, values)
-    df_new.to_csv(sys.stdout, index=False)
+    if not df_new.empty:
+        df_new.to_csv(sys.stdout, index=False)
 
 # Credits:
 # Got the data set from
