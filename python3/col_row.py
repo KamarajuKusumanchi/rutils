@@ -33,7 +33,7 @@ def parse_arguments():
     parser.add_argument('file_name', action='store', help='name of the data file')
     parser.add_argument('values', nargs='+', help='value(s) to search. Separated by spaces')
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose',
-        help='show debug output')
+                        help='show debug output')
 
     args = parser.parse_args()
     if args.verbose:
@@ -55,7 +55,7 @@ def get_col_rows(df, values):
     # of the dataframe starts at 0.
     masked[rownum] = np.arange(2, len(masked)+2)
     result = masked.melt(id_vars=rownum, var_name='column').dropna()\
-        .rename(columns={rownum:'row'}).reset_index(drop=True)
+        .rename(columns={rownum: 'row'}).reset_index(drop=True)
     return result
 
 
