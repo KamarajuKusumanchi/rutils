@@ -3,6 +3,9 @@ import pandas as pd
 import sys
 
 
+# google searches | find columns with different values, pandas two rows find
+# columns with different row values, filter columns with different row values
+
 # Todo:- Afterwards, extend this concept to the case where grouping on some index columns is required.
 # For example, consider
 # df = pd.DataFrame({'id': [1, 1, 2, 2, 3, 3],
