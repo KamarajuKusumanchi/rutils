@@ -23,4 +23,5 @@ dependencies:
   - pip
   - pip:
     - textract
+    - pydeps
 
