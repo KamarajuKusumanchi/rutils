@@ -28,6 +28,10 @@ while read filename; do
 
                 # pdftotext "${filename}" "${filenameTxt}";
 
+		# One advantage of using textract over pdftotext is that the
+		# former can process multiple formats. For example, it can
+		# handle both pdf and epub files.
+		#
                 # Activate the rutils conda environment for the following script to work.
                 python $SCRIPT_DIR/../python3/pdf_to_text_using_textract.py "${filename}" -o "${filenameTxt}"
             fi
