@@ -21,7 +21,7 @@ find "$1" -type f |
 while read filename; do
     # Based on the file name, perform the conversion
     case "$filename" in
-        (*.pdf) # convert pdf to text
+        (*.pdf|*.epub) # convert pdf to text
             filenameTxt="${filename%.pdf}.txt"
             if [ ! -f "${filenameTxt}" ]; then
                 echo "${filename}" "->" "${filenameTxt}"
