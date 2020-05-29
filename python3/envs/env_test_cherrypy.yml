@@ -11,3 +11,5 @@ channels:
 dependencies:
   - python=3.8
   - cherrypy
+  - requests  # to test rest api of the application
+  - pytest    # to write test cases
