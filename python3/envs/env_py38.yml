@@ -23,3 +23,7 @@ dependencies:
   - pip
   - pip:
     - nbopen
+    # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
+    # If an when https://github.com/ContinuumIO/anaconda-issues/issues/11841 is fixed and prompt-toolkit 3.0.5
+    # becomes available in anaconda, either remove this or move it under conda dependencies.
+    - prompt-toolkit >= 3.0.5
