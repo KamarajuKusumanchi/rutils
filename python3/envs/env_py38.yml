@@ -21,6 +21,7 @@ dependencies:
   - ipython
   - jupyter
   - pip
+  - matplotlib  # for plotting
   - pip:
     - nbopen
     # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
