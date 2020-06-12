@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
-# Script to backup a file or directory
+# Script to backup a directory or a file.
 #
-# The input is copied to src_asof_YYYYMMDD_HHmmSS where src is the original
-# file or directory and YYYYMMDD_HHmmSS is its last modified time.
+# The input 'foo' is copied to 'foo_asof_YYYYMMDD_HHmmSS' where
+# YYYYMMDD_HHmmSS is the last modification time stamp of foo.
 
 import argparse
 import sys
