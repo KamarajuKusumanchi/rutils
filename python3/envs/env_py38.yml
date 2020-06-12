@@ -22,9 +22,8 @@ dependencies:
   - jupyter
   - pip
   - matplotlib  # for plotting
+    # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
+    # https://stackoverflow.com/questions/61238640/click-in-ipython-terminal-window-genrate-mouseeventype-mouse-down-exception
+  - prompt-toolkit >= 3.0.5
   - pip:
     - nbopen
-    # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
-    # If an when https://github.com/ContinuumIO/anaconda-issues/issues/11841 is fixed and prompt-toolkit 3.0.5
-    # becomes available in anaconda, either remove this or move it under conda dependencies.
-    - prompt-toolkit >= 3.0.5
