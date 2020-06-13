@@ -1,6 +1,18 @@
 #! /usr/bin/env python3
 
 # cat multiple files
+#
+# Sample usage:
+#     cat_files.py file1 file2
+# prints the output to stdout
+#     cat_files.py file1 file2 -o out_file
+# print the output to out_file
+#
+# If there are multiple files with the same headers, we can concatenate
+# them and only keep the headers of the first file by using --collapse-headers
+# option. For example
+#     cat_files.py file1.csv file2.csv --collapse-headers
+#     cat_files.py file1.csv file2.csv --collapse-headers -o out_file.csv
 
 import argparse
 import shutil
