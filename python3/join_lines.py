@@ -46,4 +46,4 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
     delim = args.delim
-    print(delim.join([l.rstrip() for l in sys.stdin.readlines()]))
+    print(delim.join([line.rstrip() for line in sys.stdin.readlines()]))
