@@ -67,6 +67,8 @@ if __name__ == '__main__':
     # print(args)
     if args.collapse_headers:
         cat_files_with_same_header(args.dest_file, args.source_file)
+        # cat_files_with_same_header(None, args.source_file)
+        # cat_files_with_same_header(sys.stdout, args.source_file)
     else:
         cat_files(args.dest_file, args.source_file)
         # cat_files(None, args.source_file)
