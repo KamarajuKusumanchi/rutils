@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 # tags | mortgage
 
 import sys
