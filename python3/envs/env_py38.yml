@@ -20,6 +20,8 @@ dependencies:
   - pandas-datareader >= 0.7
   - ipython
   - jupyter
+  - pytest
+  - psutil
   - pip
   - matplotlib  # for plotting
     # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
@@ -28,3 +30,5 @@ dependencies:
   - black
   - pip:
     - nbopen
+    - textract
+    - pydeps
