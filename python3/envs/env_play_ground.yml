@@ -1,3 +1,5 @@
+# To delete this environment
+#   conda env remove --name play_ground
 # To create this environment
 #   conda env create -f <filename>
 # To update the environment
@@ -24,4 +26,5 @@ dependencies:
   - pip:
     - textract
     - pydeps
+    - goodtables
 
