@@ -21,17 +21,35 @@ find "$1" -type f |
 while read filename; do
     # Based on the file name, perform the conversion
     case "$filename" in
-        (*.pdf|*.epub) # convert pdf to text
+        # Handle pdf, epub separately. This way we can use different converters
+        # for each type.
+        # (*.pdf|*.epub) # convert pdf, epub to text
+        (*.pdf) # convert pdf to text
             filenameTxt="${filename%.pdf}.txt"
             if [ ! -f "${filenameTxt}" ]; then
                 echo "${filename}" "->" "${filenameTxt}"
 
-                # pdftotext "${filename}" "${filenameTxt}";
+                pdftotext "${filename}" "${filenameTxt}";
 
-		# One advantage of using textract over pdftotext is that the
-		# former can process multiple formats. For example, it can
-		# handle both pdf and epub files.
-		#
+                # One advantage of using textract over pdftotext is that the
+                # former can process multiple formats. For example, it can
+                # handle both pdf and epub files.
+                #
+                # Activate the rutils conda environment for the following script to work.
+                #
+                # Update 2020-07-12: Textract gave an exception when I tried to
+                # convert "The Algorithm Design Manual - Steven Skiena - 2nd
+                # edition.pdf" to text.  The commit history in
+                # https://github.com/deanmalmgren/textract/commits/master,
+                # shows that the last commit was on 2019-11-14. So it is not
+                # actively maintained anymore? Commenting this out for now.
+                # python $SCRIPT_DIR/../python3/pdf_to_text_using_textract.py "${filename}" -o "${filenameTxt}"
+            fi
+            ;;
+        (*.epub) # convert epub to text
+            filenameTxt="${filename%.pdf}.txt"
+            if [ ! -f "${filenameTxt}" ]; then
+                echo "${filename}" "->" "${filenameTxt}"
                 # Activate the rutils conda environment for the following script to work.
                 python $SCRIPT_DIR/../python3/pdf_to_text_using_textract.py "${filename}" -o "${filenameTxt}"
             fi
