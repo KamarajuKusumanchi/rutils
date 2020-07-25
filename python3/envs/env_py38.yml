@@ -32,3 +32,4 @@ dependencies:
     - nbopen
     - textract
     - pydeps
+    - fake-useragent
