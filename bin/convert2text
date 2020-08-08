@@ -47,7 +47,7 @@ while read filename; do
             fi
             ;;
         (*.epub) # convert epub to text
-            filenameTxt="${filename%.pdf}.txt"
+            filenameTxt="${filename%.epub}.txt"
             if [ ! -f "${filenameTxt}" ]; then
                 echo "${filename}" "->" "${filenameTxt}"
                 # Activate the rutils conda environment for the following script to work.
