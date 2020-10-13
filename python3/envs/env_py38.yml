@@ -4,6 +4,8 @@
 #   conda env update -f <filename>
 # To export the environment
 #   conda env export
+# To remove the environment
+#   conda env remove --name py38
 
 name: py38
 channels:
@@ -28,6 +30,7 @@ dependencies:
     # https://stackoverflow.com/questions/61238640/click-in-ipython-terminal-window-genrate-mouseeventype-mouse-down-exception
   - prompt-toolkit >= 3.0.5
   - black
+  - scikit-learn
   - pip:
     - nbopen
     - textract
