@@ -31,6 +31,8 @@ dependencies:
   - prompt-toolkit >= 3.0.5
   - black
   - scikit-learn
+    # Having conda here will be handy if the conda in base environment is broken.
+  - conda
   - pip:
     - nbopen
     - textract
