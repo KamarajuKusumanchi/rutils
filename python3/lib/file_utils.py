@@ -35,13 +35,13 @@ def rename_with_timestamp(src):
     if not os.path.exists(src):
         return
     mtime = os.path.getmtime(src)
-    timestamp = datetime.fromtimestamp(mtime).strftime('%Y%m%d_%H%M%S')
-    dst = src + '_asof_' + timestamp
+    timestamp = datetime.fromtimestamp(mtime).strftime("%Y%m%d_%H%M%S")
+    dst = src + "_asof_" + timestamp
     if not os.path.exists(dst):
         shutil.move(src, dst)
-        print(src, ' -> ', dst)
+        print(src, " -> ", dst)
     else:
-        print(src, ' --> ', dst)
+        print(src, " --> ", dst)
 
 
 def backup_with_timestamp(src, target_dir=None):
@@ -58,23 +58,23 @@ def backup_with_timestamp(src, target_dir=None):
     if not os.path.exists(src):
         return
     mtime = os.path.getmtime(src)
-    timestamp = datetime.fromtimestamp(mtime).strftime('%Y%m%d_%H%M%S')
+    timestamp = datetime.fromtimestamp(mtime).strftime("%Y%m%d_%H%M%S")
 
     if target_dir is None:
         target_dir = os.path.dirname(src)
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
     base_name = os.path.basename(src)
-    dst = os.path.join(target_dir, base_name + '_asof_' + timestamp)
+    dst = os.path.join(target_dir, base_name + "_asof_" + timestamp)
 
     if not os.path.exists(dst):
         if os.path.isfile(src):
             shutil.copy(src, dst)
         else:
             shutil.copytree(src, dst)
-        print(src, ' -> ', dst)
+        print(src, " -> ", dst)
     else:
-        print(src, ' --> ', dst)
+        print(src, " --> ", dst)
 
 
 def find_files_by_pattern(directory, pattern, depth=-1):
@@ -104,10 +104,12 @@ def find_files_by_pattern(directory, pattern, depth=-1):
 
     Initial version of this function is from https://github.com/Public-Health-Bioinformatics/sequdas-irida-uploader/blob/master/src/API/fileutils.py
     """
-    result_list = [os.path.join(root, filename)
-                   for root, dirs, files in walk(directory, depth)
-                   for filename in files
-                   if re.search(pattern, filename)]
+    result_list = [
+        os.path.join(root, filename)
+        for root, dirs, files in walk(directory, depth)
+        for filename in files
+        if re.search(pattern, filename)
+    ]
     return result_list
 
 
