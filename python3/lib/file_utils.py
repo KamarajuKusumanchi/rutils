@@ -78,7 +78,7 @@ def backup_with_timestamp(src, target_dir=None):
 
 
 def find_files_by_pattern(directory, pattern, depth=-1):
-    """
+    r"""
     Find files in a directory that match a pattern.
 
     :param directory:  top level directory to start searching from
