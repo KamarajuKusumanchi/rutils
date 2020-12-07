@@ -33,6 +33,8 @@ dependencies:
   - scikit-learn
     # Having conda here will be handy if the conda in base environment is broken.
   - conda
+    # csvkit is useful for working with csv files.
+  - csvkit
   - pip:
     - nbopen
     - textract
