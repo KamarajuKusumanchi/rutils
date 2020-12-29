@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description='Get urls in a url'
@@ -22,6 +23,7 @@ def create_parser():
     )
     return parser
 
+
 def get_urls(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -30,6 +32,7 @@ def get_urls(url):
         for x in soup.find_all(name='a', attrs={'href': re.compile('^https*://')})
     ]
     return urls
+
 
 if __name__ == '__main__':
     # src = sys.argv[1]
