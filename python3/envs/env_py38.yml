@@ -35,6 +35,8 @@ dependencies:
   - conda
     # csvkit is useful for working with csv files.
   - csvkit
+    # bs4 is useful to parse webpages.
+  - bs4
   - pip:
     - nbopen
     - textract
