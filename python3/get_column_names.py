@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 # Given a csv file, print its column names one per line.
+# tags | script to print columns of a csv file one per line
 
 import pandas as pd
 import argparse
