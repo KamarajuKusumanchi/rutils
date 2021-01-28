@@ -19,15 +19,17 @@ end_line=$4
 
 # Read selected lines and write to tmpfile
 tmpfile=$(mktemp)
-# Note: $(($end_line+1)) q    will make sed quit when it encounters $end_line+1
+# Note:
+# * $(($end_line+1)) q    will make sed quit when it encounters $end_line+1
 # This matters if $input_file has lots of lines.
-sed -n "$start_line,$end_line p; $(($end_line+1)) q" $input_file > $tmpfile
+# * -b will preserve the line endings
+sed -b -n "$start_line,$end_line p; $(($end_line+1)) q" $input_file > $tmpfile
 
 # format the selection with black
 $black $tmpfile
 
 # Replace the corresponding lines in the original and create a backup.
-sed "-i_asof_`date +%Y%m%d_%H%M%S -r $input_file`" \
+sed -b "-i_asof_`date +%Y%m%d_%H%M%S -r $input_file`" \
     -e "$start_line e cat $tmpfile" \
     -e "$start_line,$end_line d" \
     $input_file
