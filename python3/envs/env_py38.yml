@@ -37,6 +37,7 @@ dependencies:
   - csvkit
     # bs4 is useful to parse webpages.
   - bs4
+  - pyodbc
   - pip:
     - nbopen
     - textract
