@@ -28,7 +28,14 @@ function do_pull()
     fi
 
     if [ $use_autostash == 1 ]; then
-        git pull --rebase --autostash -v origin
+        # In git 2.23.0, the command
+        #     git pull --rebase --autostash -v origin
+        # is throwing a warning such as
+        #     You are in 'detached HEAD' state. ...
+        # This warning does not show up if we use git 2.20.1. So it must have
+        # been added some time after that.
+        # I am using '-c advice.detachedHead=false' to suppress the warning.
+        git -c advice.detachedHead=false pull --rebase --autostash -v origin
     else
         git stash
         git pull --rebase -v origin
