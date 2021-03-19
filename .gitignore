@@ -1,4 +1,8 @@
+#------------------------------------------------------------------------------
 # ignore swap files created by vim
+# This template is obtained from
+# https://github.com/github/gitignore/blob/master/Global/Vim.gitignore
+
 # Swap
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
@@ -13,17 +17,25 @@ Session.vim
 *~
 # Auto-generated tag files
 tags
+#------------------------------------------------------------------------------
 
+#------------------------------------------------------------------------------
 # The Python stuff is obtained from
 # https://github.com/github/gitignore/blob/master/Python.gitignore
+# See that link for a complete list
 # Byte-compiled / optimized / DLL files
-__pycache__
+__pycache__/
 *.pyc
 
 # Unit test / coverage reports
 .cache
 .pytest_cache/
 
+# Jupyter Notebook
+.ipynb_checkpoints
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
 # Pycharm files
 .idea/
-
+#------------------------------------------------------------------------------
