@@ -4,6 +4,8 @@ any of the scripts please send me a pull request.
 
 Some highlights:
 
+* [convert2gray](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/convert2gray) - Convert a pdf in color to grayscale.
+
 * [git-up](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/git-up) -
   rebase a git repository to origin even if there are uncommitted changes
 
