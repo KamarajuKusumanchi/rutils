@@ -1,6 +1,6 @@
-A collection of utility scripts that I find useful. I welcome any comments, 
-suggestions, criticism (no matter how small you think they are). If you improve
-any of the scripts please send me a pull request.
+A collection of utility scripts that I use. Any comments, suggestions, 
+criticism (no matter how small you think they are) are welcome. If you improve
+any of the scripts please raise a pull request.
 
 Some highlights:
 
