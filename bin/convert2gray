@@ -11,6 +11,7 @@
 # significantly reduces the quality. So it is better to use the gs command
 # below.
 
+# set -x
 set -e
 set -u
 
@@ -31,5 +32,5 @@ gs \
  -dCompatibilityLevel=1.4 \
  -dNOPAUSE \
  -dBATCH \
- $input
+ "$input"
 
