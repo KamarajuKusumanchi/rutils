@@ -24,7 +24,7 @@ input="$1"
 output="$2"
 
 gs \
- -sOutputFile=$output \
+ -sOutputFile="$output" \
  -sDEVICE=pdfwrite \
  -sColorConversionStrategy=Gray \
  -dProcessColorModel=/DeviceGray \
