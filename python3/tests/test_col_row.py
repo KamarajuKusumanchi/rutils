@@ -1,8 +1,10 @@
 import os
 import pandas as pd
 import numpy as np
-from col_row import get_col_rows
 from pandas.testing import assert_frame_equal
+
+from col_row import get_col_rows
+
 
 
 def test_get_col_rows():
