@@ -10,8 +10,8 @@
 
 # set -x
 current_env=$CONDA_DEFAULT_ENV
-# desired environment is set to py38. Change it as needed.
-desired_env=py38
+# desired environment is set to py39. Change it as needed.
+desired_env=py39
 
 if [[ $current_env != $desired_env ]];
 then
