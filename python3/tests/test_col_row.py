@@ -6,7 +6,6 @@ from pandas.testing import assert_frame_equal
 from col_row import get_col_rows
 
 
-
 def test_get_col_rows():
     test_dir = os.path.dirname(os.path.abspath(__file__))
     test_data_dir = os.path.join(test_dir, 'data')
