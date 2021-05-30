@@ -36,6 +36,18 @@ dependencies:
     # bs4 is useful to parse webpages.
   - bs4
   - pyodbc
+    # Asof 2021-05-30, I was getting the following error when trying to import
+    # pandas package on a machine running Debian bullseye (11)
+    #  % python
+    # Python 3.9.5 (default, May 18 2021, 19:34:48)
+    # [GCC 7.3.0] :: Anaconda, Inc. on linux
+    # >>> import pandas
+    # INTEL MKL ERROR: /home/rajulocal/miniconda3/envs/py39/lib/python3.9/site-packages/mkl/../../../libmkl_core.so.1: invalid ELF header.
+    # Intel MKL FATAL ERROR: Cannot load libmkl_core.so.1.
+    #
+    # As a work around, install nomkl package as suggested in
+    # https://stackoverflow.com/questions/55778337/what-is-intel-mkl-fatal-error-cannot-load-libmkl-core-dylib-while-running-pysp
+  - nomkl
   - pip:
     - nbopen
     - textract
