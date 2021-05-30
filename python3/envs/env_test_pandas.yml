@@ -1,0 +1,16 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: test_pandas
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pandas
+  - nomkl
