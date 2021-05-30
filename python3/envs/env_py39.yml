@@ -5,7 +5,7 @@
 # To export the environment
 #   conda env export
 # To remove the environment
-#   conda env remove --name py38
+#   conda env remove --name <env_name>
 
 name: py39
 channels:
