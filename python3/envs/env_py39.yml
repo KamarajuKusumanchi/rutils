@@ -53,3 +53,5 @@ dependencies:
     - textract
     - pydeps
     - fake-useragent
+      # This provides market calendars to use with pandas for trading applications
+    - pandas_market_calendars
