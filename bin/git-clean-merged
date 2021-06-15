@@ -2,27 +2,52 @@
 
 # set -x
 
+usage() {
+    echo "Usage: $0 [-n] [-h] [-x branch_to_ignore]"
+    echo "To ignore multiple branches, do -x branch1 -x branch2"
+    echo "Sample commands: "
+    echo "    git clean-merged -n -x master -x development"
+    echo "    git clean-merged -x master -x development"
+    echo "    git clean-merged -n"
+}
+
+readonly -f usage
+
 dry_run=0
 
-while getopts ":nh" opt; do
+while getopts ":nhx:" opt; do
     case ${opt} in
         n) # process option n
             dry_run=1
             ;;
         h) # process option h
-            echo "Usage: $0 [-n] [-h]"
+            usage
             exit 0
             ;;
+        x) # process option x
+            # specify the branches to ignore
+            # Ex:- -x master -x development
+            ignored_branches+=("$OPTARG")
+            ;;
         *) # fall back
-            echo "error in command line parsing" >&2
-            echo "Usage: $0 [-n] [-h]"
+            echo "error in command line parsing" 1>&2
+            usage
             exit 1
     esac
 done
+shift "$((OPTIND-1))"
 
+vstr=''
+for branch in "${ignored_branches[@]}"; do
+    vstr+="^  $branch|"
+done
 
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
-MERGED=`git branch --merged | grep -v "^\* $CURRENT_BRANCH"`
+vstr+="^\* $CURRENT_BRANCH"
+
+# echo "$vstr"
+
+MERGED=`git branch --merged | grep -v -E "$vstr"`
 for branch in $MERGED
 do
     # if [[ $branch != $CURRENT_BRANCH ]]; then
@@ -41,13 +66,22 @@ done
 #
 # We can work around that error, by doing
 # git branch --merged | grep -v '^\*' | (xargs -n1 git branch -d || true)
-# which will still complain that there is no branch to delete but atleast exit
-# succesfully.
+# which will still complain that there is no branch to delete but atleast it
+# exits succesfully.
 #
-# Using a for loop not only makes the logic more explicit but gives flexibility
-# to run the script in dry mode.
+# Using a for loop not only makes the logic more explicit but also gives
+# flexibility to run the script in dry mode.
 
 # Initial copy is from https://github.com/santi-h/git-scripts/blob/master/git_clean_merged
-# getopts
-# * https://unix.stackexchange.com/questions/433801/add-some-dry-run-option-to-script
-# * https://sookocheff.com/post/bash/parsing-bash-script-arguments-with-shopts/
+#
+# Ref:
+# * https://unix.stackexchange.com/questions/273660/how-do-i-echo-a-string-with-multiple-spaces-in-bash-untouched/273663
+#   - How do I echo a string with multiple spaces in bash "untouched"?
+#
+# * getopts
+#   * https://sookocheff.com/post/bash/parsing-bash-script-arguments-with-shopts/
+#   * https://unix.stackexchange.com/questions/433801/add-some-dry-run-option-to-script
+#
+# * https://unix.stackexchange.com/questions/214141/explain-the-shell-command-shift-optind-1/
+# tells why quotes are needed in
+#   shift "$((OPTIND-1))"
