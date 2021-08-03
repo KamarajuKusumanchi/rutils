@@ -17,6 +17,7 @@
 set -u
 
 echo "current time: " `date`
+
 if [ "$#" -lt 1 ]; then
     echo "Usage: $0 base_dir <options to git command>" >&2
     exit 1
@@ -45,5 +46,8 @@ find . -maxdepth 2 -name .git -type d -prune | while read d; do
     git "${@:2}"
     )
 done
+
+# Showing the time helps in determining when the command was last run and
+# whether you need a rerun etc.,
 echo "current time: " `date`
 
