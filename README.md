@@ -4,6 +4,8 @@ any of the scripts please raise a pull request.
 
 Some highlights:
 
+* [get_urls.py](https://github.com/KamarajuKusumanchi/rutils/blob/master/python3/get_urls.py) - Get urls in a url.
+
 * [convert2gray](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/convert2gray) - Convert a pdf in color to grayscale.
 
 * [git-up](https://github.com/KamarajuKusumanchi/rutils/blob/master/bin/git-up) -
