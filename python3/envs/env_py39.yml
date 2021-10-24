@@ -48,6 +48,10 @@ dependencies:
     # As a work around, install nomkl package as suggested in
     # https://stackoverflow.com/questions/55778337/what-is-intel-mkl-fatal-error-cannot-load-libmkl-core-dylib-while-running-pysp
   - nomkl
+    # html5lib is an optional dependency for pandas.
+    # For a list of optional dependencies of pandas, see
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
+  - html5lib
   - pip:
     - nbopen
     - textract
