@@ -7,7 +7,7 @@
 # To remove the environment
 #   conda env remove --name <env_name>
 
-name: py39
+name: use_flask
 channels:
   - defaults
 dependencies:
@@ -55,6 +55,10 @@ dependencies:
     # Hypothesis is needed if you want to pandas test suite. For more info, see
     # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#running-the-test-suite
   - hypothesis
+  - flask
+  - flask-sqlalchemy
+  - flask-wtf
+  - wtforms
   - pip:
     - nbopen
     - textract
