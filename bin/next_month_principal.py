@@ -8,6 +8,8 @@ if len(sys.argv) >= 2:
 else:
     print('Enter previous principal in dollars')
     old_principal = input()
+# change entries such as 123,456.78 to 123456.78
+old_principal = old_principal.replace(',', '')
 old_principal = float(old_principal)
 
 if len(sys.argv) >= 3:
