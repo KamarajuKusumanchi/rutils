@@ -15,11 +15,19 @@ dependencies:
   - pandas
   - pycodestyle
   - fastavro
+    # Need pandas-datareader >= 0.10.0 as it has fixed yahoo reader which now
+    # require headers.
+    # Ref:- https://github.com/pydata/pandas-datareader/releases/tag/v0.10.0
+    #
     # Need pandas-datareader >= 0.7 for
     # https://github.com/pydata/pandas-datareader/pull/520
-  - pandas-datareader >= 0.7
+  - pandas-datareader >= 0.10
   - ipython
-  - jupyter
+    # Asof 2021-12-31, on a machine running Windows 10 Enterprise, conda is not
+    # able to install jupyter in this environment due to conflicts. For now, I
+    # am commenting it out. Debug this later. May be you have to install
+    # jupyterlab instead of jupyter?
+  # - jupyter
   - pytest
   - psutil
   - pip
@@ -47,7 +55,14 @@ dependencies:
     #
     # As a work around, install nomkl package as suggested in
     # https://stackoverflow.com/questions/55778337/what-is-intel-mkl-fatal-error-cannot-load-libmkl-core-dylib-while-running-pysp
-  - nomkl
+    #
+    # Update on 2021-12-31:
+    # On Windows 10 Enterprise, I am getting the following error while trying
+    # to create the environment using nomkl. So disabling it for now.
+    #   ResolvePackageNotFound:
+    #    - nomkl
+    #
+  # - nomkl
     # html5lib is an optional dependency for pandas.
     # For a list of optional dependencies of pandas, see
     # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
