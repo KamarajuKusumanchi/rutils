@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+# Script to convert a pdf to black and white.
+
+# set -x
+set -e
+set -u
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 input.pdf output.pdf" >&2
+    exit 1
+fi
+
+input="$1"
+output="$2"
+
+gs \
+  -o "$output" \
+  -sDEVICE=pdfwrite \
+  -c "/osetcolor {/setcolor} bind def /setcolor {pop [0 0 0] osetcolor} def" \
+  -f "$input"
+
+# Credits:
+# The initial version is from https://superuser.com/a/249038/679081 (written by
+# Surge)
