@@ -11,7 +11,7 @@ name: play_ground
 channels:
   - defaults
 dependencies:
-  - python=3.8
+  - python=3.10
   - pandas
   - pycodestyle
   - fastavro
@@ -27,4 +27,4 @@ dependencies:
     - textract
     - pydeps
     - goodtables
-
+    - finvizfinance
