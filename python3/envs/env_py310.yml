@@ -1,0 +1,80 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: py310
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas
+  - pycodestyle
+  - fastavro
+    # Need pandas-datareader >= 0.10.0 as it has fixed yahoo reader which now
+    # require headers.
+    # Ref:- https://github.com/pydata/pandas-datareader/releases/tag/v0.10.0
+    #
+    # Need pandas-datareader >= 0.7 for
+    # https://github.com/pydata/pandas-datareader/pull/520
+  - pandas-datareader >= 0.10
+  - ipython
+    # Asof 2021-12-31, on a machine running Windows 10 Enterprise, conda is not
+    # able to install jupyter in this environment due to conflicts. For now, I
+    # am commenting it out. Debug this later. May be you have to install
+    # jupyterlab instead of jupyter?
+  # - jupyter
+  - pytest
+  - psutil
+  - pip
+  - matplotlib  # for plotting
+    # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
+    # https://stackoverflow.com/questions/61238640/click-in-ipython-terminal-window-genrate-mouseeventype-mouse-down-exception
+  - prompt-toolkit >= 3.0.5
+  - black
+  - scikit-learn
+    # Having conda here will be handy if the conda in base environment is broken.
+  - conda
+    # csvkit is useful for working with csv files.
+  - csvkit
+    # bs4 is useful to parse webpages.
+  - bs4
+  - pyodbc
+    # Asof 2021-05-30, I was getting the following error when trying to import
+    # pandas package on a machine running Debian bullseye (11)
+    #  % python
+    # Python 3.9.5 (default, May 18 2021, 19:34:48)
+    # [GCC 7.3.0] :: Anaconda, Inc. on linux
+    # >>> import pandas
+    # INTEL MKL ERROR: /home/rajulocal/miniconda3/envs/py39/lib/python3.9/site-packages/mkl/../../../libmkl_core.so.1: invalid ELF header.
+    # Intel MKL FATAL ERROR: Cannot load libmkl_core.so.1.
+    #
+    # As a work around, install nomkl package as suggested in
+    # https://stackoverflow.com/questions/55778337/what-is-intel-mkl-fatal-error-cannot-load-libmkl-core-dylib-while-running-pysp
+    #
+    # Update on 2021-12-31:
+    # On Windows 10 Enterprise, I am getting the following error while trying
+    # to create the environment using nomkl. So disabling it for now.
+    #   ResolvePackageNotFound:
+    #    - nomkl
+    #
+  # - nomkl
+    # html5lib is an optional dependency for pandas.
+    # For a list of optional dependencies of pandas, see
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
+  - html5lib
+    # Hypothesis is needed if you want to pandas test suite. For more info, see
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#running-the-test-suite
+  - hypothesis
+  - pip:
+    - nbopen
+    - textract
+    - pydeps
+    - fake-useragent
+      # This provides market calendars to use with pandas for trading applications
+    - pandas_market_calendars
+    - finvizfinance
