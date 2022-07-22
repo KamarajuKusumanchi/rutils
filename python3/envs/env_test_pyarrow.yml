@@ -7,10 +7,9 @@
 # To remove the environment
 #   conda env remove --name <env_name>
 
-name: test_pandas
+name: test_pyarrow
 channels:
   - defaults
 dependencies:
-  - python=3.10
-  - pandas
-  # - nomkl
+  - python=3.9
+  - pyarrow
