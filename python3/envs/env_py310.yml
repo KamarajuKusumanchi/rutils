@@ -78,3 +78,5 @@ dependencies:
       # This provides market calendars to use with pandas for trading applications
     - pandas_market_calendars
     - finvizfinance
+      # This is useful to extract annotations from a PDF file
+    - pdfannots
