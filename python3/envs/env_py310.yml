@@ -70,6 +70,8 @@ dependencies:
     # Hypothesis is needed if you want to pandas test suite. For more info, see
     # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#running-the-test-suite
   - hypothesis
+    # pdfannots outputs annotations in markdown format. Use pandoc to convert them into zimwiki format.
+  - pandoc
   - pip:
     - nbopen
     - textract
