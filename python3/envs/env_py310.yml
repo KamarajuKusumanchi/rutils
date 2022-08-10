@@ -40,6 +40,9 @@ dependencies:
     # Having conda here will be handy if the conda in base environment is broken.
   - conda
     # csvkit is useful for working with csv files.
+    # Note:- Until, https://github.com/ContinuumIO/anaconda-issues/issues/13012
+    # is resolved, you cannot use csvsql with Python 3.10. If you need csvsql,
+    # use Python 3.9 as a workaround.
   - csvkit
     # bs4 is useful to parse webpages.
   - bs4
