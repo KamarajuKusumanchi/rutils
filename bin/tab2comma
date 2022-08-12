@@ -7,9 +7,7 @@
 # $ < input.tsv tab2comma > output.csv
 # $ tab2comma < input.tsv > output.csv
 #
-# From: https://stackoverflow.com/a/2535337
-#
-# tags | tsv_to_csv, tab_to_comma
+# tags | tsv_to_csv, tab_to_comma, convert tab delimited file to csv
 import sys
 import csv
 
@@ -17,3 +15,7 @@ tabin = csv.reader(sys.stdin, dialect=csv.excel_tab)
 commaout = csv.writer(sys.stdout, dialect=csv.excel)
 for row in tabin:
     commaout.writerow(row)
+#
+# See also:
+# * https://stackoverflow.com/a/2535337 - got the initial version from here
+# * https://docs.python.org/3/library/csv.html - documentation of the csv module
