@@ -75,6 +75,10 @@ dependencies:
   - hypothesis
     # pdfannots outputs annotations in markdown format. Use pandoc to convert them into zimwiki format.
   - pandoc
+    # usecase of paramiko:
+    #   * Automate the task of copying a file using scp with password based
+    #     authentication (i.e. without keys)
+  - paramiko
   - pip:
     - nbopen
     - textract
