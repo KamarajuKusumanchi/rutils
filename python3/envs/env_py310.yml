@@ -23,15 +23,9 @@ dependencies:
     # https://github.com/pydata/pandas-datareader/pull/520
   - pandas-datareader >= 0.10
   - ipython
-    # Asof 2021-12-31, on a machine running Windows 10 Enterprise, conda is not
-    # able to install jupyter in this environment due to conflicts. For now, I
-    # am commenting it out. Debug this later. May be you have to install
-    # jupyterlab instead of jupyter?
-  # - jupyter
-    # FWIW, on a machine running miniconda on Debian Bullseye 11, "jupyter"
-    # comes from jupyter_core, and jupyter-lab comes from the jupyterlab
-    # package. Check if that is the same case for Windows 10 Enterprise as
-    # well?
+    # "jupyter" comes from the jupyter_core pacakge, and jupyter-lab comes from
+    # the jupyterlab package. "jupyter-lab" replaces "jupyter notebook". Use
+    # the former instead of the latter.
   - jupyterlab
   - pytest
   - psutil
