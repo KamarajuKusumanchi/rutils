@@ -28,6 +28,11 @@ dependencies:
     # am commenting it out. Debug this later. May be you have to install
     # jupyterlab instead of jupyter?
   # - jupyter
+    # FWIW, on a machine running miniconda on Debian Bullseye 11, "jupyter"
+    # comes from jupyter_core, and jupyter-lab comes from the jupyterlab
+    # package. Check if that is the same case for Windows 10 Enterprise as
+    # well?
+  - jupyterlab
   - pytest
   - psutil
   - pip
