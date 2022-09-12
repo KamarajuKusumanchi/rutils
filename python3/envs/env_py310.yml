@@ -88,3 +88,5 @@ dependencies:
     - finvizfinance
       # This is useful to extract annotations from a PDF file
     - pdfannots
+      # Jupytext is useful to version control jupyter notebooks.
+    - jupytext
