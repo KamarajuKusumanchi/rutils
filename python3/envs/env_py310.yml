@@ -78,6 +78,7 @@ dependencies:
     #   * Automate the task of copying a file using scp with password based
     #     authentication (i.e. without keys)
   - paramiko
+  - plotly
   - pip:
     - nbopen
     - textract
