@@ -7,4 +7,3 @@
 # Ref:- https://www.kamaraju.xyz/dk/number_of_matches_per_file
 
 awk -F':' '{freq[$1]++} END{for (file in freq) print file ":" freq[file]}'
-
