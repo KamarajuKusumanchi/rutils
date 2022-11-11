@@ -1,0 +1,9 @@
+# Sample usage:
+#
+# $ cd /opt/rajulocal/books
+# $ git grep --no-index -i -o -e "merge_asof" *.txt | count_frequency
+# Pandas Cookbook - Theodore Petrou.txt:11
+#
+# Ref:- https://www.kamaraju.xyz/dk/number_of_matches_per_file
+
+awk -F':' '{freq[$1]++} END{for (file in freq) print file ":" freq[file]}'
