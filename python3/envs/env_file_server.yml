@@ -11,7 +11,7 @@ name: file_server
 channels:
   - defaults
 dependencies:
-  - python=3.11
+  - python=3.10
   - pip
   - pip:
       # Simple ad-hoc static web page server with basic auth and https support
