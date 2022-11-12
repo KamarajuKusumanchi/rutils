@@ -91,3 +91,5 @@ dependencies:
     - pdfannots
       # Jupytext is useful to version control jupyter notebooks.
     - jupytext
+      # Simple ad-hoc static web page server with basic auth and https support
+    - tiny-http-server
