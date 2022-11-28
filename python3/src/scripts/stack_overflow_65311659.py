@@ -1,9 +1,11 @@
+# This script gives the latest python version number only.
 # This is to address
 # https://stackoverflow.com/questions/65311659/getting-the-latest-python-3-version-programmatically
 #
-# Most likely, you may want to use the release_history.py which can give
-# the entire python release history with release dates and version numbers
-# in a dataframe. You can call that script by something like
+# Most likely, you may want to use the release_history.py instead of this.
+# That script is more generic in the sense that it can give the entire python
+# release history with release dates and version numbers in a dataframe. You
+# can call that script by something like
 # release_history.py python --limit 5
 import requests
 from bs4 import BeautifulSoup
