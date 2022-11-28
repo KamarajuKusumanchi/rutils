@@ -46,19 +46,21 @@ def python_release_history(limit):
         # release_tag = '3.11.0'
         # y = ', documentation released on 24 October 2022.'
         # s = '24 October 2022'
-        # release_date = '2022-10-24'
+        # release_date = '24 October 2022'
         x = link.find("a", attrs={"href": re.compile("^https*://")})
         matches = re.search("Python (.*)$", x.contents[0])
         release_tag = matches.group(1)
         y = link.contents[1].replace("\n", " ")
         matches = re.search(r", documentation released on (\d* .* \d*)\.?$", y)
         s = matches.group(1)
-        release_date = datetime.strptime(s, "%d %B %Y").date()
+        # release_date = datetime.strptime(s, "%d %B %Y").date()
         # release_date = datetime.strptime(s, "%d %B %Y")
+        release_date = s
         release_data.append((release_date, release_tag))
         # if limit and len(release_data) >= limit:
         #     break
     releases = pd.DataFrame(release_data, columns=["date", "tag"])
+    releases['date'] = pd.to_datetime(releases['date'], format="%d %B %Y")
     if limit:
         releases = releases.loc[: limit - 1, :]
     return releases
