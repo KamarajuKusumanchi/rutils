@@ -40,7 +40,8 @@ def python_release_history(limit):
     release_data = []
     for link in div.findAll("li"):
         # Sample output:
-        # link = '<li><a class="reference external" href="https://docs.python.org/release/3.11.0/">Python 3.11.0</a>, documentation released on 24 October 2022.</li>'
+        # link = '<li><a class="reference external" href="https://docs.python.org/release/3.11.0/">Python 3.11.0</a>,' +
+        #   ' documentation released on 24 October 2022.</li>'
         # x.contents = ['Python 3.11.0']
         # release_tag = '3.11.0'
         # y = ', documentation released on 24 October 2022.'

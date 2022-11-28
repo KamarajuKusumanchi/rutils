@@ -18,5 +18,5 @@ def test_get_col_rows():
     df_expected = pd.DataFrame({'row': [6, 3, 5, 6, 4],
                                 'column': ['Name', 'Age', 'Age', 'Age', 'Marks'],
                                 'value': ['Veena', '31', '31', '81', '81']})
-    df_expected['row'] = df_expected['row'].astype(np.int)
+    df_expected['row'] = df_expected['row'].astype(int)
     assert_frame_equal(df_got, df_expected)

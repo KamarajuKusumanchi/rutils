@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 
 import sys
 
+
 def create_parser():
     parser = argparse.ArgumentParser(description="Print the contents of a url")
     parser.add_argument("url", action="store", help="url to parse")
@@ -37,7 +38,7 @@ if __name__ == "__main__":
     #   UnicodeEncodeError: 'charmap' codec can't encode character '\u25bc' in position 6443: character maps to <undefined>
     # To fix this, reconfigure stdin and stdout as suggested in
     # https://stackoverflow.com/questions/27092833/unicodeencodeerror-charmap-codec-cant-encode-characters
-    sys.stdin.reconfigure(encoding='utf-8')
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdin.reconfigure(encoding="utf-8")
+    sys.stdout.reconfigure(encoding="utf-8")
     content = get_content(url)
     print(content)
