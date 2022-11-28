@@ -50,7 +50,7 @@ def python_release_history(limit):
         matches = re.search("Python (.*)$", x.contents[0])
         release_tag = matches.group(1)
         y = link.contents[1].replace("\n", " ")
-        matches = re.search(", documentation released on (\d* .* \d*)\.?$", y)
+        matches = re.search(r", documentation released on (\d* .* \d*)\.?$", y)
         s = matches.group(1)
         release_date = datetime.strptime(s, "%d %B %Y").date()
         # release_date = datetime.strptime(s, "%d %B %Y")
