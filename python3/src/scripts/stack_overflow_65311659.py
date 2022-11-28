@@ -4,9 +4,22 @@
 #
 # Most likely, you may want to use the release_history.py instead of this.
 # That script is more generic in the sense that it can give the entire python
-# release history with release dates and version numbers in a dataframe. You
-# can call that script by something like
-# release_history.py python --limit 5
+# release history with release dates and version numbers in a dataframe. For
+# example
+#
+# $ ./release_history.py python --limit 5
+#       date    tag
+# 2022-10-24 3.11.0
+# 2022-10-08 3.10.8
+# 2022-09-06 3.10.7
+# 2022-08-08 3.10.6
+# 2022-06-06 3.10.5
+#
+# compare this with
+#
+# $ python stack_overflow_65311659.py
+# 3.11.0
+
 import requests
 from bs4 import BeautifulSoup
 import re
