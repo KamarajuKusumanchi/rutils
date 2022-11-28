@@ -1,10 +1,11 @@
 #! /usr/bin/env python3
 
+# tags | script to find the latest python release
+
 import argparse
 import requests
 from bs4 import BeautifulSoup
 import re
-from datetime import datetime
 import pandas as pd
 
 
@@ -45,20 +46,14 @@ def python_release_history(limit):
         # x.contents = ['Python 3.11.0']
         # release_tag = '3.11.0'
         # y = ', documentation released on 24 October 2022.'
-        # s = '24 October 2022'
         # release_date = '24 October 2022'
         x = link.find("a", attrs={"href": re.compile("^https*://")})
         matches = re.search("Python (.*)$", x.contents[0])
         release_tag = matches.group(1)
         y = link.contents[1].replace("\n", " ")
         matches = re.search(r", documentation released on (\d* .* \d*)\.?$", y)
-        s = matches.group(1)
-        # release_date = datetime.strptime(s, "%d %B %Y").date()
-        # release_date = datetime.strptime(s, "%d %B %Y")
-        release_date = s
+        release_date = matches.group(1)
         release_data.append((release_date, release_tag))
-        # if limit and len(release_data) >= limit:
-        #     break
     releases = pd.DataFrame(release_data, columns=["date", "tag"])
     releases['date'] = pd.to_datetime(releases['date'], format="%d %B %Y")
     if limit:
