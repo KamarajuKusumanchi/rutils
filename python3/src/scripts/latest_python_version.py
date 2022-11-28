@@ -20,7 +20,8 @@ soup = BeautifulSoup(response.text, "html.parser")
 div = soup.find("div", attrs={"id": "python-documentation-by-version"})
 
 # Get the first link. It will be something like
-# <li><a class="reference external" href="https://docs.python.org/release/3.11.0/">Python 3.11.0</a>, documentation released on 24 October 2022.</li>
+# <li><a class="reference external" href="https://docs.python.org/release/3.11.0/">Python 3.11.0</a>,
+#  documentation released on 24 October 2022.</li>
 link = div.find("li")
 
 # x.contents will be something like ['Python 3.11.0']
