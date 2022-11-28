@@ -15,10 +15,17 @@ def create_parser():
     parser.add_argument(
         "application", action="store", help="application name", choices=["python"]
     )
+    parser.add_argument(
+        "--limit",
+        action="store",
+        dest="limit",
+        help="Limit to last N releases",
+        default=None,
+    )
     return parser
 
 
-def python_release_history():
+def python_release_history(limit):
     # If you want to experiment, use public/sandbox/jupytext/python_release_history.py
     url = "https://www.python.org/doc/versions/"
     response = requests.get(url)
@@ -47,7 +54,11 @@ def python_release_history():
         s = matches.group(1)
         release_date = datetime.strptime(s, "%d %B %Y").date()
         release_data.append((release_date, release_tag))
-    releases = pd.DataFrame(release_data, columns=["release_date", "release_tag"])
+        # if limit and len(release_data) >= limit:
+        #     break
+    releases = pd.DataFrame(release_data, columns=["date", "tag"])
+    if limit:
+        releases = releases.loc[: limit - 1, :]
     return releases
 
 
@@ -55,6 +66,7 @@ if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
     application = args.application
+    limit = int(args.limit) if args.limit else None
     dispatch = {"python": python_release_history}
-    release_history = dispatch[application]()
-    print(release_history)
+    release_history = dispatch[application](limit)
+    print(release_history.to_string(index=False))
