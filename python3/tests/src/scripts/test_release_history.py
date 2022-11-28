@@ -2,7 +2,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 from datetime import datetime
 
-from src.release_history import python_release_history
+from src.scripts.release_history import python_release_history
 
 
 def test_python_release_history():
