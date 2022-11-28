@@ -53,6 +53,7 @@ def python_release_history(limit):
         matches = re.search(", documentation released on (\d* .* \d*)\.?$", y)
         s = matches.group(1)
         release_date = datetime.strptime(s, "%d %B %Y").date()
+        # release_date = datetime.strptime(s, "%d %B %Y")
         release_data.append((release_date, release_tag))
         # if limit and len(release_data) >= limit:
         #     break
