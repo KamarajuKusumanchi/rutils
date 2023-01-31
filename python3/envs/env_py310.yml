@@ -66,10 +66,23 @@ dependencies:
     #    - nomkl
     #
   # - nomkl
-    # html5lib is an optional dependency for pandas.
     # For a list of optional dependencies of pandas, see
     # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
+    # BeautifulSoup4, html5lib, lxml are needed for read_html().
+    # BeautifulSoup4 can work with either of html5lib or lxml or both.
+    # Per https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-html-gotchas
+    # html5lib is slower but more accurate; lxml is faster but less accurate.
+    # Prefer html5lib whenever possible.
+  - BeautifulSoup4
   - html5lib
+  - lxml
+    # DataFrame.to_markdown() requires the tabulate package per
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
+  - tabulate
+    # PyYAML only supports YAML 1.1 spec. ruamel.yaml supports yaml 1.2 spec and
+    # is an update of PyYAML.
+    # See https://yaml.org/ for more info.
+  - ruamel.yaml
     # Hypothesis is needed if you want to pandas test suite. For more info, see
     # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#running-the-test-suite
   - hypothesis
