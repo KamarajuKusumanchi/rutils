@@ -66,13 +66,14 @@ dependencies:
     #    - nomkl
     #
   # - nomkl
-    # For a list of optional dependencies of pandas, see
-    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
-    # BeautifulSoup4, html5lib, lxml are needed for read_html().
-    # BeautifulSoup4 can work with either of html5lib or lxml or both.
+    # BeautifulSoup4, html5lib, lxml are needed for read_html(). But they are
+    # listed as optional dependencies.  To be specific, BeautifulSoup4 can work
+    # with either of html5lib or lxml or both.
     # Per https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-html-gotchas
     # html5lib is slower but more accurate; lxml is faster but less accurate.
-    # Prefer html5lib whenever possible.
+    # Prefer html5lib whenever possible but install both parsers.
+    # For a full list of optional dependencies of pandas, see
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
   - BeautifulSoup4
   - html5lib
   - lxml
@@ -105,5 +106,8 @@ dependencies:
     - pdfannots
       # Jupytext is useful to version control jupyter notebooks.
     - jupytext
+      # ruamel.yaml.cmd gives a commandline utility called yaml
+      # Ref: https://yaml.readthedocs.io/en/latest/install.html
+    - ruamel.yaml.cmd
       # Simple ad-hoc static web page server with basic auth and https support
     - tiny-http-server
