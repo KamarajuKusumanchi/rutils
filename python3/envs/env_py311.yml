@@ -40,15 +40,6 @@ dependencies:
     # Having conda here will be handy if the conda in base environment is broken.
   - conda
     # csvkit is useful for working with csv files.
-    # Note:-
-    # 1) Per https://github.com/ContinuumIO/anaconda-issues/issues/13012
-    # csvkit should use agate >= 1.7.0 for python >= 3.10. This is happening now.
-    # 2) But running csvsql -h is giving some warnings such as
-    # $ csvsql -h
-    # <frozen importlib._bootstrap>:914: ImportWarning: _SixMetaPathImporter.find_spec() not found; falling back to find_module()
-    # Per https://github.com/dpkp/kafka-python/issues/2282 this will go away if
-    # we pull six >= 1.16.0 . But for some reason conda is pulling six 1.12.0.
-    # Afterwards, figure out why and get this fixed.
   - csvkit
     # bs4 is useful to parse webpages.
   - bs4
@@ -102,7 +93,16 @@ dependencies:
   - plotly
   - pip:
     - nbopen
-    - textract
+    # Note:-
+    # csvsql -h is giving some warnings such as
+    # $ csvsql -h
+    # <frozen importlib._bootstrap>:914: ImportWarning: _SixMetaPathImporter.find_spec() not found; falling back to find_module()
+    # This will go away if textract depends on six >= 1.16.0. But it is currently pulling six 1.12.0.
+    # There is a pull request to do this: https://github.com/deanmalmgren/textract/pull/414
+    # But it has not been merged since 2022-04-04
+    # Until that is merged use the fork https://github.com/andyhasit/textract/tree/patch-1
+    # - textract
+    - git+https://github.com/andyhasit/textract/tree/patch-1
     - pydeps
     - fake-useragent
       # This provides market calendars to use with pandas for trading applications
