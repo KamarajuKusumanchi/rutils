@@ -93,7 +93,6 @@ dependencies:
   - plotly
   - pip:
     - nbopen
-    # Note:-
     # csvsql -h is giving some warnings such as
     # $ csvsql -h
     # <frozen importlib._bootstrap>:914: ImportWarning: _SixMetaPathImporter.find_spec() not found; falling back to find_module()
