@@ -156,6 +156,26 @@ def count_files(top, pattern, list_files):
     # Given a 'pattern' count the number of files in each subdirectory
     # of 'top'. If list_files is True, the file names are shown in a column.
     #
+    # Consider the following directory structure
+    # rajulocal@hogwarts ~/work/github/rutils/python3/tests/data/count_files
+    #  % tree -a
+    # .
+    # ├── analysis.txt
+    # ├── c.csv
+    # ├── d1
+    # │   ├── d2
+    # │   │   ├── d3
+    # │   │   │   └── f5.txt
+    # │   │   ├── f3.txt
+    # │   │   └── f4.txt
+    # │   ├── f2.txt
+    # │   └── f6.txt
+    # ├── f1.txt
+    # ├── f7.txt
+    # └── .hidden
+    #     └── c.csv
+    #
+    # 4 directories, 10 files
     # Ref:-
     # * https://stackoverflow.com/questions/72274073/python-count-files-in-a-directory-and-all-its-subdirectories
     # * To experiment - https://github.com/KamarajuKusumanchi/notebooks/blob/master/python/so_72274073_count_files/count_files.ipynb
