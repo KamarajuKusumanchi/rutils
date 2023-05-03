@@ -3,7 +3,7 @@ from glob import glob
 from datetime import datetime
 import os
 import shutil
-
+import pandas as pd
 
 def pick_first_file(dir_name, file_glob):
     dir_name = os.path.abspath(os.path.expanduser(dir_name))
@@ -150,3 +150,29 @@ def walklevel(directory, depth=0):
         num_sep_this = root.count(os.path.sep)
         if num_sep_this - num_sep >= depth:
             del dirs[:]
+
+
+def count_files(top, pattern, list_files):
+    # Given a 'pattern' count the number of files in each subdirectory
+    # of 'top'. If list_files is True, the file names are shown in a column.
+    #
+    # Ref:-
+    # * https://stackoverflow.com/questions/72274073/python-count-files-in-a-directory-and-all-its-subdirectories
+    # * To experiment - https://github.com/KamarajuKusumanchi/notebooks/blob/master/python/so_72274073_count_files/count_files.ipynb
+    top = os.path.abspath(os.path.expanduser(top))
+    res = []
+    for root, dirs, files in os.walk(top):
+        name_space = os.path.relpath(root, top)
+        level = os.path.normpath(name_space).count(os.sep) + 1 if name_space != '.' else 0
+        matches = [file for file in files if re.search(pattern, file)]
+        if matches:
+            if list_files:
+                res.append((pattern, level, name_space, len(matches), matches))
+            else:
+                res.append((pattern, level, name_space, len(matches)))
+
+    if list_files:
+        df = pd.DataFrame(res, columns=['pattern', 'level', 'name_space', 'count', 'files'])
+    else:
+        df = pd.DataFrame(res, columns=['pattern', 'level', 'name_space', 'count'])
+    return df
