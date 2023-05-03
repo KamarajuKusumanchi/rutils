@@ -176,6 +176,57 @@ def count_files(top, pattern, list_files):
     #     └── c.csv
     #
     # 4 directories, 10 files
+    #
+    # To count the text files
+    # df = count_files('tests/data/count_files', '\.txt', False)
+    # df
+    # Out[5]:
+    #   pattern  level name_space  count
+    # 0   \.txt      0          .      3
+    # 1   \.txt      1         d1      2
+    # 2   \.txt      2      d1\d2      2
+    # 3   \.txt      3   d1\d2\d3      1
+    #
+    # To see what those files are
+    # df = count_files('tests/data/count_files', '\.txt', True)
+    # df
+    # Out[6]:
+    #   pattern  level name_space  count                           files
+    # 0   \.txt      0          .      3  [analysis.txt, f1.txt, f7.txt]
+    # 1   \.txt      1         d1      2                [f2.txt, f6.txt]
+    # 2   \.txt      2      d1\d2      2                [f3.txt, f4.txt]
+    # 3   \.txt      3   d1\d2\d3      1                        [f5.txt]
+    #
+    # To get the total number of files
+    # df['count'].sum()
+    # Out[7]:
+    # 8
+    #
+    # To count the csv files
+    # df = count_files('tests/data/count_files', '\.csv', True)
+    # df
+    # Out[8]:
+    #   pattern  level name_space  count    files
+    # 0   \.csv      0          .      1  [c.csv]
+    # 1   \.csv      1    .hidden      1  [c.csv]
+    # df['count'].sum()
+    # Out[9]:
+    # 2
+    # To count all the files
+    # df = count_files('tests/data/count_files', '.*', True)
+    # df
+    # Out[10]:
+    #   pattern  level name_space  count                                  files
+    # 0      .*      0          .      4  [analysis.txt, c.csv, f1.txt, f7.txt]
+    # 1      .*      1    .hidden      1                                [c.csv]
+    # 2      .*      1         d1      2                       [f2.txt, f6.txt]
+    # 3      .*      2      d1\d2      2                       [f3.txt, f4.txt]
+    # 4      .*      3   d1\d2\d3      1                               [f5.txt]
+    # df['count'].sum()
+    # Out[11]:
+    # 10
+    # which matches with the file count from the tree command.
+    #
     # Ref:-
     # * https://stackoverflow.com/questions/72274073/python-count-files-in-a-directory-and-all-its-subdirectories
     # * To experiment - https://github.com/KamarajuKusumanchi/notebooks/blob/master/python/so_72274073_count_files/count_files.ipynb
