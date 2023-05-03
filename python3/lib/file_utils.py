@@ -5,6 +5,7 @@ import os
 import shutil
 import pandas as pd
 
+
 def pick_first_file(dir_name, file_glob):
     dir_name = os.path.abspath(os.path.expanduser(dir_name))
     file_list = glob(os.path.join(dir_name, file_glob))
@@ -230,11 +231,16 @@ def count_files(top, pattern, list_files):
     # Ref:-
     # * https://stackoverflow.com/questions/72274073/python-count-files-in-a-directory-and-all-its-subdirectories
     # * To experiment - https://github.com/KamarajuKusumanchi/notebooks/blob/master/python/so_72274073_count_files/count_files.ipynb
+    #
+    # Todo:- add a depth parameter to restrict how far down we have to search
+    # in 'top' directory.
     top = os.path.abspath(os.path.expanduser(top))
     res = []
     for root, dirs, files in os.walk(top):
         name_space = os.path.relpath(root, top)
-        level = os.path.normpath(name_space).count(os.sep) + 1 if name_space != '.' else 0
+        level = (
+            os.path.normpath(name_space).count(os.sep) + 1 if name_space != "." else 0
+        )
         matches = [file for file in files if re.search(pattern, file)]
         if matches:
             if list_files:
@@ -243,7 +249,9 @@ def count_files(top, pattern, list_files):
                 res.append((pattern, level, name_space, len(matches)))
 
     if list_files:
-        df = pd.DataFrame(res, columns=['pattern', 'level', 'name_space', 'count', 'files'])
+        df = pd.DataFrame(
+            res, columns=["pattern", "level", "name_space", "count", "files"]
+        )
     else:
-        df = pd.DataFrame(res, columns=['pattern', 'level', 'name_space', 'count'])
+        df = pd.DataFrame(res, columns=["pattern", "level", "name_space", "count"])
     return df
