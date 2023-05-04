@@ -244,7 +244,9 @@ def count_files(top, pattern, list_files):
         matches = [file for file in files if re.search(pattern, file)]
         if matches:
             if list_files:
-                res.append((pattern, level, name_space, len(matches), matches))
+                # sort the list of files so that the output is consistent
+                # across different OSes.
+                res.append((pattern, level, name_space, len(matches), sorted(matches)))
             else:
                 res.append((pattern, level, name_space, len(matches)))
 
