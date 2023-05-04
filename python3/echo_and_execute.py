@@ -2,9 +2,9 @@ import subprocess
 
 
 def do_it(cmd, debug=False, dry=False):
-    if (debug):
+    if debug:
         print(cmd)
-    if (not dry):
+    if not dry:
         subprocess.call([cmd], shell=True)
 
 
@@ -15,8 +15,8 @@ def check_output(cmd):
     cmdstr = " ".join(cmd)
     print(cmdstr)
     out = subprocess.check_output(cmd, universal_newlines=True)
-    print(out, end='')
-    return(cmdstr, out)
+    print(out, end="")
+    return (cmdstr, out)
 
 
 print("")
@@ -31,7 +31,7 @@ def run_command(cmd_to_run, debug=False):
     from subprocess import PIPE, Popen
     import os
 
-    if (debug):
+    if debug:
         # If the command contains newline characters, we want to print it as \n
         # instead of printing a new line character. This is achieved by repr()
         print(repr(cmd_to_run))
@@ -42,16 +42,16 @@ def run_command(cmd_to_run, debug=False):
     o = o.decode().rstrip()
     e = e.decode().strip()
     # split rows
-    if o != '':
+    if o != "":
         o = o.split(os.linesep)
     else:
         o = []
-    if e != '':
+    if e != "":
         e = e.split(os.linesep)
     else:
         e = []
 
-    if (debug):
+    if debug:
         print("returncode:", p.returncode)
         print("output:", o)
         print("error:", e)
@@ -61,4 +61,4 @@ def run_command(cmd_to_run, debug=False):
 print("")
 retcode, output, error = run_command("seq 1 10 | tr '\n' ', '", debug=True)
 print("")
-retcode, output, error = run_command('ls | grep py', debug=True)
+retcode, output, error = run_command("ls | grep py", debug=True)
