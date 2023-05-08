@@ -232,6 +232,8 @@ def count_files(top, pattern, list_files):
     # * https://stackoverflow.com/questions/72274073/python-count-files-in-a-directory-and-all-its-subdirectories
     # * To experiment - https://github.com/KamarajuKusumanchi/notebooks/blob/master/python/so_72274073_count_files/count_files.ipynb
     #
+    # tags | for each directory in folder find the number of files
+    #
     # Todo:- add a depth parameter to restrict how far down we have to search
     # in 'top' directory.
     top = os.path.abspath(os.path.expanduser(top))
