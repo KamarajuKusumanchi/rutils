@@ -24,8 +24,11 @@ def test_print_without_index(capsys):
     )
     assert captured.out == expected_out
 
+
 def test_ljust():
-    input = pd.DataFrame({'col1': ['   abc ', ' abcd'], 'col2': ['a', 'ddddabcd']})
+    input = pd.DataFrame({"col1": ["   abc ", " abcd"], "col2": ["a", "ddddabcd"]})
     df_got = input.apply(ljust)
-    df_expected = pd.DataFrame({'col1': ['abc ', 'abcd'], 'col2': ['a       ', 'ddddabcd']})
+    df_expected = pd.DataFrame(
+        {"col1": ["abc ", "abcd"], "col2": ["a       ", "ddddabcd"]}
+    )
     assert_frame_equal(df_got, df_expected)
