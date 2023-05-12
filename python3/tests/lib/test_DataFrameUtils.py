@@ -1,5 +1,7 @@
 import pandas as pd
-from lib.DataFrameUtils import print_without_index
+from pandas.testing import assert_frame_equal
+
+from lib.DataFrameUtils import print_without_index, ljust
 
 
 def test_print_without_index(capsys):
@@ -21,3 +23,9 @@ def test_print_without_index(capsys):
         + "      123  2014-07-08 00:09:00             1411\n"
     )
     assert captured.out == expected_out
+
+def test_ljust():
+    input = pd.DataFrame({'col1': ['   abc ', ' abcd'], 'col2': ['a', 'ddddabcd']})
+    df_got = input.apply(ljust)
+    df_expected = pd.DataFrame({'col1': ['abc ', 'abcd'], 'col2': ['a       ', 'ddddabcd']})
+    assert_frame_equal(df_got, df_expected)
