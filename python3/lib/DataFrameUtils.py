@@ -9,3 +9,10 @@ def print_without_index(df: pd.DataFrame):
     df.index = blank_index
     print(df)
     df.index = original_index
+
+
+def ljust(s: pd.Series) -> pd.Series:
+    # Left justify a column
+    # Initial version is from https://stackoverflow.com/questions/74824553/how-to-left-align-column-values-in-pandas-to-string
+    s = s.astype(str).str.strip()
+    return s.str.ljust(s.str.len().max())
