@@ -120,3 +120,9 @@ dependencies:
     - ruamel.yaml.cmd
       # Simple ad-hoc static web page server with basic auth and https support
     - tiny-http-server
+      # Asof 2023-05-21 yfinance is failing with
+      # "Exception: yfinance failed to decrypt Yahoo data response"
+      # when querying for balance sheet information. It is being tracked
+      # under https://github.com/ranaroussi/yfinance/issues/1407
+      # Use yahooquery until that is fixed.
+    - yahooquery
