@@ -7,10 +7,12 @@
 # To remove the environment
 #   conda env remove --name <env_name>
 
-name: test_csvkit
+name: test_yfinance
 channels:
   - defaults
 dependencies:
-  - python=3.10
-  - csvkit
-  # - nomkl
+  - python=3.11
+    # yfinance library is the easiest and fastest way to download historical
+    # stock prices. Asof 2023-05-20, it is not available in the defaults
+    # channel. So pull it from conda-forge
+  - conda-forge::yfinance

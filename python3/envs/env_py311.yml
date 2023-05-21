@@ -91,6 +91,10 @@ dependencies:
     #     authentication (i.e. without keys)
   - paramiko
   - plotly
+    # yfinance library is the easiest and fastest way to download historical
+    # stock prices. Asof 2023-05-20, it is not available in the defaults
+    # channel. So pull it from conda-forge
+  - conda-forge::yfinance
   - pip:
     - nbopen
     # csvsql -h is giving some warnings such as
