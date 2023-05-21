@@ -101,7 +101,7 @@ dependencies:
     # But it has not been merged since 2022-04-04
     # Until that is merged use the fork https://github.com/andyhasit/textract/tree/patch-1
     # - textract
-    - git+https://github.com/andyhasit/textract/tree/patch-1
+    - git+https://github.com/andyhasit/textract
     - pydeps
     - fake-useragent
       # This provides market calendars to use with pandas for trading applications
