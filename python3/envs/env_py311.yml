@@ -95,6 +95,9 @@ dependencies:
     # stock prices. Asof 2023-05-20, it is not available in the defaults
     # channel. So pull it from conda-forge
   - conda-forge::yfinance
+    # Asof 2023-06-29, conda-forge has streamlit version 1.24.0 (the latest
+    # version) but the defaults channel has version 1.16.0. So use conda-forge.
+  - conda-forge::streamlit
   - pip:
     - nbopen
     # csvsql -h is giving some warnings such as
@@ -104,8 +107,14 @@ dependencies:
     # There is a pull request to do this: https://github.com/deanmalmgren/textract/pull/414
     # But it has not been merged since 2022-04-04
     # Until that is merged use the fork https://github.com/andyhasit/textract/tree/patch-1
+    #
+    # Note: On 2023-06-30, I am getting
+    # error in textract setup command: 'install_requires' must be a string or list of strings containing valid project/version requirement specifiers; Expected end or semicolon (after version specifier)
+    #      extract-msg<=0.29.*
+    #                 ~~~~~~^
+    # So I am not using textract anymore.
     # - textract
-    - git+https://github.com/andyhasit/textract
+    # - git+https://github.com/andyhasit/textract
     - pydeps
     - fake-useragent
       # This provides market calendars to use with pandas for trading applications
