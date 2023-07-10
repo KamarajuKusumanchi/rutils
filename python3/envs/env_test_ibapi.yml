@@ -24,11 +24,10 @@ dependencies:
       # - file:///home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl
       # but this will not be portable when you move to a different machine. A
       # better approach is to run
-      #  % pip config set global.find-links file:///home/rajulocal/software/dist
-      # so that
-      #  % cat ~/.config/pip/pip.conf 
-      # [global]
-      # find-links = file:///home/rajulocal/software/dist
-      #
+      #   % pip config set global.find-links file:///home/rajulocal/software/dist
+      # which will modify pip.conf as
+      #   % cat ~/.config/pip/pip.conf 
+      #  [global]
+      #  find-links = file:///home/rajulocal/software/dist
       # and then specify ibapi as a normal pip dependency.
     - ibapi
