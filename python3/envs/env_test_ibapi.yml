@@ -1,0 +1,22 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+# tags | twsapi
+name: test_ibapi
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      # The TWS python api is available as a zip file at
+      # https://interactivebrokers.github.io/# .
+      # use $github/market_data_processor/src/scripts/build_twsapi.sh to create
+      # a wheel file from it.
+    - file:///home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl
