@@ -98,6 +98,9 @@ dependencies:
     # Asof 2023-06-29, conda-forge has streamlit version 1.24.0 (the latest
     # version) but the defaults channel has version 1.16.0. So use conda-forge.
   - conda-forge::streamlit
+    # Asof 2023-07-11, ib-insync is only available in conda-forge and not
+    # available in the defaults channel.
+  - conda-forge::ib-insync
   - pip:
     - nbopen
     # csvsql -h is giving some warnings such as
@@ -135,19 +138,21 @@ dependencies:
       # under https://github.com/ranaroussi/yfinance/issues/1407
       # Use yahooquery until that is fixed.
     - yahooquery
-      # The TWS python api is available as a zip file at
-      # https://interactivebrokers.github.io/# .
-      # Use $github/market_data_processor/src/scripts/build_twsapi.sh to create
-      # a wheel from it. If the wheel is stored in, say,
-      # /home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl , you can
-      # pull that in using something like
-      # - file:///home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl
-      # but this will not be portable when you move to a different machine. A
-      # better approach is to run
-      #   % pip config set global.find-links file:///home/rajulocal/software/dist
-      # which will modify pip.conf as
-      #   % cat ~/.config/pip/pip.conf
-      #  [global]
-      #  find-links = file:///home/rajulocal/software/dist
-      # and then specify ibapi as a normal pip dependency.
-    - ibapi
+    # today | 2023-07-11
+    # ibapi has a steep learning curve. Decided to use ib_insync instead.
+    #   # The TWS python api is available as a zip file at
+    #   # https://interactivebrokers.github.io/# .
+    #   # Use $github/market_data_processor/src/scripts/build_twsapi.sh to create
+    #   # a wheel from it. If the wheel is stored in, say,
+    #   # /home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl , you can
+    #   # pull that in using something like
+    #   # - file:///home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl
+    #   # but this will not be portable when you move to a different machine. A
+    #   # better approach is to run
+    #   #   % pip config set global.find-links file:///home/rajulocal/software/dist
+    #   # which will modify pip.conf as
+    #   #   % cat ~/.config/pip/pip.conf
+    #   #  [global]
+    #   #  find-links = file:///home/rajulocal/software/dist
+    #   # and then specify ibapi as a normal pip dependency.
+    # - ibapi
