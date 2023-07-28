@@ -95,9 +95,7 @@ dependencies:
     # stock prices. Asof 2023-05-20, it is not available in the defaults
     # channel. So pull it from conda-forge
   - conda-forge::yfinance
-    # Asof 2023-06-29, conda-forge has streamlit version 1.24.0 (the latest
-    # version) but the defaults channel has version 1.16.0. So use conda-forge.
-  - conda-forge::streamlit
+  - streamlit
     # Asof 2023-07-11, ib-insync is only available in conda-forge and not
     # available in the defaults channel.
   - conda-forge::ib-insync
