@@ -113,9 +113,12 @@ dependencies:
     # error in textract setup command: 'install_requires' must be a string or list of strings containing valid project/version requirement specifiers; Expected end or semicolon (after version specifier)
     #      extract-msg<=0.29.*
     #                 ~~~~~~^
-    # So I am not using textract anymore.
+    #
+    # So, I created a fork of textract and fixed it myself.
     # - textract
     # - git+https://github.com/andyhasit/textract
+    # - git+file:///c/Users/raju/work/github/textract
+    - git+https://github.com/KamarajuKusumanchi/textract
     - pydeps
     - fake-useragent
       # This provides market calendars to use with pandas for trading applications
