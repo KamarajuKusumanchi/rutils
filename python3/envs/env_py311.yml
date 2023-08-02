@@ -123,7 +123,9 @@ dependencies:
     - fake-useragent
       # This provides market calendars to use with pandas for trading applications
     - pandas_market_calendars
-    - finvizfinance
+      # Need finvizfinance >= 0.14.6rc1 as it fixes
+      # https://github.com/lit26/finvizfinance/issues/74
+    - finvizfinance >= 0.14.6rc1
       # This is useful to extract annotations from a PDF file
     - pdfannots
       # Jupytext is useful to version control jupyter notebooks.
