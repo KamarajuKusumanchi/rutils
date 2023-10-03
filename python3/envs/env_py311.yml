@@ -92,7 +92,7 @@ dependencies:
   - paramiko
   - plotly
     # yfinance library is the easiest and fastest way to download historical
-    # stock prices. Asof 2023-05-20, it is not available in the defaults
+    # stock prices. Asof 2023-10-02, it is not available in the defaults
     # channel. So pull it from conda-forge
   - conda-forge::yfinance
   - streamlit
