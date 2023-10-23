@@ -30,7 +30,8 @@ dependencies:
   - pytest
   - psutil
   - pip
-  - matplotlib  # for plotting
+    # pandas -> dataframe -> plot() requires matplotlib
+  - matplotlib
     # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
     # https://stackoverflow.com/questions/61238640/click-in-ipython-terminal-window-genrate-mouseeventype-mouse-down-exception
   - prompt-toolkit >= 3.0.5
