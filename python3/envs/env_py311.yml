@@ -75,7 +75,8 @@ dependencies:
   - BeautifulSoup4
   - html5lib
   - lxml
-    # DataFrame.to_markdown() requires the tabulate package per
+    # DataFrame.to_markdown() can pretty print dataframes. It requires the
+    # tabulate package per
     # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
   - tabulate
     # PyYAML only supports YAML 1.1 spec. ruamel.yaml supports yaml 1.2 spec and
