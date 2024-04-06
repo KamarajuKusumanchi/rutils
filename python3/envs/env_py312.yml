@@ -1,0 +1,163 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: py312
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pandas
+  - pycodestyle
+  - fastavro
+    # Need pandas-datareader >= 0.10.0 as it has fixed yahoo reader which now
+    # require headers.
+    # Ref:- https://github.com/pydata/pandas-datareader/releases/tag/v0.10.0
+    #
+    # Need pandas-datareader >= 0.7 for
+    # https://github.com/pydata/pandas-datareader/pull/520
+  - pandas-datareader >= 0.10
+  - ipython
+    # "jupyter" comes from the jupyter_core pacakge, and jupyter-lab comes from
+    # the jupyterlab package. "jupyter-lab" replaces "jupyter notebook". Use
+    # the former instead of the latter.
+  - jupyterlab
+  - pytest
+  - psutil
+  - pip
+    # pandas -> dataframe -> plot() requires matplotlib
+  - matplotlib
+    # Need at least 3.0.5 of prompt-toolkit to prevent crashing of ipython when trying to copy paste from it.
+    # https://stackoverflow.com/questions/61238640/click-in-ipython-terminal-window-genrate-mouseeventype-mouse-down-exception
+  - prompt-toolkit >= 3.0.5
+  - black
+  - scikit-learn
+  - statsmodels
+    # Having conda here will be handy if the conda in base environment is broken.
+  - conda
+    # csvkit is useful for working with csv files.
+  - csvkit
+    # bs4 is useful to parse webpages.
+  - bs4
+  - pyodbc
+    # Asof 2021-05-30, I was getting the following error when trying to import
+    # pandas package on a machine running Debian bullseye (11)
+    #  % python
+    # Python 3.9.5 (default, May 18 2021, 19:34:48)
+    # [GCC 7.3.0] :: Anaconda, Inc. on linux
+    # >>> import pandas
+    # INTEL MKL ERROR: /home/rajulocal/miniconda3/envs/py39/lib/python3.9/site-packages/mkl/../../../libmkl_core.so.1: invalid ELF header.
+    # Intel MKL FATAL ERROR: Cannot load libmkl_core.so.1.
+    #
+    # As a work around, install nomkl package as suggested in
+    # https://stackoverflow.com/questions/55778337/what-is-intel-mkl-fatal-error-cannot-load-libmkl-core-dylib-while-running-pysp
+    #
+    # Update on 2021-12-31:
+    # On Windows 10 Enterprise, I am getting the following error while trying
+    # to create the environment using nomkl. So disabling it for now.
+    #   ResolvePackageNotFound:
+    #    - nomkl
+    #
+  # - nomkl
+    # BeautifulSoup4, html5lib, lxml are needed for read_html(). But they are
+    # listed as optional dependencies.  To be specific, BeautifulSoup4 can work
+    # with either of html5lib or lxml or both.
+    # Per https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-html-gotchas
+    # html5lib is slower but more accurate; lxml is faster but less accurate.
+    # Prefer html5lib whenever possible but install both parsers.
+    # For a full list of optional dependencies of pandas, see
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
+  - BeautifulSoup4
+  - html5lib
+  - lxml
+    # DataFrame.to_markdown() can pretty print dataframes. It requires the
+    # tabulate package per
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#optional-dependencies
+  - tabulate
+    # PyYAML only supports YAML 1.1 spec. ruamel.yaml supports yaml 1.2 spec and
+    # is an update of PyYAML.
+    # See https://yaml.org/ for more info.
+  - ruamel.yaml
+    # Hypothesis is needed if you want to pandas test suite. For more info, see
+    # https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html#running-the-test-suite
+  - hypothesis
+    # pdfannots outputs annotations in markdown format. Use pandoc to convert them into zimwiki format.
+  - pandoc
+    # usecase of paramiko:
+    #   * Automate the task of copying a file using scp with password based
+    #     authentication (i.e. without keys)
+  - paramiko
+  - plotly
+    # yfinance library is the easiest and fastest way to download historical
+    # stock prices. Asof 2023-10-02, it is not available in the defaults
+    # channel. So pull it from conda-forge
+  - conda-forge::yfinance
+  - streamlit
+    # Asof 2023-07-11, ib-insync is only available in conda-forge and not
+    # available in the defaults channel.
+  - conda-forge::ib-insync
+  - pip:
+    - nbopen
+    # csvsql -h is giving some warnings such as
+    # $ csvsql -h
+    # <frozen importlib._bootstrap>:914: ImportWarning: _SixMetaPathImporter.find_spec() not found; falling back to find_module()
+    # This will go away if textract depends on six >= 1.16.0. But it is currently pulling six 1.12.0.
+    # There is a pull request to do this: https://github.com/deanmalmgren/textract/pull/414
+    # But it has not been merged since 2022-04-04
+    # Until that is merged use the fork https://github.com/andyhasit/textract/tree/patch-1
+    #
+    # Note: On 2023-06-30, I am getting
+    # error in textract setup command: 'install_requires' must be a string or list of strings containing valid project/version requirement specifiers; Expected end or semicolon (after version specifier)
+    #      extract-msg<=0.29.*
+    #                 ~~~~~~^
+    #
+    # So, I created a fork of textract and fixed it myself.
+    # - textract
+    # - git+https://github.com/andyhasit/textract
+    # - git+file:///c/Users/raju/work/github/textract
+    - git+https://github.com/KamarajuKusumanchi/textract
+    - pydeps
+    - fake-useragent
+      # This provides market calendars to use with pandas for trading applications
+    - pandas_market_calendars
+      # Need finvizfinance >= 0.14.6rc1 as it fixes
+      # https://github.com/lit26/finvizfinance/issues/74
+    - finvizfinance >= 0.14.6rc1
+      # This is useful to extract annotations from a PDF file
+    - pdfannots
+      # Jupytext is useful to version control jupyter notebooks.
+    - jupytext
+      # ruamel.yaml.cmd gives a commandline utility called yaml
+      # Ref: https://yaml.readthedocs.io/en/latest/install.html
+    - ruamel.yaml.cmd
+      # Simple ad-hoc static web page server with basic auth and https support
+    - tiny-http-server
+      # Asof 2023-05-21 yfinance is failing with
+      # "Exception: yfinance failed to decrypt Yahoo data response"
+      # when querying for balance sheet information. It is being tracked
+      # under https://github.com/ranaroussi/yfinance/issues/1407
+      # Use yahooquery until that is fixed.
+    - yahooquery
+    # today | 2023-07-11
+    # ibapi has a steep learning curve. Decided to use ib_insync instead.
+    #   # The TWS python api is available as a zip file at
+    #   # https://interactivebrokers.github.io/# .
+    #   # Use $github/market_data_processor/src/scripts/build_twsapi.sh to create
+    #   # a wheel from it. If the wheel is stored in, say,
+    #   # /home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl , you can
+    #   # pull that in using something like
+    #   # - file:///home/rajulocal/software/dist/ibapi-10.22.1-py3-none-any.whl
+    #   # but this will not be portable when you move to a different machine. A
+    #   # better approach is to run
+    #   #   % pip config set global.find-links file:///home/rajulocal/software/dist
+    #   # which will modify pip.conf as
+    #   #   % cat ~/.config/pip/pip.conf
+    #   #  [global]
+    #   #  find-links = file:///home/rajulocal/software/dist
+    #   # and then specify ibapi as a normal pip dependency.
+    # - ibapi
