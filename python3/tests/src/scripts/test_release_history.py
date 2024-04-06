@@ -5,8 +5,8 @@ from src.scripts.release_history import python_release_history
 
 
 def test_python_release_history():
-    data = {'date': ["2023-02-08", "2022-12-06", "2022-10-24", "2023-02-08", "2022-12-06"],
-            'tag': ["3.11.2", "3.11.1", "3.11.0", "3.10.10", "3.10.9"]}
+    data = {'date': ["2024-02-06", "2023-12-08", "2023-10-02", "2024-02-06", "2023-12-04"],
+            'tag': ["3.12.2", "3.12.1", "3.12.0", "3.11.8", "3.11.7"]}
     df_expected = pd.DataFrame(data)
     df_expected['date'] = pd.to_datetime(df_expected['date'], format='%Y-%m-%d')
     df_got = python_release_history(limit=5)
