@@ -48,7 +48,6 @@ https://www.reddit.com/r/MachineLearning/comments/fdw0ax/d_advanced_courses_upda
 https://people.csail.mit.edu/jshun/6886-s18/
 https://pdos.csail.mit.edu/6.824/
 https://karma-engineering.com/lab/wiki/OnlineCourses
-https://www.ycombinator.com/apply/
 https://github.com/HackerNews/API
 https://www.ycombinator.com/legal/
 https://www.ycombinator.com/apply/

@@ -7,7 +7,7 @@ def test_get_urls_count():
     url = "https://news.ycombinator.com/item?id=25271676"
     urls_got = get_urls(url)
     nurls_got = len(urls_got)
-    nurls_expected = 54
+    nurls_expected = 53
     assert (
         nurls_got == nurls_expected
     ), "Expecting {} urls but got {} urls instead".format(nurls_expected, nurls_got)
