@@ -34,4 +34,4 @@ dependencies:
     # I am getting
     #     chessli 0.1.0 depends on rich<10.0.0 and >=9.9.0
     #     apy 0.13.1 depends on rich<14.0.0 and >=13.7.1
-    - git+https://github.com/lervag/apy.git@v0.13.1#egg=apy
+    - git+https://github.com/lervag/apy.git@v0.6.0#egg=apy
