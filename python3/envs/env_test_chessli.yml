@@ -17,3 +17,21 @@ dependencies:
   - pip
   - pip:
     - chessli
+    # Per https://pwenker.com/chessli/tutorial/how_to_set_up_chessli/
+    # * chessli requires apy in order to directly "ankify" your mistakes,
+    #   openings and tactics.
+    # * Asof 2024-04-06, chessli is compatible with apy version 0.6.0 and
+    #   anki version 2.1.26.
+    # The apy package in pypi (https://pypi.org/project/apy/) is not the apy
+    # package in https://github.com/lervag/apy . We want the latter.
+    # With
+    # - git+https://github.com/lervag/apy
+    # it is pulling apy 0.14.0 with which I am getting
+    #     chessli 0.1.0 depends on rich<10.0.0 and >=9.9.0
+    #     apy 0.14.0 depends on rich<14.0.0 and >=13.7.1
+    # With
+    # - git+https://github.com/lervag/apy.git@v0.13.1#egg=apy
+    # I am getting
+    #     chessli 0.1.0 depends on rich<10.0.0 and >=9.9.0
+    #     apy 0.13.1 depends on rich<14.0.0 and >=13.7.1
+    - git+https://github.com/lervag/apy.git@v0.13.1#egg=apy
