@@ -1,0 +1,19 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: test_chessli
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+    # chessli does not seem to work with pandas >= 2.0.0
+  - pandas=1.5.3
+  - pip
+  - pip:
+    - chessli
