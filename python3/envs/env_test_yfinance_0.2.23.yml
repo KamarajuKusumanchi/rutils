@@ -1,0 +1,18 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: test_yfinance_0.2.23
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+    # yfinance library is the easiest and fastest way to download historical
+    # stock prices. Asof 2024-07-04, it is not available in the defaults
+    # channel. So pull it from conda-forge
+  - conda-forge::yfinance=0.2.23
