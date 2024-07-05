@@ -96,7 +96,10 @@ dependencies:
     # yfinance library is the easiest and fastest way to download historical
     # stock prices. Asof 2024-07-04, it is not available in the defaults
     # channel. So pull it from conda-forge
-  - conda-forge::yfinance
+    #
+    # With yfinance 0.2.26, I encountered https://github.com/ranaroussi/yfinance/issues/1592
+    # With yfinance 0.2.33, I encountered https://github.com/ranaroussi/yfinance/issues/1894
+  - conda-forge::yfinance >= 0.2.34
   - streamlit
     # Asof 2023-07-11, ib-insync is only available in conda-forge and not
     # available in the defaults channel.
