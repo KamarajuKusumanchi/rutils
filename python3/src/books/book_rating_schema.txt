@@ -1,0 +1,9 @@
+columns:
+  * book
+  * rating
+    * rating is an integer in between [-10, 10] inclusive.
+
+Policy:
+  * When you read a book on an adhoc basis about a random topic
+    -> if you like it -> increment the rating by 1.
+    -> if you did not like it -> decrement the rating by 1.

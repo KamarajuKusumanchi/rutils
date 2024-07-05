@@ -104,6 +104,8 @@ dependencies:
     # Asof 2023-07-11, ib-insync is only available in conda-forge and not
     # available in the defaults channel.
   - conda-forge::ib-insync
+    # pipdeptree is a nice tool to visualize pip dependencies.
+  - conda-forge::pipdeptree
   - pip:
     - nbopen
     # csvsql -h is giving some warnings such as
