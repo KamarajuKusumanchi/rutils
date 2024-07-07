@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import os
 
 import pandas as pd
@@ -16,5 +17,5 @@ if __name__ == "__main__":
     book_df = book_df.merge(ratings, on=['book'], how='left')
     book_df['rating'].fillna(0, inplace=True)
     book_df.sort_values(by=['rating'], ascending=False, inplace=True)
-    # book_df.to_csv(sys.stdout, index=False)
-    [print(x) for x in book_df['book'].values]
+    book_df.to_csv(sys.stdout, index=False)
+    # [print(x) for x in book_df['book'].values]
