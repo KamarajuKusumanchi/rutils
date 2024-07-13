@@ -50,5 +50,13 @@ dependencies:
     # There is a pull request to do this: https://github.com/deanmalmgren/textract/pull/414
     # But it has not been merged since 2022-04-04
     # Until that is merged use the fork https://github.com/andyhasit/textract/tree/patch-1
+    #
+    # Note: On 2023-06-30, I am getting
+    # error in textract setup command: 'install_requires' must be a string or list of strings containing valid project/version requirement specifiers; Expected end or semicolon (after version specifier)
+    #      extract-msg<=0.29.*
+    #                 ~~~~~~^
+    #
+    # So, I created a fork of textract and fixed it myself.
     # - textract
-    - git+https://github.com/andyhasit/textract/tree/patch-1
+    # - git+https://github.com/andyhasit/textract.git@patch-1
+    - git+https://github.com/KamarajuKusumanchi/textract.git
