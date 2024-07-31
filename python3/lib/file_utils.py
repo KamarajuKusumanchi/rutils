@@ -234,7 +234,7 @@ def count_files(top, pattern, list_files):
     #
     # tags | for each directory in folder find the number of files,
     # number of files in a directory and its subdirectories,
-    # dokuwiki count pages
+    # dokuwiki count pages, number of pages dokuwiki
     #
     # Todo:- add a depth parameter to restrict how far down we have to search
     # in 'top' directory.
