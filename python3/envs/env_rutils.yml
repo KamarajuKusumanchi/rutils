@@ -60,3 +60,5 @@ dependencies:
     # - textract
     # - git+https://github.com/andyhasit/textract.git@patch-1
     - git+https://github.com/KamarajuKusumanchi/textract.git
+      # Jupytext is useful to version control jupyter notebooks.
+    - jupytext
