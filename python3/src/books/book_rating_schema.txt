@@ -1,7 +1,7 @@
 columns:
   * book
   * rating
-    * rating is an integer in between [-10, 10] inclusive.
+    * rating is an integer between [-10, 10] inclusive.
 
 Policy:
   * When you read a book on an adhoc basis about a random topic
