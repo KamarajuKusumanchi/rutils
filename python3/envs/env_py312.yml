@@ -161,3 +161,6 @@ dependencies:
     #   #  find-links = file:///home/rajulocal/software/dist
     #   # and then specify ibapi as a normal pip dependency.
     # - ibapi
+      # isbntools comes with isbn_meta command which can be used to get the
+      # details of a book using ISBN
+    - isbntools
