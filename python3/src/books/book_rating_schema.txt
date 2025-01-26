@@ -5,5 +5,6 @@ columns:
 
 Policy:
   * When you read a book on an adhoc basis about a random topic
+    -> start with a 0 rating
     -> if you like it -> increment the rating by 1.
     -> if you did not like it -> decrement the rating by 1.
