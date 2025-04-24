@@ -25,7 +25,19 @@ def create_parser():
 
 
 def get_urls(url):
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except requests.exceptions.SSLError as e:
+        # handle exceptions such as
+        # requests.exceptions.SSLError: HTTPSConnectionPool(host='news.ycombinator.com', port=443): Max retries
+        # exceeded with url: /item?id=25271676 (Caused by SSLError(SSLCertVerificationError(1,
+        # '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate
+        # (_ssl.c:1006)')))
+        print('encountered exception:')
+        print(e)
+        print('disabling SSL and trying again.')
+        response = requests.get(url, verify=False)
+
     soup = BeautifulSoup(response.text, 'html.parser')
     urls = [
         x.get('href')
