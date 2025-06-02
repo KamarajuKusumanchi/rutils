@@ -11,13 +11,17 @@ name: rutils
 channels:
   - defaults
 dependencies:
-  - python=3.11
+  - python=3.13
   - pandas
   - pycodestyle
   - fastavro
+    # Need pandas-datareader >= 0.10.0 as it has fixed yahoo reader which now
+    # require headers.
+    # Ref:- https://github.com/pydata/pandas-datareader/releases/tag/v0.10.0
+    #
     # Need pandas-datareader >= 0.7 for
     # https://github.com/pydata/pandas-datareader/pull/520
-  - pandas-datareader >= 0.7
+  - pandas-datareader >= 0.10
   - ipython
     # "jupyter" comes from the jupyter_core pacakge, and jupyter-lab comes from
     # the jupyterlab package. "jupyter-lab" replaces "jupyter notebook". Use
@@ -42,6 +46,21 @@ dependencies:
   - BeautifulSoup4
   - html5lib
   - lxml
+  - pandoc
+    # usecase of paramiko:
+    #   * Automate the task of copying a file using scp with password based
+    #     authentication (i.e. without keys)
+    # On Windows, I experienced errors such as
+    # >>> import requests
+    # >>> requests.get('http://www.github.com', proxies={'https_proxy': 'myhttp.proxy.com', 'http_proxy': 'myhttps.proxy.com'})
+    # ...
+    # requests.exceptions.SSLError: HTTPSConnectionPool(host='www.github.com',
+    #   port=443): Max retries exceeded with url: / (Caused by
+    #   SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED]
+    #   certificate verify failed: unable to get local issuer certificate
+    #   (_ssl.c:1028)')))
+    # installing pip-system-certs solved that.
+  - conda-forge::pip-system-certs
   - pip:
     # csvsql -h is giving some warnings such as
     # $ csvsql -h
