@@ -1,4 +1,4 @@
 To run the tests
-source activate rutils
+conda activate rutils
 cd $PROJECT_ROOT/python3
 python -m pytest
