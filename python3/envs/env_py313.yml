@@ -1,0 +1,25 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: py313
+channels:
+  - defaults
+dependencies:
+  - python=3.13
+    # On Windows, I experienced errors such as
+    # >>> import requests
+    # >>> requests.get('http://www.github.com', proxies={'https_proxy': 'myhttp.proxy.com', 'http_proxy': 'myhttps.proxy.com'})
+    # ...
+    # requests.exceptions.SSLError: HTTPSConnectionPool(host='www.github.com',
+    #   port=443): Max retries exceeded with url: / (Caused by
+    #   SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED]
+    #   certificate verify failed: unable to get local issuer certificate
+    #   (_ssl.c:1028)')))
+    # installing pip-system-certs solved that.
+  - conda-forge::pip-system-certs
