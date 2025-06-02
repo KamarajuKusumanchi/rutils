@@ -10,13 +10,14 @@
 
 # set -x
 current_env=$CONDA_DEFAULT_ENV
-# desired environment is set to py311. Change it as needed.
-desired_env=py311
+# Setting the desired environment here. Change it as needed.
+desired_env=py313
 
 if [[ $current_env != $desired_env ]];
 then
     # echo "setting environment to $desired_env"
     source activate $desired_env
+    # conda activate $desired_env
 fi
 # echo "using" $(which python)
 python "$@"
