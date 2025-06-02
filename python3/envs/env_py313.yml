@@ -9,9 +9,16 @@
 
 name: py313
 channels:
-  - defaults
+  # On 2025-06-02, I decided to switch everything to conda-forge instead of the
+  # defaults channel.
+  #
+  # - defaults
+  - conda-forge
 dependencies:
   - python=3.13
+  - requests
+    # bs4 is useful to parse webpages.
+  - bs4
     # On Windows, I experienced errors such as
     # >>> import requests
     # >>> requests.get('http://www.github.com', proxies={'https_proxy': 'myhttp.proxy.com', 'http_proxy': 'myhttps.proxy.com'})
@@ -22,4 +29,4 @@ dependencies:
     #   certificate verify failed: unable to get local issuer certificate
     #   (_ssl.c:1028)')))
     # installing pip-system-certs solved that.
-  - conda-forge::pip-system-certs
+  - pip-system-certs
