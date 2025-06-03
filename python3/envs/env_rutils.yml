@@ -47,9 +47,9 @@ dependencies:
   - html5lib
   - lxml
   - pandoc
-    # usecase of paramiko:
-    #   * Automate the task of copying a file using scp with password based
-    #     authentication (i.e. without keys)
+    # Jupytext is useful to version control jupyter notebooks.
+    # Upstream website (https://github.com/mwouts/jupytext) suggests to use conda-forge
+  - conda-forge::jupytext
     # On Windows, I experienced errors such as
     # >>> import requests
     # >>> requests.get('http://www.github.com', proxies={'https_proxy': 'myhttp.proxy.com', 'http_proxy': 'myhttps.proxy.com'})
@@ -79,5 +79,3 @@ dependencies:
     # - textract
     # - git+https://github.com/andyhasit/textract.git@patch-1
     - git+https://github.com/KamarajuKusumanchi/textract.git
-      # Jupytext is useful to version control jupyter notebooks.
-    - jupytext
