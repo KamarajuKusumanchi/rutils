@@ -29,33 +29,38 @@ def partition_tasks(N, p):
     return partitionIndex
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     N = 12
     p = 4
     a = partition_tasks(N, p)
-    assert a.equals(pd.Series([0, 3, 6, 9, 12])),\
-        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+    assert a.equals(
+        pd.Series([0, 3, 6, 9, 12])
+    ), "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
 
     N = 13
     p = 4
     a = partition_tasks(N, p)
-    assert a.equals(pd.Series([0, 4, 7, 10, 13])),\
-        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+    assert a.equals(
+        pd.Series([0, 4, 7, 10, 13])
+    ), "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
 
     N = 14
     p = 4
     a = partition_tasks(N, p)
-    assert a.equals(pd.Series([0, 4, 8, 11, 14])),\
-        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+    assert a.equals(
+        pd.Series([0, 4, 8, 11, 14])
+    ), "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
 
     N = 15
     p = 4
     a = partition_tasks(N, p)
-    assert a.equals(pd.Series([0, 4, 8, 12, 15])),\
-        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+    assert a.equals(
+        pd.Series([0, 4, 8, 12, 15])
+    ), "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
 
     N = 16
     p = 4
     a = partition_tasks(N, p)
-    assert a.equals(pd.Series([0, 4, 8, 12, 16])),\
-        "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
+    assert a.equals(
+        pd.Series([0, 4, 8, 12, 16])
+    ), "partition_tasks returned unexpected results for N = %d, p = %d" % (N, p)
