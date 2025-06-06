@@ -1,0 +1,24 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: test_yfinance_0.2.61
+channels:
+  # - defaults
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+      # yfinance library is the easiest and fastest way to download historical
+      # stock prices. Asof 2025-06-06, it is not available in the defaults
+      # channel. It is packaged in conda-forge. But one of its dependencies
+      # curl-cffi is not packaged for windows in conda-forge.
+      # Upstream only supports pip. So install it from pip.
+      # Ref:- https://github.com/conda-forge/curl-cffi-feedstock/issues/8
+    - yfinance
