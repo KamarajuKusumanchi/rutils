@@ -16,6 +16,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.13
+  - pandas
   - requests
     # Having conda here will be handy if the conda in base environment is broken.
   - conda
