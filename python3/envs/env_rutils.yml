@@ -47,6 +47,8 @@ dependencies:
   - html5lib
   - lxml
   - pandoc
+    # pypandoc is a python wrapper for pandoc.
+  - pypandoc
     # Jupytext is useful to version control jupyter notebooks.
     # Upstream website (https://github.com/mwouts/jupytext) suggests to use conda-forge
   - conda-forge::jupytext
