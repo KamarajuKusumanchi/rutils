@@ -18,6 +18,7 @@ dependencies:
   - python=3.13
   - pandas
   - requests
+  - pip
     # Having conda here will be handy if the conda in base environment is broken.
   - conda
     # bs4 is useful to parse webpages.
@@ -33,3 +34,26 @@ dependencies:
     #   (_ssl.c:1028)')))
     # installing pip-system-certs solved that.
   - pip-system-certs
+    # pdfannots outputs annotations in markdown format. Use pandoc to convert them into zimwiki format.
+  - pandoc
+  - pip:
+    # csvsql -h is giving some warnings such as
+    # $ csvsql -h
+    # <frozen importlib._bootstrap>:914: ImportWarning: _SixMetaPathImporter.find_spec() not found; falling back to find_module()
+    # This will go away if textract depends on six >= 1.16.0. But it is currently pulling six 1.12.0.
+    # There is a pull request to do this: https://github.com/deanmalmgren/textract/pull/414
+    # But it has not been merged since 2022-04-04
+    # Until that is merged use the fork https://github.com/andyhasit/textract/tree/patch-1
+    #
+    # Note: On 2023-06-30, I am getting
+    # error in textract setup command: 'install_requires' must be a string or list of strings containing valid project/version requirement specifiers; Expected end or semicolon (after version specifier)
+    #      extract-msg<=0.29.*
+    #                 ~~~~~~^
+    #
+    # So, I created a fork of textract and fixed it myself.
+    # - textract
+    # - git+https://github.com/andyhasit/textract
+    # - git+file:///c/Users/raju/work/github/textract
+    - git+https://github.com/KamarajuKusumanchi/textract
+      # This is useful to extract annotations from a PDF file
+    - pdfannots
