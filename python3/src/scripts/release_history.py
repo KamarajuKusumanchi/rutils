@@ -27,6 +27,10 @@ def create_parser():
 
 
 def python_release_history(limit):
+    # asof | 2025-11-19, this function is not working.
+    # TODO:- Implement the solution suggested in https://stackoverflow.com/questions/65311659/getting-the-latest-python-3-version-programmatically
+    # It involves parsing https://www.python.org/ftp/python/
+    #
     # If you want to experiment, use public/sandbox/jupytext/python_release_history.py
     url = "https://www.python.org/doc/versions/"
     response = requests.get(url)
