@@ -4,10 +4,13 @@ import subprocess
 import re
 import traceback
 
+
 def get_conda_env_creation_dates():
     try:
         # Get conda environment paths
-        result = subprocess.run(['conda', 'info', '--json'], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ['conda', 'info', '--json'], capture_output=True, text=True, check=True
+        )
         # There were some characters such as
         #   \x1b[0m
         # at the beginning of result.stdout .
@@ -43,6 +46,7 @@ def get_conda_env_creation_dates():
         print("conda command not found. Ensure conda is installed and in your PATH.")
         traceback.print_exc()
         return {}
+
 
 if __name__ == "__main__":
     dates = get_conda_env_creation_dates()
