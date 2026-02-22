@@ -25,6 +25,8 @@ dependencies:
   - jupyterlab
   - pytest
   - pip
+    # pandas -> dataframe -> plot() requires matplotlib
+  - matplotlib
     # Having conda here will be handy if the conda in base environment is broken.
   - conda
     # bs4 is useful to parse webpages.
