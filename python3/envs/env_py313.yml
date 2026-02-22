@@ -36,6 +36,8 @@ dependencies:
   - pip-system-certs
     # pdfannots outputs annotations in markdown format. Use pandoc to convert them into zimwiki format.
   - pandoc
+    # Need scipy for functions such as scipy.stats.chatterjeexi
+  - scipy
   - pip:
     # csvsql -h is giving some warnings such as
     # $ csvsql -h
