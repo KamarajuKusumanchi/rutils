@@ -18,6 +18,12 @@ dependencies:
   - python=3.13
   - pandas
   - requests
+  - ipython
+    # "jupyter" comes from the jupyter_core pacakge, and jupyter-lab comes from
+    # the jupyterlab package. "jupyter-lab" replaces "jupyter notebook". Use
+    # the former instead of the latter.
+  - jupyterlab
+  - pytest
   - pip
     # Having conda here will be handy if the conda in base environment is broken.
   - conda
