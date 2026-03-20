@@ -46,6 +46,8 @@ dependencies:
   - pandoc
     # Need scipy for functions such as scipy.stats.chatterjeexi
   - scipy
+    # To build "uBlock Origin Lite" chrome extension
+  - make
   - pip:
     # csvsql -h is giving some warnings such as
     # $ csvsql -h

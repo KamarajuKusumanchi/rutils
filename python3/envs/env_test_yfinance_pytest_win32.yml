@@ -1,0 +1,46 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: test_yfinance_pytest_win32
+channels:
+  # - defaults
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pytest
+  - pip-system-certs  # [linux]
+  - pip
+  - pip:
+      # asof | 2026-03-20
+      #
+      # On Windows 11, yfinance is not working with pip-system-certs. It gives the following error.
+      #
+      # cd $market_data_processor
+      # python -m pytest -p no:faulthandler --ignore=deprecated tests/test_yfinance.py
+      # ...
+      # FAILED tests/test_yfinance.py::test_ticker_info - curl_cffi.requests.exceptions.CertificateVerifyError: Failed to perform, curl: (60) SSL certificate problem: unable to get local issuer certificate. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+      # FAILED tests/test_yfinance.py::test_news_search - curl_cffi.requests.exceptions.CertificateVerifyError: Failed to perform, curl: (60) SSL certificate problem: unable to get local issuer certificate. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+      # 
+      # One work around is to install python-certifi-win32. But it is not
+      # recommended to insstall both pip-system-certs and python-certifi-win32
+      # at the same time. So install pip-system-certs on linux and
+      # python-certifi-win32 on windows. I tried to do this using platform
+      # selectors. But it does not seem to be working. Afterwards, see if there
+      # is a way to achieve that.
+      #
+      # Another quirk is that python-certifi-win32 is available only on pip but
+      # not on conda-forge.
+    - python-certifi-win32  # [win]
+      # yfinance library is the easiest and fastest way to download historical
+      # stock prices. Asof 2025-06-06, it is not available in the defaults
+      # channel. It is packaged in conda-forge. But one of its dependencies
+      # curl-cffi is not packaged for windows in conda-forge.
+      # Upstream only supports pip. So install it from pip.
+      # Ref:- https://github.com/conda-forge/curl-cffi-feedstock/issues/8
+    - yfinance
