@@ -15,7 +15,7 @@ if __name__ == "__main__":
     book_list = sys.stdin.read().splitlines()
     book_df = pd.DataFrame({'book': book_list})
     book_df = book_df.merge(ratings, on=['book'], how='left')
-    book_df['rating'].fillna(0, inplace=True)
+    book_df['rating'] = book_df['rating'].fillna(0)
     book_df.sort_values(by=['rating'], ascending=False, inplace=True)
     book_df.to_csv(sys.stdout, index=False)
     # [print(x) for x in book_df['book'].values]
