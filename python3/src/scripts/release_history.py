@@ -25,6 +25,7 @@ def create_parser():
     )
     return parser
 
+
 def fetch_releases():
     print("Fetching Python release history from python.org...")
     # hit the official python.org REST API (/api/v2/downloads/release/) to get up to 200 releases.
@@ -52,6 +53,7 @@ def build_dataframe(releases):
         ascending=True,
     ).reset_index(drop=True)
     return df
+
 
 def python_release_history(limit):
     releases = fetch_releases()
