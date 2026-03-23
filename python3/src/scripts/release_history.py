@@ -25,44 +25,40 @@ def create_parser():
     )
     return parser
 
+def fetch_releases():
+    print("Fetching Python release history from python.org...")
+    # hit the official python.org REST API (/api/v2/downloads/release/) to get up to 200 releases.
+    API_URL = "https://www.python.org/api/v2/downloads/release/?format=json&limit=200"
+    response = requests.get(API_URL, timeout=15)
+    response.raise_for_status()
+    data = response.json()
+    return data
+
+
+def version_sort_key(v):
+    parts = v.split(".")
+    return (int(parts[0]), int(parts[1]), parts[2] if len(parts) == 3 else "")
+
+
+def build_dataframe(releases):
+    df = pd.DataFrame(releases)
+    df = df[df["show_on_download_page"]][["name", "release_date"]]
+    df.columns = ["version", "release_date"]
+    df["version"] = df["version"].str.replace("Python ", "", regex=False)
+    df["release_date"] = pd.to_datetime(df["release_date"], errors="coerce").dt.date
+    df = df.sort_values(
+        by=["version", "release_date"],
+        key=lambda s: s.apply(version_sort_key) if s.name == "version" else s,
+        ascending=True,
+    ).reset_index(drop=True)
+    return df
 
 def python_release_history(limit):
-    # asof | 2025-11-19, this function is not working.
-    # TODO:- Implement the solution suggested in https://stackoverflow.com/questions/65311659/getting-the-latest-python-3-version-programmatically
-    # It involves parsing https://www.python.org/ftp/python/
-    #
-    # If you want to experiment, use public/sandbox/jupytext/python_release_history.py
-    url = "https://www.python.org/doc/versions/"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    # We want to parse lines such as
-    # <div class="section" id="python-documentation-by-version">
-    # ...
-    # <li><a class="reference external" href="https://docs.python.org/release/3.11.0/">Python 3.11.0</a>, documentation released on 24 October 2022.</li>
-    # ...
-    # </div>
-    div = soup.find("div", attrs={"id": "python-documentation-by-version"})
-    release_data = []
-    for link in div.findAll("li"):
-        # Sample output:
-        # link = '<li><a class="reference external" href="https://docs.python.org/release/3.11.0/">Python 3.11.0</a>,' +
-        #   ' documentation released on 24 October 2022.</li>'
-        # x.contents = ['Python 3.11.0']
-        # release_tag = '3.11.0'
-        # y = ', documentation released on 24 October 2022.'
-        # release_date = '24 October 2022'
-        x = link.find("a", attrs={"href": re.compile("^https*://")})
-        matches = re.search("Python (.*)$", x.contents[0])
-        release_tag = matches.group(1)
-        y = link.contents[1].replace("\n", " ")
-        matches = re.search(r", documentation released on (\d* .* \d*)\.?$", y)
-        release_date = matches.group(1)
-        release_data.append((release_date, release_tag))
-    releases = pd.DataFrame(release_data, columns=["date", "tag"])
-    releases['date'] = pd.to_datetime(releases['date'], format="%d %B %Y")
+    releases = fetch_releases()
+    df = build_dataframe(releases)
     if limit:
-        releases = releases.loc[: limit - 1, :]
-    return releases
+        df = df.tail(limit).reset_index(drop=True)
+    return df
 
 
 if __name__ == "__main__":
