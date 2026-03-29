@@ -9,7 +9,11 @@
 
 name: rutils
 channels:
-  - defaults
+  # On 2026-03-29, I switched everything to conda-forge instead of the defaults
+  # channel.
+  #
+  # - defaults
+  - conda-forge
 dependencies:
   - python=3.13
   - pandas
@@ -50,8 +54,7 @@ dependencies:
     # pypandoc is a python wrapper for pandoc.
   - pypandoc
     # Jupytext is useful to version control jupyter notebooks.
-    # Upstream website (https://github.com/mwouts/jupytext) suggests to use conda-forge
-  - conda-forge::jupytext
+  - jupytext
     # On Windows, I experienced errors such as
     # >>> import requests
     # >>> requests.get('http://www.github.com', proxies={'https_proxy': 'myhttp.proxy.com', 'http_proxy': 'myhttps.proxy.com'})
@@ -62,7 +65,8 @@ dependencies:
     #   certificate verify failed: unable to get local issuer certificate
     #   (_ssl.c:1028)')))
     # installing pip-system-certs solved that.
-  - conda-forge::pip-system-certs
+  - pip-system-certs  # [linux]
+  - typer
   - pip:
     # csvsql -h is giving some warnings such as
     # $ csvsql -h

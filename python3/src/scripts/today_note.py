@@ -11,7 +11,6 @@ from datetime import date
 import typer
 
 app = typer.Typer(
-    help="Create a note for today.",
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
