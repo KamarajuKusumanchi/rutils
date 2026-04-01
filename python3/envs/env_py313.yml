@@ -48,6 +48,7 @@ dependencies:
   - scipy
     # To build "uBlock Origin Lite" chrome extension
   - make
+  - typer
   - pip:
     # csvsql -h is giving some warnings such as
     # $ csvsql -h
