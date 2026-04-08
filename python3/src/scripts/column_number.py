@@ -19,6 +19,7 @@ def find_column_number(csv_file: str, column_name: str) -> int:
 
     # nrows=0 tells pandas to read only the header without loading any data rows.
     df = pd.read_csv(csv_file, nrows=0)
+    df.columns = df.columns.str.strip()
 
     if column_name not in df.columns:
         print(f"Column '{column_name}' not found")

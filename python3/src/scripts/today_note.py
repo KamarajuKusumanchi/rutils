@@ -14,6 +14,7 @@ app = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
+
 def create_or_open_note(directory: Path, editor: str):
     """Create today's note file if it doesn't exist, then open it in the editor."""
     # Get today's date in yyyy-mm-dd format
@@ -33,11 +34,13 @@ def create_or_open_note(directory: Path, editor: str):
     # Open in vim
     subprocess.run([editor, str(filepath)])
 
+
 @app.command()
 def main(
     directory: Path = typer.Option(
         Path("."),
-        "--dir", "-d",
+        "--dir",
+        "-d",
         help="Directory where the note file will be created.",
         exists=True,
         file_okay=False,
@@ -46,7 +49,8 @@ def main(
     ),
     editor: str = typer.Option(
         "vim",
-        "--editor", "-e",
+        "--editor",
+        "-e",
         help="Editor to open the note with.",
     ),
 ):
