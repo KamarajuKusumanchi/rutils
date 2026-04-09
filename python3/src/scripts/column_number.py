@@ -11,7 +11,7 @@
 import typer
 import pandas as pd
 
-app = typer.Typer()
+app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})
 
 
 def find_column_number(csv_file: str, column_name: str) -> int:
