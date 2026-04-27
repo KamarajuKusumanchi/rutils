@@ -17,6 +17,14 @@ Results are capped at 10, deduplicated by work, and printed newest-first.
 """
 
 # changelog:
+# * 2026-04-27 refactor lookup_by_isbn() to delegate to fetch_edition_details();
+#              expand fetch_edition_details() to return authors, subjects, and
+#              ol_url so both callers share a single Books API code path (@claude).
+# * 2026-04-27 _format_search_doc() now uses fetch_edition_details() as the
+#              primary source for all edition-level fields (title, publisher,
+#              year, edition name, pages) once an ISBN is known, rather than
+#              merging sparse search-response data with Books API fallbacks
+#              (@claude).
 # * 2026-04-26 use editions.sort=publish_date desc so the embedded edition
 #              block reflects the latest edition's ISBN, publisher, and year
 #              rather than aggregated work-level data (@claude).
@@ -43,7 +51,7 @@ SESSION       = requests.Session()
 SESSION.headers.update({"User-Agent": "BookSearchScript/1.0 (educational use)"})
 
 # Columns present in every book record (keeps DataFrame shape consistent)
-COLUMNS = ["title", "authors", "publisher", "year", "pages",
+COLUMNS = ["title", "authors", "publisher", "year", "edition", "pages",
            "isbn", "subjects", "ol_url", "amazon_link"]
 
 
@@ -70,10 +78,7 @@ def extract_year(date_str: str) -> Optional[int]:
 
 
 def amazon_link(isbn: str) -> str:
-    clean = isbnlib.canonical(isbn)
-    if isbnlib.is_isbn13(clean):
-        return f"https://www.amazon.com/dp/{clean}"
-    return f"https://www.amazon.com/s?k={clean}&i=stripbooks"
+    return f"https://www.amazon.com/s?k={isbnlib.canonical(isbn)}"
 
 
 def pick_best_isbn(isbn_list: list) -> Optional[str]:
@@ -93,37 +98,70 @@ def pick_best_isbn(isbn_list: list) -> Optional[str]:
 # ── Open Library: ISBN lookup ──────────────────────────────────────────────────
 
 def lookup_by_isbn(isbn: str) -> Optional[dict]:
-    """Fetch one book directly by ISBN; return a normalised record dict."""
+    """Validate isbn, normalise to ISBN-13, then delegate to fetch_edition_details."""
     clean = isbnlib.canonical(isbn)
     if not (isbnlib.is_isbn10(clean) or isbnlib.is_isbn13(clean)):
         print(f"  '{isbn}' does not look like a valid ISBN.", file=sys.stderr)
         return None
 
     isbn13 = isbnlib.to_isbn13(clean) or clean
+    ed = fetch_edition_details(isbn13)
+    if not ed["title"]:
+        return None
+
+    return {
+        "title":       ed["title"],
+        "authors":     ed["authors"],
+        "publisher":   ed["publisher"] or "Unknown",
+        "year":        ed["year"],
+        "edition":     ed["edition_name"],
+        "pages":       ed["pages"],
+        "isbn":        isbn13,
+        "subjects":    ed["subjects"],
+        "ol_url":      ed["ol_url"],
+        "amazon_link": amazon_link(isbn13),
+    }
+
+
+# ── Open Library: edition detail lookup ───────────────────────────────────────
+
+def fetch_edition_details(isbn: str) -> dict:
+    """
+    Fetch all edition-level fields for a single ISBN via the Books API.
+    Returns a dict with normalised values (None when absent).
+    Used by _format_search_doc() as the authoritative source for edition data
+    once we have an ISBN, rather than piecing things together from the search
+    response's sparse nested edition block.
+    """
+    empty = {
+        "title": None, "authors": [], "publisher": None, "year": None,
+        "edition_name": None, "pages": None, "subjects": [], "ol_url": "",
+    }
+    # Always use ISBN-13 so the bibkey and response key match reliably.
+    isbn13 = isbnlib.to_isbn13(isbnlib.canonical(isbn)) or isbn
     data = get_json(OL_BOOKS_URL, bibkeys=f"ISBN:{isbn13}",
                     format="json", jscmd="data")
     if not data:
-        return None
-
-    rec = data.get(f"ISBN:{isbn13}")
+        return empty
+    rec = data.get(f"ISBN:{isbn13}", {})
     if not rec:
-        return None
+        return empty
 
-    title    = rec.get("title", "Unknown Title").replace(" :", ":")
+    title    = rec.get("title")
     subtitle = rec.get("subtitle")
-    if subtitle:
+    if title and subtitle:
         title = f"{title}: {subtitle}"
 
+    publishers = rec.get("publishers") or []
     return {
-        "title":       title,
-        "authors":     [a["name"] for a in rec.get("authors", [])],
-        "publisher":   (rec.get("publishers") or [{}])[0].get("name", "Unknown"),
-        "year":        extract_year(rec.get("publish_date", "")),
-        "pages":       rec.get("number_of_pages"),
-        "isbn":        isbn13,
-        "subjects":    [s["name"] for s in rec.get("subjects", [])][:5],
-        "ol_url":      rec.get("url", ""),
-        "amazon_link": amazon_link(isbn13),
+        "title":        title,
+        "authors":      [a["name"] for a in rec.get("authors", [])],
+        "publisher":    publishers[0].get("name") if publishers else None,
+        "year":         extract_year(rec.get("publish_date", "")),
+        "edition_name": rec.get("edition_name"),
+        "pages":        rec.get("number_of_pages"),
+        "subjects":     [s["name"] for s in rec.get("subjects", [])][:5],
+        "ol_url":       rec.get("url", ""),
     }
 
 
@@ -142,9 +180,8 @@ def search_books(author: Optional[str], title: Optional[str]) -> pd.DataFrame:
     params = {
         "limit": MAX_RESULTS * 4,
         "fields": ("key,title,subtitle,author_name,"
-                   "editions,editions.key,editions.publish_date,"
-                   "editions.publishers,editions.isbn,"
-                   "number_of_pages_median,subject,first_publish_year"),
+                   "editions,editions.isbn,"
+                   "subject,first_publish_year"),
         # Ask OL to surface the latest edition inside the nested editions block
         "editions.sort": "publish_date desc",
     }
@@ -174,37 +211,33 @@ def search_books(author: Optional[str], title: Optional[str]) -> pd.DataFrame:
 
 
 def _format_search_doc(doc: dict) -> Optional[dict]:
-    title    = doc.get("title", "Unknown Title")
-    subtitle = doc.get("subtitle")
-    if subtitle:
-        title = f"{title}: {subtitle}"
-
     work_key = doc.get("key", "")
 
-    # ── Pull edition-accurate fields from the nested editions block ────────
+    # ── Resolve the latest edition's ISBN from the nested editions block ───
     # With editions.sort=publish_date desc, docs[0] is the latest edition.
     edition_docs = (doc.get("editions") or {}).get("docs") or []
     latest = edition_docs[0] if edition_docs else {}
-
-    # Year: prefer the latest edition's publish_date; fall back to work-level
-    year = extract_year(latest.get("publish_date", ""))
-    if year is None:
-        year = doc.get("first_publish_year")
-
-    # Publisher: from the latest edition
-    publishers = latest.get("publishers") or doc.get("publisher") or []
-    publisher  = publishers[0] if publishers else "Unknown"
-
-    # ISBN: from the latest edition's isbn list; fall back to work-level pool
     edition_isbns = latest.get("isbn") or []
     isbn = pick_best_isbn(edition_isbns) or pick_best_isbn(doc.get("isbn", []))
+
+    # ── Fetch all edition-level fields directly from the Books API ─────────
+    # The search endpoint returns sparse edition data, so once we have an ISBN
+    # we query the Books API as the single authoritative source for title,
+    # publisher, year, edition name, and pages — exactly as lookup_by_isbn does.
+    ed = fetch_edition_details(isbn) if isbn else {}
+
+    title = ed.get("title") or doc.get("title", "Unknown Title")
+    subtitle = doc.get("subtitle")          # Books API rarely returns subtitle
+    if subtitle and subtitle not in title:
+        title = f"{title}: {subtitle}"
 
     return {
         "title":       title,
         "authors":     doc.get("author_name", []),
-        "publisher":   publisher,
-        "year":        year,
-        "pages":       doc.get("number_of_pages_median"),
+        "publisher":   ed.get("publisher") or "Unknown",
+        "year":        ed.get("year") or doc.get("first_publish_year"),
+        "edition":     ed.get("edition_name"),
+        "pages":       ed.get("pages"),
         "isbn":        isbn,
         "subjects":    doc.get("subject", [])[:5],
         "ol_url":      f"{OL_BASE}{work_key}" if work_key else "",
@@ -259,9 +292,11 @@ def print_book(row: pd.Series, index: int) -> None:
     if authors:
         print(f"  Author(s)   : {', '.join(authors)}")
     print(f"  Publisher   : {row['publisher']}")
-    print(f"  Year        : {row['year'] if pd.notna(row['year']) else 'Unknown'}")
+    print(f"  Year        : {int(row['year']) if pd.notna(row['year']) else 'Unknown'}")
+    if row["edition"] and pd.notna(row["edition"]):
+        print(f"  Edition     : {row['edition']}")
     if pd.notna(row["pages"]) and row["pages"]:
-        print(f"  Pages       : {int(row['pages'])}")
+        print(f"  Pages       : {int(row['pages'])} (this edition)")
     if row["isbn"]:
         print(f"  ISBN-13     : {row['isbn']}")
     subjects = row["subjects"]
