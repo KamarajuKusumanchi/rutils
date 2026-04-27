@@ -13,10 +13,13 @@ Usage:
     python book_metadata_openlib.py --author "tolkien" --title "rings"
 
 Options can be combined. Author and title accept partial strings.
-Results are capped at 10, deduplicated by work, and printed newest-first.
+Results are capped at 10 by default (override with --max-results), deduplicated by work, and printed newest-first.
 """
 
 # changelog:
+# * 2026-04-27 add --max-results CLI option; replace MAX_RESULTS constant with
+#              DEFAULT_MAX_RESULTS and thread the value through search_books()
+#              and combine_results() (@claude).
 # * 2026-04-27 refactor lookup_by_isbn() to delegate to fetch_edition_details();
 #              expand fetch_edition_details() to return authors, subjects, and
 #              ol_url so both callers share a single Books API code path (@claude).
@@ -45,7 +48,7 @@ OL_SEARCH_URL = "https://openlibrary.org/search.json"
 OL_BOOKS_URL  = "https://openlibrary.org/api/books"
 OL_BASE       = "https://openlibrary.org"
 
-MAX_RESULTS   = 10
+DEFAULT_MAX_RESULTS = 10
 TIMEOUT       = 12
 SESSION       = requests.Session()
 SESSION.headers.update({"User-Agent": "BookSearchScript/1.0 (educational use)"})
@@ -167,7 +170,7 @@ def fetch_edition_details(isbn: str) -> dict:
 
 # ── Open Library: search ───────────────────────────────────────────────────────
 
-def search_books(author: Optional[str], title: Optional[str]) -> pd.DataFrame:
+def search_books(author: Optional[str], title: Optional[str], max_results: int = DEFAULT_MAX_RESULTS) -> pd.DataFrame:
     """
     Search Open Library by author/title; return results as a DataFrame.
     Each row is one work (latest edition), deduped and sorted newest-first.
@@ -178,7 +181,7 @@ def search_books(author: Optional[str], title: Optional[str]) -> pd.DataFrame:
     to the same latest edition rather than being aggregated work-level data.
     """
     params = {
-        "limit": MAX_RESULTS * 4,
+        "limit": max_results * 4,
         "fields": ("key,title,subtitle,author_name,"
                    "editions,editions.isbn,"
                    "subject,first_publish_year"),
@@ -205,7 +208,7 @@ def search_books(author: Optional[str], title: Optional[str]) -> pd.DataFrame:
     df = (df.sort_values("_sort_year", ascending=False)
             .drop_duplicates(subset=["ol_url"])
             .drop(columns=["_sort_year"])
-            .head(MAX_RESULTS))
+            .head(max_results))
 
     return df
 
@@ -248,7 +251,7 @@ def _format_search_doc(doc: dict) -> Optional[dict]:
 # ── Merge & sort all results ──────────────────────────────────────────────────
 
 def combine_results(isbn_book: Optional[dict], search_df: pd.DataFrame,
-                    existing_isbns: set) -> pd.DataFrame:
+                    existing_isbns: set, max_results: int = DEFAULT_MAX_RESULTS) -> pd.DataFrame:
     """
     Merge the optional ISBN lookup result with the search DataFrame,
     drop duplicates by ISBN, and sort newest-first.
@@ -274,7 +277,7 @@ def combine_results(isbn_book: Optional[dict], search_df: pd.DataFrame,
     combined["_sort_year"] = pd.to_numeric(combined["year"], errors="coerce").fillna(0)
     combined = (combined.sort_values("_sort_year", ascending=False)
                         .drop(columns=["_sort_year"])
-                        .head(MAX_RESULTS)
+                        .head(max_results)
                         .reset_index(drop=True))
 
     return combined
@@ -331,9 +334,11 @@ def build_parser() -> argparse.ArgumentParser:
             "  %(prog)s --author 'hawking' --title 'brief history'\n"
         ),
     )
-    p.add_argument("--isbn",   metavar="ISBN",   help="ISBN-10 or ISBN-13 (hyphens optional)")
-    p.add_argument("--author", metavar="AUTHOR", help="Author name or partial name")
-    p.add_argument("--title",  metavar="TITLE",  help="Book title or partial title")
+    p.add_argument("--isbn",        metavar="ISBN",   help="ISBN-10 or ISBN-13 (hyphens optional)")
+    p.add_argument("--author",      metavar="AUTHOR", help="Author name or partial name")
+    p.add_argument("--title",       metavar="TITLE",  help="Book title or partial title")
+    p.add_argument("--max-results", metavar="N", type=int, default=DEFAULT_MAX_RESULTS,
+                   help=f"Maximum number of results to display (default: {DEFAULT_MAX_RESULTS})")
     return p
 
 
@@ -364,12 +369,13 @@ def main() -> None:
         if args.title:
             parts.append(f'title="{args.title}"')
         print(f"\nSearching Open Library for {' + '.join(parts)} …")
-        search_df = search_books(author=args.author, title=args.title)
+        search_df = search_books(author=args.author, title=args.title,
+                                  max_results=args.max_results)
         if search_df.empty:
             print("  No results found.")
 
     # ── Merge, dedup, sort ─────────────────────────────────────────────────
-    results = combine_results(isbn_book, search_df, seen_isbns)
+    results = combine_results(isbn_book, search_df, seen_isbns, max_results=args.max_results)
 
     if results.empty:
         print("\nNo books found.")
