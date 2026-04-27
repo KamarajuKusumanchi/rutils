@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-book_search.py — Fetch book details by ISBN, author, or title using Open Library.
+book_metadata_openlib.py — Fetch book details by ISBN, author, or title using Open Library.
 
 Dependencies:
     pip install requests isbnlib pandas
 
 Usage:
-    python book_search.py --isbn 9780132350884
-    python book_search.py --author "Robert Martin"
-    python book_search.py --title "Clean Code"
-    python book_search.py --author "Martin" --title "Clean"
-    python book_search.py --author "tolkien" --title "rings"
+    python book_metadata_openlib.py --isbn 9780132350884
+    python book_metadata_openlib.py --author "Robert Martin"
+    python book_metadata_openlib.py --title "Clean Code"
+    python book_metadata_openlib.py --author "Martin" --title "Clean"
+    python book_metadata_openlib.py --author "tolkien" --title "rings"
 
 Options can be combined. Author and title accept partial strings.
 Results are capped at 10, deduplicated by work, and printed newest-first.
@@ -314,7 +314,7 @@ def print_book(row: pd.Series, index: int) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="book_search.py",
+        prog="book_metadata_openlib.py",
         description=(
             "Search Open Library for books by ISBN, author, and/or title.\n"
             "Partial strings are accepted for author and title.\n"
