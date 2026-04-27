@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 """
-book_metadata_openlib.py — Fetch book details by ISBN, author, or title using Open Library.
+book_search.py — Fetch book details by ISBN, author, or title using Open Library.
 
 Dependencies:
     pip install requests isbnlib pandas
 
 Usage:
-    python book_metadata_openlib.py --isbn 9780132350884
-    python book_metadata_openlib.py --author "Robert Martin"
-    python book_metadata_openlib.py --title "Clean Code"
-    python book_metadata_openlib.py --author "Martin" --title "Clean"
-    python book_metadata_openlib.py --author "tolkien" --title "rings"
+    python book_search.py --isbn 9780132350884
+    python book_search.py --author "Robert Martin"
+    python book_search.py --title "Clean Code"
+    python book_search.py --author "Martin" --title "Clean"
+    python book_search.py --author "tolkien" --title "rings"
 
 Options can be combined. Author and title accept partial strings.
 Results are capped at 10, deduplicated by work, and printed newest-first.
 """
 
 # changelog:
+# * 2026-04-26 use editions.sort=publish_date desc so the embedded edition
+#              block reflects the latest edition's ISBN, publisher, and year
+#              rather than aggregated work-level data (@claude).
 # * 2026-04-26 initial version is from @claude.
 
 import argparse
@@ -130,12 +133,20 @@ def search_books(author: Optional[str], title: Optional[str]) -> pd.DataFrame:
     """
     Search Open Library by author/title; return results as a DataFrame.
     Each row is one work (latest edition), deduped and sorted newest-first.
+
+    The `editions.sort=publish_date desc` parameter instructs Open Library to
+    return the most recently published edition for each work in the nested
+    `editions` block, so the ISBN, publisher, and year we display all belong
+    to the same latest edition rather than being aggregated work-level data.
     """
     params = {
         "limit": MAX_RESULTS * 4,
-        "fields": ("key,title,subtitle,author_name,publisher,"
-                   "number_of_pages_median,subject,isbn,"
-                   "publish_year,first_publish_year"),
+        "fields": ("key,title,subtitle,author_name,"
+                   "editions,editions.key,editions.publish_date,"
+                   "editions.publishers,editions.isbn,"
+                   "number_of_pages_median,subject,first_publish_year"),
+        # Ask OL to surface the latest edition inside the nested editions block
+        "editions.sort": "publish_date desc",
     }
     if author:
         params["author"] = author
@@ -168,17 +179,30 @@ def _format_search_doc(doc: dict) -> Optional[dict]:
     if subtitle:
         title = f"{title}: {subtitle}"
 
-    publish_years = doc.get("publish_year", [])
-    year = max(publish_years) if publish_years else doc.get("first_publish_year")
+    work_key = doc.get("key", "")
 
-    publishers = doc.get("publisher", [])
-    isbn       = pick_best_isbn(doc.get("isbn", []))
-    work_key   = doc.get("key", "")
+    # ── Pull edition-accurate fields from the nested editions block ────────
+    # With editions.sort=publish_date desc, docs[0] is the latest edition.
+    edition_docs = (doc.get("editions") or {}).get("docs") or []
+    latest = edition_docs[0] if edition_docs else {}
+
+    # Year: prefer the latest edition's publish_date; fall back to work-level
+    year = extract_year(latest.get("publish_date", ""))
+    if year is None:
+        year = doc.get("first_publish_year")
+
+    # Publisher: from the latest edition
+    publishers = latest.get("publishers") or doc.get("publisher") or []
+    publisher  = publishers[0] if publishers else "Unknown"
+
+    # ISBN: from the latest edition's isbn list; fall back to work-level pool
+    edition_isbns = latest.get("isbn") or []
+    isbn = pick_best_isbn(edition_isbns) or pick_best_isbn(doc.get("isbn", []))
 
     return {
         "title":       title,
         "authors":     doc.get("author_name", []),
-        "publisher":   publishers[0] if publishers else "Unknown",
+        "publisher":   publisher,
         "year":        year,
         "pages":       doc.get("number_of_pages_median"),
         "isbn":        isbn,
@@ -255,7 +279,7 @@ def print_book(row: pd.Series, index: int) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="book_metadata_openlib.py",
+        prog="book_search.py",
         description=(
             "Search Open Library for books by ISBN, author, and/or title.\n"
             "Partial strings are accepted for author and title.\n"
