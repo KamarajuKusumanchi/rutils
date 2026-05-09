@@ -24,20 +24,22 @@ from pathlib import Path
 
 import pytest
 
-
 # ── Load module from src/scripts/ ─────────────────────────────────────────────
+
 
 def _load_module():
     path = Path(__file__).parents[4] / "src" / "scripts" / "book_meta_data_openlib.py"
     spec = importlib.util.spec_from_file_location("book_meta_data_openlib", path)
-    mod  = importlib.util.module_from_spec(spec)
+    mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
 
 bmo = _load_module()
 
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.integration
 def test_bash_cookbook_returns_second_edition():
@@ -45,21 +47,21 @@ def test_bash_cookbook_returns_second_edition():
     df = bmo.search_books(author="albing", title="bash cookbook")
     row = df.iloc[0]
 
-    assert row["title"]     == "bash Cookbook: Solutions and Examples for bash Users"
-    assert row["authors"]   == ["Carl Albing", "JP Vossen"]
+    assert row["title"] == "bash Cookbook: Solutions and Examples for bash Users"
+    assert row["authors"] == ["Carl Albing", "JP Vossen"]
     assert row["publisher"] == "O'Reilly Media"
-    assert row["year"]      == 2017
-    assert row["edition"]   is None
-    assert row["pages"]     == 726
-    assert row["isbn"]      == "9781491975336"
-    assert row["subjects"]  == [
+    assert row["year"] == 2017
+    assert row["edition"] is None
+    assert row["pages"] == 726
+    assert row["isbn"] == "9781491975336"
+    assert row["subjects"] == [
         "UNIX (Computer file)",
         "UNIX Shells",
         "User interfaces (Computer systems)",
         "Unix shells (computer programs)",
         "Unix (computer operating system)",
     ]
-    assert row["ol_url"]      == "https://openlibrary.org/works/OL7951526W"
+    assert row["ol_url"] == "https://openlibrary.org/works/OL7951526W"
     assert row["amazon_link"] == "https://www.amazon.com/s?k=9781491975336"
 
 

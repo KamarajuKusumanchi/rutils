@@ -50,20 +50,31 @@ import requests
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 OL_SEARCH_URL = "https://openlibrary.org/search.json"
-OL_BOOKS_URL  = "https://openlibrary.org/api/books"
-OL_BASE       = "https://openlibrary.org"
+OL_BOOKS_URL = "https://openlibrary.org/api/books"
+OL_BASE = "https://openlibrary.org"
 
 DEFAULT_MAX_RESULTS = 10
-TIMEOUT       = 12
-SESSION       = requests.Session()
+TIMEOUT = 12
+SESSION = requests.Session()
 SESSION.headers.update({"User-Agent": "BookSearchScript/1.0 (educational use)"})
 
 # Columns present in every book record (keeps DataFrame shape consistent)
-COLUMNS = ["title", "authors", "publisher", "year", "edition", "pages",
-           "isbn", "subjects", "ol_url", "amazon_link"]
+COLUMNS = [
+    "title",
+    "authors",
+    "publisher",
+    "year",
+    "edition",
+    "pages",
+    "isbn",
+    "subjects",
+    "ol_url",
+    "amazon_link",
+]
 
 
 # ── HTTP helper ────────────────────────────────────────────────────────────────
+
 
 def get_json(url: str, **params) -> Optional[dict]:
     """GET a URL with optional query params; return parsed JSON or None."""
@@ -79,6 +90,7 @@ def get_json(url: str, **params) -> Optional[dict]:
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
+
 
 def extract_year(date_str: str) -> Optional[int]:
     m = re.search(r"\d{4}", str(date_str))
@@ -105,6 +117,7 @@ def pick_best_isbn(isbn_list: list) -> Optional[str]:
 
 # ── Open Library: ISBN lookup ──────────────────────────────────────────────────
 
+
 def lookup_by_isbn(isbn: str) -> Optional[dict]:
     """Validate isbn, normalise to ISBN-13, then delegate to fetch_edition_details."""
     clean = isbnlib.canonical(isbn)
@@ -118,20 +131,21 @@ def lookup_by_isbn(isbn: str) -> Optional[dict]:
         return None
 
     return {
-        "title":       ed["title"],
-        "authors":     ed["authors"],
-        "publisher":   ed["publisher"] or "Unknown",
-        "year":        ed["year"],
-        "edition":     ed["edition_name"],
-        "pages":       ed["pages"],
-        "isbn":        isbn13,
-        "subjects":    ed["subjects"],
-        "ol_url":      ed["ol_url"],
+        "title": ed["title"],
+        "authors": ed["authors"],
+        "publisher": ed["publisher"] or "Unknown",
+        "year": ed["year"],
+        "edition": ed["edition_name"],
+        "pages": ed["pages"],
+        "isbn": isbn13,
+        "subjects": ed["subjects"],
+        "ol_url": ed["ol_url"],
         "amazon_link": amazon_link(isbn13),
     }
 
 
 # ── Open Library: edition detail lookup ───────────────────────────────────────
+
 
 def fetch_edition_details(isbn: str) -> dict:
     """
@@ -142,38 +156,44 @@ def fetch_edition_details(isbn: str) -> dict:
     response's sparse nested edition block.
     """
     empty = {
-        "title": None, "authors": [], "publisher": None, "year": None,
-        "edition_name": None, "pages": None, "subjects": [], "ol_url": "",
+        "title": None,
+        "authors": [],
+        "publisher": None,
+        "year": None,
+        "edition_name": None,
+        "pages": None,
+        "subjects": [],
+        "ol_url": "",
     }
     # Always use ISBN-13 so the bibkey and response key match reliably.
     isbn13 = isbnlib.to_isbn13(isbnlib.canonical(isbn)) or isbn
-    data = get_json(OL_BOOKS_URL, bibkeys=f"ISBN:{isbn13}",
-                    format="json", jscmd="data")
+    data = get_json(OL_BOOKS_URL, bibkeys=f"ISBN:{isbn13}", format="json", jscmd="data")
     if not data:
         return empty
     rec = data.get(f"ISBN:{isbn13}", {})
     if not rec:
         return empty
 
-    title    = rec.get("title")
+    title = rec.get("title")
     subtitle = rec.get("subtitle")
     if title and subtitle:
         title = f"{title}: {subtitle}"
 
     publishers = rec.get("publishers") or []
     return {
-        "title":        title,
-        "authors":      [a["name"] for a in rec.get("authors", [])],
-        "publisher":    publishers[0].get("name") if publishers else None,
-        "year":         extract_year(rec.get("publish_date", "")),
+        "title": title,
+        "authors": [a["name"] for a in rec.get("authors", [])],
+        "publisher": publishers[0].get("name") if publishers else None,
+        "year": extract_year(rec.get("publish_date", "")),
         "edition_name": rec.get("edition_name"),
-        "pages":        rec.get("number_of_pages"),
-        "subjects":     [s["name"] for s in rec.get("subjects", [])][:5],
-        "ol_url":       rec.get("url", ""),
+        "pages": rec.get("number_of_pages"),
+        "subjects": [s["name"] for s in rec.get("subjects", [])][:5],
+        "ol_url": rec.get("url", ""),
     }
 
 
 # ── Open Library: latest edition ISBN for a work ──────────────────────────────
+
 
 def get_latest_edition_isbn(work_key: str) -> Optional[str]:
     """
@@ -185,9 +205,9 @@ def get_latest_edition_isbn(work_key: str) -> Optional[str]:
     ahead of newer editions (e.g. a 2007 French edition outranking a 2017
     English one). Instead we track the best ISBN ourselves across all pages.
     """
-    url       = f"{OL_BASE}{work_key}/editions.json"
-    page_size = 50   # maximum OL allows per request
-    offset    = 0
+    url = f"{OL_BASE}{work_key}/editions.json"
+    page_size = 50  # maximum OL allows per request
+    offset = 0
     best_isbn: Optional[str] = None
     best_year: int = 0
 
@@ -215,7 +235,10 @@ def get_latest_edition_isbn(work_key: str) -> Optional[str]:
 
 # ── Open Library: search ───────────────────────────────────────────────────────
 
-def search_books(author: Optional[str], title: Optional[str], max_results: int = DEFAULT_MAX_RESULTS) -> pd.DataFrame:
+
+def search_books(
+    author: Optional[str], title: Optional[str], max_results: int = DEFAULT_MAX_RESULTS
+) -> pd.DataFrame:
     """
     Search Open Library by author/title; return results as a DataFrame.
     Each row is one work (latest edition), deduped and sorted newest-first.
@@ -234,17 +257,19 @@ def search_books(author: Optional[str], title: Optional[str], max_results: int =
         return pd.DataFrame(columns=COLUMNS)
 
     rows = [_format_search_doc(doc) for doc in data["docs"]]
-    rows = [r for r in rows if r]          # drop None entries
+    rows = [r for r in rows if r]  # drop None entries
 
     df = pd.DataFrame(rows, columns=COLUMNS)
 
     # ── Deduplicate: one row per Open Library work key ─────────────────────
     # ol_url encodes the work key; keep the row with the highest year per key
     df["_sort_year"] = pd.to_numeric(df["year"], errors="coerce").fillna(0)
-    df = (df.sort_values("_sort_year", ascending=False)
-            .drop_duplicates(subset=["ol_url"])
-            .drop(columns=["_sort_year"])
-            .head(max_results))
+    df = (
+        df.sort_values("_sort_year", ascending=False)
+        .drop_duplicates(subset=["ol_url"])
+        .drop(columns=["_sort_year"])
+        .head(max_results)
+    )
 
     return df
 
@@ -267,23 +292,28 @@ def _format_search_doc(doc: dict) -> Optional[dict]:
         title = f"{title}: {subtitle}"
 
     return {
-        "title":       title,
-        "authors":     doc.get("author_name", []),
-        "publisher":   ed.get("publisher") or "Unknown",
-        "year":        ed.get("year") or doc.get("first_publish_year"),
-        "edition":     ed.get("edition_name"),
-        "pages":       ed.get("pages"),
-        "isbn":        isbn,
-        "subjects":    doc.get("subject", [])[:5],
-        "ol_url":      f"{OL_BASE}{work_key}" if work_key else "",
+        "title": title,
+        "authors": doc.get("author_name", []),
+        "publisher": ed.get("publisher") or "Unknown",
+        "year": ed.get("year") or doc.get("first_publish_year"),
+        "edition": ed.get("edition_name"),
+        "pages": ed.get("pages"),
+        "isbn": isbn,
+        "subjects": doc.get("subject", [])[:5],
+        "ol_url": f"{OL_BASE}{work_key}" if work_key else "",
         "amazon_link": amazon_link(isbn) if isbn else None,
     }
 
 
 # ── Merge & sort all results ──────────────────────────────────────────────────
 
-def combine_results(isbn_book: Optional[dict], search_df: pd.DataFrame,
-                    existing_isbns: set, max_results: int = DEFAULT_MAX_RESULTS) -> pd.DataFrame:
+
+def combine_results(
+    isbn_book: Optional[dict],
+    search_df: pd.DataFrame,
+    existing_isbns: set,
+    max_results: int = DEFAULT_MAX_RESULTS,
+) -> pd.DataFrame:
     """
     Merge the optional ISBN lookup result with the search DataFrame,
     drop duplicates by ISBN, and sort newest-first.
@@ -307,15 +337,18 @@ def combine_results(isbn_book: Optional[dict], search_df: pd.DataFrame,
 
     # Sort newest-first; unknown years go to the bottom
     combined["_sort_year"] = pd.to_numeric(combined["year"], errors="coerce").fillna(0)
-    combined = (combined.sort_values("_sort_year", ascending=False)
-                        .drop(columns=["_sort_year"])
-                        .head(max_results)
-                        .reset_index(drop=True))
+    combined = (
+        combined.sort_values("_sort_year", ascending=False)
+        .drop(columns=["_sort_year"])
+        .head(max_results)
+        .reset_index(drop=True)
+    )
 
     return combined
 
 
 # ── Output ────────────────────────────────────────────────────────────────────
+
 
 def print_book(row: pd.Series, index: int) -> None:
     print(f"\n  [{index}]")
@@ -345,6 +378,7 @@ def print_book(row: pd.Series, index: int) -> None:
 
 # ── CLI ────────────────────────────────────────────────────────────────────────
 
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="book_metadata_openlib.py",
@@ -364,24 +398,31 @@ def build_parser() -> argparse.ArgumentParser:
             "  %(prog)s --author 'hawking' --title 'brief history'\n"
         ),
     )
-    p.add_argument("--isbn",        metavar="ISBN",   help="ISBN-10 or ISBN-13 (hyphens optional)")
-    p.add_argument("--author",      metavar="AUTHOR", help="Author name or partial name")
-    p.add_argument("--title",       metavar="TITLE",  help="Book title or partial title")
-    p.add_argument("--max-results", metavar="N", type=int, default=DEFAULT_MAX_RESULTS,
-                   help=f"Maximum number of results to display (default: {DEFAULT_MAX_RESULTS})")
+    p.add_argument(
+        "--isbn", metavar="ISBN", help="ISBN-10 or ISBN-13 (hyphens optional)"
+    )
+    p.add_argument("--author", metavar="AUTHOR", help="Author name or partial name")
+    p.add_argument("--title", metavar="TITLE", help="Book title or partial title")
+    p.add_argument(
+        "--max-results",
+        metavar="N",
+        type=int,
+        default=DEFAULT_MAX_RESULTS,
+        help=f"Maximum number of results to display (default: {DEFAULT_MAX_RESULTS})",
+    )
     return p
 
 
 def main() -> None:
     parser = build_parser()
-    args   = parser.parse_args()
+    args = parser.parse_args()
 
     if not any([args.isbn, args.author, args.title]):
         parser.print_help()
         sys.exit(1)
 
-    isbn_book  = None
-    search_df  = pd.DataFrame(columns=COLUMNS)
+    isbn_book = None
+    search_df = pd.DataFrame(columns=COLUMNS)
     seen_isbns: set = set()
 
     # ── ISBN direct lookup ─────────────────────────────────────────────────
@@ -399,13 +440,16 @@ def main() -> None:
         if args.title:
             parts.append(f'title="{args.title}"')
         print(f"\nSearching Open Library for {' + '.join(parts)} …")
-        search_df = search_books(author=args.author, title=args.title,
-                                  max_results=args.max_results)
+        search_df = search_books(
+            author=args.author, title=args.title, max_results=args.max_results
+        )
         if search_df.empty:
             print("  No results found.")
 
     # ── Merge, dedup, sort ─────────────────────────────────────────────────
-    results = combine_results(isbn_book, search_df, seen_isbns, max_results=args.max_results)
+    results = combine_results(
+        isbn_book, search_df, seen_isbns, max_results=args.max_results
+    )
 
     if results.empty:
         print("\nNo books found.")
