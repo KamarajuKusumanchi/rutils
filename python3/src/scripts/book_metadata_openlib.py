@@ -17,6 +17,11 @@ Results are capped at 10 by default (override with --max-results), deduplicated 
 """
 
 # changelog:
+# * 2026-05-09 get_latest_edition_isbn() now tracks best_isbn/best_year across
+#              all pages instead of relying on sort=publish_date desc, which OL
+#              does not honour reliably (e.g. a 2007 French edition can rank
+#              ahead of a 2017 English one). Also replaces nested-editions ISBN
+#              resolution in _format_search_doc() with this function (@claude).
 # * 2026-04-27 add --max-results CLI option; replace MAX_RESULTS constant with
 #              DEFAULT_MAX_RESULTS and thread the value through search_books()
 #              and combine_results() (@claude).
@@ -168,25 +173,56 @@ def fetch_edition_details(isbn: str) -> dict:
     }
 
 
+# ── Open Library: latest edition ISBN for a work ──────────────────────────────
+
+def get_latest_edition_isbn(work_key: str) -> Optional[str]:
+    """
+    Walk all paginated editions for a work and return the ISBN belonging to
+    the edition with the highest publish year.
+
+    We do not rely on sort=publish_date desc because OL's ordering is
+    unreliable in practice — translations and poorly dated records can sort
+    ahead of newer editions (e.g. a 2007 French edition outranking a 2017
+    English one). Instead we track the best ISBN ourselves across all pages.
+    """
+    url       = f"{OL_BASE}{work_key}/editions.json"
+    page_size = 50   # maximum OL allows per request
+    offset    = 0
+    best_isbn: Optional[str] = None
+    best_year: int = 0
+
+    while True:
+        data = get_json(url, limit=page_size, offset=offset)
+        if not data:
+            break
+
+        for ed in data.get("entries", []):
+            isbn = pick_best_isbn(ed.get("isbn_13", []) + ed.get("isbn_10", []))
+            if not isbn:
+                continue
+            year = extract_year(ed.get("publish_date", "")) or 0
+            if year > best_year:
+                best_year = year
+                best_isbn = isbn
+
+        # Stop if this page was the last one
+        if len(data.get("entries", [])) < page_size:
+            break
+        offset += page_size
+
+    return best_isbn
+
+
 # ── Open Library: search ───────────────────────────────────────────────────────
 
 def search_books(author: Optional[str], title: Optional[str], max_results: int = DEFAULT_MAX_RESULTS) -> pd.DataFrame:
     """
     Search Open Library by author/title; return results as a DataFrame.
     Each row is one work (latest edition), deduped and sorted newest-first.
-
-    The `editions.sort=publish_date desc` parameter instructs Open Library to
-    return the most recently published edition for each work in the nested
-    `editions` block, so the ISBN, publisher, and year we display all belong
-    to the same latest edition rather than being aggregated work-level data.
     """
     params = {
         "limit": max_results * 4,
-        "fields": ("key,title,subtitle,author_name,"
-                   "editions,editions.isbn,"
-                   "subject,first_publish_year"),
-        # Ask OL to surface the latest edition inside the nested editions block
-        "editions.sort": "publish_date desc",
+        "fields": "key,title,subtitle,author_name,subject,first_publish_year",
     }
     if author:
         params["author"] = author
@@ -216,21 +252,17 @@ def search_books(author: Optional[str], title: Optional[str], max_results: int =
 def _format_search_doc(doc: dict) -> Optional[dict]:
     work_key = doc.get("key", "")
 
-    # ── Resolve the latest edition's ISBN from the nested editions block ───
-    # With editions.sort=publish_date desc, docs[0] is the latest edition.
-    edition_docs = (doc.get("editions") or {}).get("docs") or []
-    latest = edition_docs[0] if edition_docs else {}
-    edition_isbns = latest.get("isbn") or []
-    isbn = pick_best_isbn(edition_isbns) or pick_best_isbn(doc.get("isbn", []))
+    # ── Resolve the latest edition's ISBN via the dedicated editions endpoint ──
+    # The search response's nested editions block is sparse and its sort order
+    # is unreliable, so we query the work's editions directly, walking all pages
+    # newest-first, and take the first ISBN we find.
+    isbn = get_latest_edition_isbn(work_key) if work_key else None
 
     # ── Fetch all edition-level fields directly from the Books API ─────────
-    # The search endpoint returns sparse edition data, so once we have an ISBN
-    # we query the Books API as the single authoritative source for title,
-    # publisher, year, edition name, and pages — exactly as lookup_by_isbn does.
     ed = fetch_edition_details(isbn) if isbn else {}
 
     title = ed.get("title") or doc.get("title", "Unknown Title")
-    subtitle = doc.get("subtitle")          # Books API rarely returns subtitle
+    subtitle = doc.get("subtitle")
     if subtitle and subtitle not in title:
         title = f"{title}: {subtitle}"
 

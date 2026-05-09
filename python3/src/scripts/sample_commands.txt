@@ -1,4 +1,31 @@
-today | 2026-05-09
+#------------------------------------------------------------------------------
+today | 2026-05-08
 
 python ./book_metadata_openlib.py --author "tolkien" --title "rings"
-python ./book_metadata_openlib.py --title "bash cookbook" --author albing
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+today | 2026-05-09
+
+$ python ./book_metadata_openlib.py --title "bash cookbook" --author albing
+
+Searching Open Library for author="albing" + title="bash cookbook" …
+
+════════════════════════════════════════════════════════════════
+  1 result(s) — latest edition per work, newest first
+════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────
+  [1] bash Cookbook: Solutions and Examples for bash Users
+────────────────────────────────────────────────────────────────
+  Author(s)   : Carl Albing, JP Vossen
+  Publisher   : O'Reilly Media
+  Year        : 2017
+  Pages       : 726 (this edition)
+  ISBN-13     : 9781491975336
+  Subjects    : UNIX (Computer file), UNIX Shells, User interfaces (Computer systems), Unix shells (computer programs), Unix (computer operating system)
+  Open Library: https://openlibrary.org/works/OL7951526W
+  Amazon      : https://www.amazon.com/s?k=9781491975336
+
+────────────────────────────────────────────────────────────────
+
