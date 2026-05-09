@@ -1,0 +1,4 @@
+today | 2026-05-09
+
+python ./book_metadata_openlib.py --author "tolkien" --title "rings"
+python ./book_metadata_openlib.py --title "bash cookbook" --author albing
