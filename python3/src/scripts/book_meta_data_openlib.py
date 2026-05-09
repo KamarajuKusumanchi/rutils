@@ -318,10 +318,8 @@ def combine_results(isbn_book: Optional[dict], search_df: pd.DataFrame,
 # ── Output ────────────────────────────────────────────────────────────────────
 
 def print_book(row: pd.Series, index: int) -> None:
-    line = "─" * 64
-    print(f"\n{line}")
-    print(f"  [{index}] {row['title']}")
-    print(line)
+    print(f"\n  [{index}]")
+    print(f"  Title       : {row['title']}")
 
     authors = row["authors"]
     if authors:
@@ -417,10 +415,11 @@ def main() -> None:
     print(f"  {len(results)} result(s) — latest edition per work, newest first")
     print(f"{'═' * 64}")
 
+    print(f"\n{'═' * 64}")
     for i, (_, row) in enumerate(results.iterrows(), start=1):
         print_book(row, i)
 
-    print(f"\n{'─' * 64}")
+    print(f"\n{'═' * 64}")
 
 
 if __name__ == "__main__":
