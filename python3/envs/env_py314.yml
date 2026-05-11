@@ -1,0 +1,72 @@
+# To create this environment
+#   conda env create -f <filename>
+# To update the environment
+#   conda env update -f <filename>
+# To export the environment
+#   conda env export
+# To remove the environment
+#   conda env remove --name <env_name>
+
+name: py314
+channels:
+  # On 2025-06-02, I decided to switch everything to conda-forge instead of the
+  # defaults channel.
+  #
+  # - defaults
+  - conda-forge
+dependencies:
+  - python=3.14
+  - pandas
+  - requests
+  - ipython
+    # "jupyter" comes from the jupyter_core pacakge, and jupyter-lab comes from
+    # the jupyterlab package. "jupyter-lab" replaces "jupyter notebook". Use
+    # the former instead of the latter.
+  - jupyterlab
+  - pytest
+  - pip
+    # pandas -> dataframe -> plot() requires matplotlib
+  - matplotlib
+    # Having conda here will be handy if the conda in base environment is broken.
+  - conda
+    # bs4 is useful to parse webpages.
+  - bs4
+    # On Windows, I experienced errors such as
+    # >>> import requests
+    # >>> requests.get('http://www.github.com', proxies={'https_proxy': 'myhttp.proxy.com', 'http_proxy': 'myhttps.proxy.com'})
+    # ...
+    # requests.exceptions.SSLError: HTTPSConnectionPool(host='www.github.com',
+    #   port=443): Max retries exceeded with url: / (Caused by
+    #   SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED]
+    #   certificate verify failed: unable to get local issuer certificate
+    #   (_ssl.c:1028)')))
+    # installing pip-system-certs solved that.
+  - pip-system-certs
+    # pdfannots outputs annotations in markdown format. Use pandoc to convert them into zimwiki format.
+  - pandoc
+    # Need scipy for functions such as scipy.stats.chatterjeexi
+  - scipy
+    # To build "uBlock Origin Lite" chrome extension
+  - make
+  - typer
+  - pip:
+    # csvsql -h is giving some warnings such as
+    # $ csvsql -h
+    # <frozen importlib._bootstrap>:914: ImportWarning: _SixMetaPathImporter.find_spec() not found; falling back to find_module()
+    # This will go away if textract depends on six >= 1.16.0. But it is currently pulling six 1.12.0.
+    # There is a pull request to do this: https://github.com/deanmalmgren/textract/pull/414
+    # But it has not been merged since 2022-04-04
+    # Until that is merged use the fork https://github.com/andyhasit/textract/tree/patch-1
+    #
+    # Note: On 2023-06-30, I am getting
+    # error in textract setup command: 'install_requires' must be a string or list of strings containing valid project/version requirement specifiers; Expected end or semicolon (after version specifier)
+    #      extract-msg<=0.29.*
+    #                 ~~~~~~^
+    #
+    # So, I created a fork of textract and fixed it myself.
+    # - textract
+    # - git+https://github.com/andyhasit/textract
+    # - git+file:///c/Users/raju/work/github/textract
+    - git+https://github.com/KamarajuKusumanchi/textract
+      # This is useful to extract annotations from a PDF file
+    - pdfannots
