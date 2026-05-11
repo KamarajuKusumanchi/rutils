@@ -1,11 +1,11 @@
 """
-tests/src/scripts/book_meta_data_openlib/test_bash_cookbook_albing.py
+tests/src/scripts/book_metadata_openlib/test_bash_cookbook_albing.py
 
-Integration tests for book_meta_data_openlib.py — require a network connection
+Integration tests for book_metadata_openlib.py — require a network connection
 to Open Library. All tests are marked @pytest.mark.integration.
 
 Run all tests:
-    pytest tests/src/scripts/book_meta_data_openlib/test_bash_cookbook_albing.py -v
+    pytest tests/src/scripts/book_metadata_openlib/test_bash_cookbook_albing.py -v
 
 Run only integration tests:
     pytest -m integration -v
@@ -28,8 +28,8 @@ import pytest
 
 
 def _load_module():
-    path = Path(__file__).parents[4] / "src" / "scripts" / "book_meta_data_openlib.py"
-    spec = importlib.util.spec_from_file_location("book_meta_data_openlib", path)
+    path = Path(__file__).parents[4] / "src" / "scripts" / "book_metadata_openlib.py"
+    spec = importlib.util.spec_from_file_location("book_metadata_openlib", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
