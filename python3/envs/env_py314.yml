@@ -70,3 +70,10 @@ dependencies:
     - git+https://github.com/KamarajuKusumanchi/textract
       # This is useful to extract annotations from a PDF file
     - pdfannots
+    # asof | 2026-04-26
+    # Per https://github.com/xlcnd/isbnlib/issues/147 the original isbnlib repo
+    # (https://github.com/xlcnd/isbnlib) has not been maintained for a long
+    # time. So some kind soul forked it and started maintaining it in
+    # https://github.com/hans-fritz-pommes/isbnlib . The new package is called
+    # isbnlib2.
+    - isbnlib2
