@@ -1,4 +1,7 @@
+-------------------------------------------------------------------------------
 To run the tests
-conda activate rutils
+
 cd $PROJECT_ROOT/python3
-python -m pytest
+conda activate rutils
+python -m pytest -p no:faulthandler
+-------------------------------------------------------------------------------

@@ -28,7 +28,7 @@ import pytest
 
 
 def _load_module():
-    path = Path(__file__).parents[4] / "src" / "scripts" / "book_metadata_openlib.py"
+    path = Path(__file__).parents[4] / "src" / "books" / "book_metadata_openlib.py"
     spec = importlib.util.spec_from_file_location("book_metadata_openlib", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
