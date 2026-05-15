@@ -53,7 +53,7 @@ OL_SEARCH_URL = "https://openlibrary.org/search.json"
 OL_BOOKS_URL = "https://openlibrary.org/api/books"
 OL_BASE = "https://openlibrary.org"
 
-DEFAULT_MAX_RESULTS = 10
+DEFAULT_MAX_RESULTS = 7
 TIMEOUT = 12
 SESSION = requests.Session()
 SESSION.headers.update({"User-Agent": "BookSearchScript/1.0 (educational use)"})
