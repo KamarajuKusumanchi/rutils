@@ -27,6 +27,13 @@ def create_parser():
 def get_urls(url):
     try:
         response = requests.get(url)
+        response.raise_for_status()  # raises HTTPError for 4xx/5xx responses
+    except requests.exceptions.HTTPError as e:
+        if response.status_code == 429:
+            print('encountered exception:')
+            print(e)
+            retry_after = response.headers.get('Retry-After', 'unknown')
+            print(f'Rate limited (429), Retry after: {retry_after}s')
     except requests.exceptions.SSLError as e:
         # handle exceptions such as
         # requests.exceptions.SSLError: HTTPSConnectionPool(host='news.ycombinator.com', port=443): Max retries
