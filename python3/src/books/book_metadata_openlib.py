@@ -17,35 +17,35 @@ Results are capped at 10 by default (override with --max-results), deduplicated 
 """
 
 # changelog:
-# * 2026-05-17 print both edition URL (/books/OL…) and work URL (/works/OL…)
-#              separately. work_url is now a proper COLUMNS member (replacing the
-#              temporary _work_url side-channel); fetch_edition_details() derives
-#              it from rec["works"][0]["key"]. Edition URL uses the bare OL key
-#              with no title slug for stability (@claude).
-# * 2026-05-17 filter editions to English-only (OL language key '/languages/eng')
-#              in get_latest_edition_isbn(), with fallback to any-language if no
-#              English edition is found.  Also pass language=eng to the search
-#              API so the initial candidate set is already English-biased (@claude).
-# * 2026-05-09 get_latest_edition_isbn() now tracks best_isbn/best_year across
-#              all pages instead of relying on sort=publish_date desc, which OL
-#              does not honour reliably (e.g. a 2007 French edition can rank
-#              ahead of a 2017 English one). Also replaces nested-editions ISBN
-#              resolution in _format_search_doc() with this function (@claude).
-# * 2026-04-27 add --max-results CLI option; replace MAX_RESULTS constant with
-#              DEFAULT_MAX_RESULTS and thread the value through search_books()
-#              and combine_results() (@claude).
-# * 2026-04-27 refactor lookup_by_isbn() to delegate to fetch_edition_details();
-#              expand fetch_edition_details() to return authors, subjects, and
-#              ol_url so both callers share a single Books API code path (@claude).
+# * 2026-04-26 initial version is from @claude.
+# * 2026-04-26 use editions.sort=publish_date desc so the embedded edition
+#              block reflects the latest edition's ISBN, publisher, and year
+#              rather than aggregated work-level data (@claude).
 # * 2026-04-27 _format_search_doc() now uses fetch_edition_details() as the
 #              primary source for all edition-level fields (title, publisher,
 #              year, edition name, pages) once an ISBN is known, rather than
 #              merging sparse search-response data with Books API fallbacks
 #              (@claude).
-# * 2026-04-26 use editions.sort=publish_date desc so the embedded edition
-#              block reflects the latest edition's ISBN, publisher, and year
-#              rather than aggregated work-level data (@claude).
-# * 2026-04-26 initial version is from @claude.
+# * 2026-04-27 refactor lookup_by_isbn() to delegate to fetch_edition_details();
+#              expand fetch_edition_details() to return authors, subjects, and
+#              ol_url so both callers share a single Books API code path (@claude).
+# * 2026-04-27 add --max-results CLI option; replace MAX_RESULTS constant with
+#              DEFAULT_MAX_RESULTS and thread the value through search_books()
+#              and combine_results() (@claude).
+# * 2026-05-09 get_latest_edition_isbn() now tracks best_isbn/best_year across
+#              all pages instead of relying on sort=publish_date desc, which OL
+#              does not honour reliably (e.g. a 2007 French edition can rank
+#              ahead of a 2017 English one). Also replaces nested-editions ISBN
+#              resolution in _format_search_doc() with this function (@claude).
+# * 2026-05-17 filter editions to English-only (OL language key '/languages/eng')
+#              in get_latest_edition_isbn(), with fallback to any-language if no
+#              English edition is found.  Also pass language=eng to the search
+#              API so the initial candidate set is already English-biased (@claude).
+# * 2026-05-17 print both edition URL (/books/OL…) and work URL (/works/OL…)
+#              separately. work_url is now a proper COLUMNS member (replacing the
+#              temporary _work_url side-channel); fetch_edition_details() derives
+#              it from rec["works"][0]["key"]. Edition URL uses the bare OL key
+#              with no title slug for stability (@claude).
 
 import argparse
 import re
