@@ -61,7 +61,8 @@ def test_bash_cookbook_returns_second_edition():
         "Unix shells (computer programs)",
         "Unix (computer operating system)",
     ]
-    assert row["ol_url"] == "https://openlibrary.org/works/OL7951526W"
+    assert row["ol_url"] == "https://openlibrary.org/books/OL26834170M"
+    assert row["work_url"] == "https://openlibrary.org/works/OL7951526W"
     assert row["amazon_link"] == "https://www.amazon.com/s?k=9781491975336"
 
 

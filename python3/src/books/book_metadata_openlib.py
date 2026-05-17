@@ -17,6 +17,15 @@ Results are capped at 10 by default (override with --max-results), deduplicated 
 """
 
 # changelog:
+# * 2026-05-17 print both edition URL (/books/OL…) and work URL (/works/OL…)
+#              separately. work_url is now a proper COLUMNS member (replacing the
+#              temporary _work_url side-channel); fetch_edition_details() derives
+#              it from rec["works"][0]["key"]. Edition URL uses the bare OL key
+#              with no title slug for stability (@claude).
+# * 2026-05-17 filter editions to English-only (OL language key '/languages/eng')
+#              in get_latest_edition_isbn(), with fallback to any-language if no
+#              English edition is found.  Also pass language=eng to the search
+#              API so the initial candidate set is already English-biased (@claude).
 # * 2026-05-09 get_latest_edition_isbn() now tracks best_isbn/best_year across
 #              all pages instead of relying on sort=publish_date desc, which OL
 #              does not honour reliably (e.g. a 2007 French edition can rank
@@ -69,6 +78,7 @@ COLUMNS = [
     "isbn",
     "subjects",
     "ol_url",
+    "work_url",
     "amazon_link",
 ]
 
@@ -140,6 +150,7 @@ def lookup_by_isbn(isbn: str) -> Optional[dict]:
         "isbn": isbn13,
         "subjects": ed["subjects"],
         "ol_url": ed["ol_url"],
+        "work_url": ed["work_url"],
         "amazon_link": amazon_link(isbn13),
     }
 
@@ -164,6 +175,7 @@ def fetch_edition_details(isbn: str) -> dict:
         "pages": None,
         "subjects": [],
         "ol_url": "",
+        "work_url": "",
     }
     # Always use ISBN-13 so the bibkey and response key match reliably.
     isbn13 = isbnlib.to_isbn13(isbnlib.canonical(isbn)) or isbn
@@ -188,7 +200,15 @@ def fetch_edition_details(isbn: str) -> dict:
         "edition_name": rec.get("edition_name"),
         "pages": rec.get("number_of_pages"),
         "subjects": [s["name"] for s in rec.get("subjects", [])][:5],
-        "ol_url": rec.get("url", ""),
+        # Use the bare /books/OL…M key rather than the slugged "url" field
+        # (e.g. /books/OL56894633M instead of /books/OL56894633M/Nvidia_Way).
+        "ol_url": f"{OL_BASE}{rec['key']}" if rec.get("key") else rec.get("url", ""),
+        # Work URL from the embedded works list (e.g. /works/OL41890401W).
+        "work_url": (
+            f"{OL_BASE}{rec['works'][0]['key']}"
+            if rec.get("works")
+            else ""
+        ),
     }
 
 
@@ -198,7 +218,14 @@ def fetch_edition_details(isbn: str) -> dict:
 def get_latest_edition_isbn(work_key: str) -> Optional[str]:
     """
     Walk all paginated editions for a work and return the ISBN belonging to
-    the edition with the highest publish year.
+    the newest English-language edition.
+
+    Language filtering: editions are kept only when their 'languages' list
+    contains '/languages/eng' (Open Library's key for English).  Editions
+    with no language field are treated as non-English and skipped so that
+    ambiguous records don't crowd out confirmed English ones.  If no English
+    edition with an ISBN is found, we fall back to the newest edition of any
+    language rather than returning nothing.
 
     We do not rely on sort=publish_date desc because OL's ordering is
     unreliable in practice — translations and poorly dated records can sort
@@ -208,8 +235,10 @@ def get_latest_edition_isbn(work_key: str) -> Optional[str]:
     url = f"{OL_BASE}{work_key}/editions.json"
     page_size = 50  # maximum OL allows per request
     offset = 0
-    best_isbn: Optional[str] = None
-    best_year: int = 0
+    best_eng_isbn: Optional[str] = None
+    best_eng_year: int = 0
+    best_any_isbn: Optional[str] = None
+    best_any_year: int = 0
 
     while True:
         data = get_json(url, limit=page_size, offset=offset)
@@ -220,17 +249,31 @@ def get_latest_edition_isbn(work_key: str) -> Optional[str]:
             isbn = pick_best_isbn(ed.get("isbn_13", []) + ed.get("isbn_10", []))
             if not isbn:
                 continue
+
             year = extract_year(ed.get("publish_date", "")) or 0
-            if year > best_year:
-                best_year = year
-                best_isbn = isbn
+
+            # Track best across all languages (fallback)
+            if year > best_any_year:
+                best_any_year = year
+                best_any_isbn = isbn
+
+            # Check for English: OL stores languages as a list of dicts
+            # e.g. [{"key": "/languages/eng"}]
+            langs = [
+                lang.get("key", "") for lang in ed.get("languages", [])
+            ]
+            is_english = any("eng" in k for k in langs)
+            if is_english and year > best_eng_year:
+                best_eng_year = year
+                best_eng_isbn = isbn
 
         # Stop if this page was the last one
         if len(data.get("entries", [])) < page_size:
             break
         offset += page_size
 
-    return best_isbn
+    # Prefer the best English edition; fall back to best of any language
+    return best_eng_isbn or best_any_isbn
 
 
 # ── Open Library: search ───────────────────────────────────────────────────────
@@ -246,6 +289,7 @@ def search_books(
     params = {
         "limit": max_results * 4,
         "fields": "key,title,subtitle,author_name,subject,first_publish_year",
+        "language": "eng",  # restrict search results to English editions
     }
     if author:
         params["author"] = author
@@ -262,11 +306,12 @@ def search_books(
     df = pd.DataFrame(rows, columns=COLUMNS)
 
     # ── Deduplicate: one row per Open Library work key ─────────────────────
-    # ol_url encodes the work key; keep the row with the highest year per key
+    # Deduplicate on work_url (stable work identifier) so two editions of the
+    # same work aren't both shown, even though ol_url now points to the edition.
     df["_sort_year"] = pd.to_numeric(df["year"], errors="coerce").fillna(0)
     df = (
         df.sort_values("_sort_year", ascending=False)
-        .drop_duplicates(subset=["ol_url"])
+        .drop_duplicates(subset=["work_url"])
         .drop(columns=["_sort_year"])
         .head(max_results)
     )
@@ -291,6 +336,14 @@ def _format_search_doc(doc: dict) -> Optional[dict]:
     if subtitle and subtitle not in title:
         title = f"{title}: {subtitle}"
 
+    # Prefer the edition-level URL from the Books API (e.g. /books/OL56894633M)
+    # so the link points directly to the specific edition, not the work overview.
+    # Fall back to the work URL if the Books API didn't return one.
+    edition_url = ed.get("ol_url") or (f"{OL_BASE}{work_key}" if work_key else "")
+    # Work URL: prefer the one resolved from the Books API (which may differ
+    # from the search-doc key); fall back to building it from the search key.
+    work_url = ed.get("work_url") or (f"{OL_BASE}{work_key}" if work_key else "")
+
     return {
         "title": title,
         "authors": doc.get("author_name", []),
@@ -300,7 +353,8 @@ def _format_search_doc(doc: dict) -> Optional[dict]:
         "pages": ed.get("pages"),
         "isbn": isbn,
         "subjects": doc.get("subject", [])[:5],
-        "ol_url": f"{OL_BASE}{work_key}" if work_key else "",
+        "ol_url": edition_url,
+        "work_url": work_url,
         "amazon_link": amazon_link(isbn) if isbn else None,
     }
 
@@ -369,7 +423,9 @@ def print_book(row: pd.Series, index: int) -> None:
     if subjects:
         print(f"  Subjects    : {', '.join(str(s) for s in subjects)}")
     if row["ol_url"]:
-        print(f"  Open Library: {row['ol_url']}")
+        print(f"  Edition URL : {row['ol_url']}")
+    if row["work_url"]:
+        print(f"  Work URL    : {row['work_url']}")
     if row["amazon_link"]:
         print(f"  Amazon      : {row['amazon_link']}")
     else:
