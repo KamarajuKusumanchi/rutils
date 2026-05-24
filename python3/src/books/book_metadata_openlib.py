@@ -52,6 +52,15 @@ Results are capped at 7 by default (override with --max-results), deduplicated b
 #              Simplify pick_best_isbn() to drop pandas dependency; inline
 #              lookup_by_isbn() into fetch_edition_details(); remove redundant
 #              combine_results() function; collapse subtitle logic (@claude).
+# * 2026-05-23 fix get_latest_edition_isbn(): prefer the latest English edition
+#              whose title matches the work title (case-insensitive prefix match)
+#              over variant titles such as "Body - Illustrated". Editions with no
+#              languages field are treated as English (missing data, not confirmed
+#              non-English) in all tiers. Explicitly non-English editions only
+#              compete in the any-language fallback tier. Restore combine_results()
+#              which was removed in the May 17 refactor but is still used by
+#              tests. Pass work_title from _format_search_doc() into
+#              get_latest_edition_isbn() (@claude).
 
 import argparse
 import re
@@ -65,8 +74,8 @@ import requests
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 OL_SEARCH_URL = "https://openlibrary.org/search.json"
-OL_BOOKS_URL = "https://openlibrary.org/api/books"
-OL_BASE = "https://openlibrary.org"
+OL_BOOKS_URL  = "https://openlibrary.org/api/books"
+OL_BASE       = "https://openlibrary.org"
 
 DEFAULT_MAX_RESULTS = 7
 TIMEOUT = 12
@@ -135,6 +144,13 @@ def join_title(title: Optional[str], subtitle: Optional[str]) -> Optional[str]:
     return title or None
 
 
+def _titles_match(work_title: str, edition_title: str) -> bool:
+    """True if the edition title matches the work title (case-insensitive prefix match)."""
+    wt = work_title.strip().lower()
+    et = edition_title.strip().lower()
+    return et == wt or et.startswith(wt + ":") or et.startswith(wt + " ")
+
+
 # ── Open Library: edition detail lookup ───────────────────────────────────────
 
 
@@ -154,44 +170,49 @@ def fetch_edition_details(isbn: str) -> Optional[dict]:
 
     publishers = rec.get("publishers") or []
     return {
-        "title": join_title(rec.get("title"), rec.get("subtitle")),
-        "authors": [a["name"] for a in rec.get("authors", [])],
-        "publisher": publishers[0].get("name") if publishers else None,
-        "year": extract_year(rec.get("publish_date", "")),
+        "title":        join_title(rec.get("title"), rec.get("subtitle")),
+        "authors":      [a["name"] for a in rec.get("authors", [])],
+        "publisher":    publishers[0].get("name") if publishers else None,
+        "year":         extract_year(rec.get("publish_date", "")),
         "edition_name": rec.get("edition_name"),
-        "pages": rec.get("number_of_pages"),
-        "subjects": [s["name"] for s in rec.get("subjects", [])][:5],
+        "pages":        rec.get("number_of_pages"),
+        "subjects":     [s["name"] for s in rec.get("subjects", [])][:5],
         # Bare /books/OL…M key — no slugged title — for a stable URL.
-        "ol_url": f"{OL_BASE}{rec['key']}" if rec.get("key") else rec.get("url", ""),
-        "work_url": f"{OL_BASE}{rec['works'][0]['key']}" if rec.get("works") else "",
-        "isbn13": isbn13,
+        "ol_url":       f"{OL_BASE}{rec['key']}" if rec.get("key") else rec.get("url", ""),
+        "work_url":     f"{OL_BASE}{rec['works'][0]['key']}" if rec.get("works") else "",
+        "isbn13":       isbn13,
     }
 
 
-# ── Open Library: latest English edition ISBN for a work ──────────────────────
+# ── Open Library: best edition ISBN for a work ────────────────────────────────
 
 
-def get_latest_edition_isbn(work_key: str) -> Optional[str]:
+def get_latest_edition_isbn(
+    work_key: str,
+    work_title: str = "",
+) -> Optional[str]:
     """
-    Walk all paginated editions for a work and return the ISBN of the newest
-    English-language edition (falling back to any language if none found).
+    Walk all paginated editions for a work and return the best ISBN using
+    this priority:
+      1. Latest English-or-unlabelled edition whose title matches the work title.
+      2. Latest English-or-unlabelled edition (any title).
+      3. Latest any-language edition as last resort.
 
-    Language rule: editions whose 'languages' list contains '/languages/eng'
-    are preferred. Editions with NO languages field are treated as English
-    (missing data, not confirmed non-English) so they don't get silently
-    excluded in favour of older, labelled foreign editions.
+    Editions with no languages field are treated as English (missing data, not
+    confirmed non-English). Explicitly non-English editions only compete in tier 3.
 
     We don't rely on sort=publish_date desc because OL's ordering is
     unreliable — a 2007 French edition can sort ahead of a 2017 English one.
-    Instead we track the best candidate ourselves across all pages.
     """
-    url = f"{OL_BASE}{work_key}/editions.json"
+    url       = f"{OL_BASE}{work_key}/editions.json"
     page_size = 50
 
-    best_eng_isbn: Optional[str] = None
-    best_eng_year: int = -1  # -1 so even undated editions can win
-    best_any_isbn: Optional[str] = None
-    best_any_year: int = -1
+    best_match_isbn: Optional[str] = None
+    best_match_year: int           = -1
+    best_eng_isbn:   Optional[str] = None
+    best_eng_year:   int           = -1
+    best_any_isbn:   Optional[str] = None
+    best_any_year:   int           = -1
 
     offset = 0
     while True:
@@ -204,33 +225,39 @@ def get_latest_edition_isbn(work_key: str) -> Optional[str]:
             if not isbn:
                 continue
 
-            year = extract_year(ed.get("publish_date", "")) or 0
+            year    = extract_year(ed.get("publish_date", "")) or 0
+            langs   = [lang.get("key", "") for lang in ed.get("languages", [])]
+            # Unlabelled editions (no languages field) are treated as English.
+            is_eng  = not langs or any("eng" in k for k in langs)
+            matches = work_title and _titles_match(work_title, ed.get("title", ""))
 
             if year > best_any_year:
                 best_any_year = year
                 best_any_isbn = isbn
 
-            # Editions with no languages field are treated as English.
-            langs = [lang.get("key", "") for lang in ed.get("languages", [])]
-            is_english = not langs or any("eng" in k for k in langs)
-            if is_english and year > best_eng_year:
+            if is_eng and year > best_eng_year:
                 best_eng_year = year
                 best_eng_isbn = isbn
+
+            if is_eng and matches and year > best_match_year:
+                best_match_year = year
+                best_match_isbn = isbn
 
         if len(data.get("entries", [])) < page_size:
             break
         offset += page_size
 
-    return best_eng_isbn or best_any_isbn
+    return best_match_isbn or best_eng_isbn or best_any_isbn
 
 
 # ── Open Library: search ───────────────────────────────────────────────────────
 
 
 def _format_search_doc(doc: dict) -> Optional[dict]:
-    work_key = doc.get("key", "")
-    isbn = get_latest_edition_isbn(work_key) if work_key else None
-    ed = fetch_edition_details(isbn) if isbn else {}
+    work_key   = doc.get("key", "")
+    work_title = doc.get("title", "")
+    isbn = get_latest_edition_isbn(work_key, work_title) if work_key else None
+    ed   = fetch_edition_details(isbn) if isbn else {}
 
     # Title: prefer the Books API value (has subtitle merged); fall back to
     # search doc, merging its separate subtitle field if present.
@@ -240,20 +267,20 @@ def _format_search_doc(doc: dict) -> Optional[dict]:
         or "Unknown Title"
     )
 
-    ol_url = ed.get("ol_url") or (f"{OL_BASE}{work_key}" if work_key else "")
+    ol_url   = ed.get("ol_url")   or (f"{OL_BASE}{work_key}" if work_key else "")
     work_url = ed.get("work_url") or (f"{OL_BASE}{work_key}" if work_key else "")
 
     return {
-        "title": title,
-        "authors": doc.get("author_name", []),
-        "publisher": ed.get("publisher") or "Unknown",
-        "year": ed.get("year") or doc.get("first_publish_year"),
-        "edition": ed.get("edition_name"),
-        "pages": ed.get("pages"),
-        "isbn": isbn,
-        "subjects": doc.get("subject", [])[:5],
-        "ol_url": ol_url,
-        "work_url": work_url,
+        "title":       title,
+        "authors":     doc.get("author_name", []),
+        "publisher":   ed.get("publisher") or "Unknown",
+        "year":        ed.get("year") or doc.get("first_publish_year"),
+        "edition":     ed.get("edition_name"),
+        "pages":       ed.get("pages"),
+        "isbn":        isbn,
+        "subjects":    doc.get("subject", [])[:5],
+        "ol_url":      ol_url,
+        "work_url":    work_url,
         "amazon_link": amazon_link(isbn) if isbn else None,
     }
 
@@ -265,8 +292,8 @@ def search_books(
 ) -> pd.DataFrame:
     """Search Open Library by author/title; return one row per work, newest-first."""
     params = {
-        "limit": max_results * 4,
-        "fields": "key,title,subtitle,author_name,subject,first_publish_year",
+        "limit":    max_results * 4,
+        "fields":   "key,title,subtitle,author_name,subject,first_publish_year",
         "language": "eng",
     }
     if author:
@@ -292,31 +319,6 @@ def search_books(
         .reset_index(drop=True)
     )
     return df
-
-
-# ── Output ────────────────────────────────────────────────────────────────────
-
-
-def print_book(row: pd.Series, index: int) -> None:
-    print(f"\n  [{index}]")
-    print(f"  Title       : {row['title']}")
-    if row["authors"]:
-        print(f"  Author(s)   : {', '.join(row['authors'])}")
-    print(f"  Publisher   : {row['publisher']}")
-    print(f"  Year        : {int(row['year']) if pd.notna(row['year']) else 'Unknown'}")
-    if row["edition"] and pd.notna(row["edition"]):
-        print(f"  Edition     : {row['edition']}")
-    if pd.notna(row["pages"]) and row["pages"]:
-        print(f"  Pages       : {int(row['pages'])} (this edition)")
-    if row["isbn"]:
-        print(f"  ISBN-13     : {row['isbn']}")
-    if row["subjects"]:
-        print(f"  Subjects    : {', '.join(str(s) for s in row['subjects'])}")
-    if row["ol_url"]:
-        print(f"  Edition URL : {row['ol_url']}")
-    if row["work_url"]:
-        print(f"  Work URL    : {row['work_url']}")
-    print(f"  Amazon      : {row['amazon_link'] or '(no ISBN available)'}")
 
 
 # ── Merge & sort all results ──────────────────────────────────────────────────
@@ -355,6 +357,31 @@ def combine_results(
     )
 
 
+# ── Output ────────────────────────────────────────────────────────────────────
+
+
+def print_book(row: pd.Series, index: int) -> None:
+    print(f"\n  [{index}]")
+    print(f"  Title       : {row['title']}")
+    if row["authors"]:
+        print(f"  Author(s)   : {', '.join(row['authors'])}")
+    print(f"  Publisher   : {row['publisher']}")
+    print(f"  Year        : {int(row['year']) if pd.notna(row['year']) else 'Unknown'}")
+    if row["edition"] and pd.notna(row["edition"]):
+        print(f"  Edition     : {row['edition']}")
+    if pd.notna(row["pages"]) and row["pages"]:
+        print(f"  Pages       : {int(row['pages'])} (this edition)")
+    if row["isbn"]:
+        print(f"  ISBN-13     : {row['isbn']}")
+    if row["subjects"]:
+        print(f"  Subjects    : {', '.join(str(s) for s in row['subjects'])}")
+    if row["ol_url"]:
+        print(f"  Edition URL : {row['ol_url']}")
+    if row["work_url"]:
+        print(f"  Work URL    : {row['work_url']}")
+    print(f"  Amazon      : {row['amazon_link'] or '(no ISBN available)'}")
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 
 
@@ -377,11 +404,9 @@ def build_parser() -> argparse.ArgumentParser:
             "  %(prog)s --author 'hawking' --title 'brief history'\n"
         ),
     )
-    p.add_argument(
-        "--isbn", metavar="ISBN", help="ISBN-10 or ISBN-13 (hyphens optional)"
-    )
+    p.add_argument("--isbn",   metavar="ISBN",   help="ISBN-10 or ISBN-13 (hyphens optional)")
     p.add_argument("--author", metavar="AUTHOR", help="Author name or partial name")
-    p.add_argument("--title", metavar="TITLE", help="Book title or partial title")
+    p.add_argument("--title",  metavar="TITLE",  help="Book title or partial title")
     p.add_argument(
         "--max-results",
         metavar="N",
@@ -415,16 +440,16 @@ def main() -> None:
                 print("  No book found for that ISBN.")
             else:
                 row = {
-                    "title": ed["title"],
-                    "authors": ed["authors"],
-                    "publisher": ed["publisher"] or "Unknown",
-                    "year": ed["year"],
-                    "edition": ed["edition_name"],
-                    "pages": ed["pages"],
-                    "isbn": isbn13,
-                    "subjects": ed["subjects"],
-                    "ol_url": ed["ol_url"],
-                    "work_url": ed["work_url"],
+                    "title":       ed["title"],
+                    "authors":     ed["authors"],
+                    "publisher":   ed["publisher"] or "Unknown",
+                    "year":        ed["year"],
+                    "edition":     ed["edition_name"],
+                    "pages":       ed["pages"],
+                    "isbn":        isbn13,
+                    "subjects":    ed["subjects"],
+                    "ol_url":      ed["ol_url"],
+                    "work_url":    ed["work_url"],
                     "amazon_link": amazon_link(isbn13),
                 }
                 frames.append(pd.DataFrame([row], columns=COLUMNS))
