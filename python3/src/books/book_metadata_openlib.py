@@ -52,6 +52,12 @@ Results are capped at 7 by default (override with --max-results), deduplicated b
 #              Simplify pick_best_isbn() to drop pandas dependency; inline
 #              lookup_by_isbn() into fetch_edition_details(); remove redundant
 #              combine_results() function; collapse subtitle logic (@claude).
+# * 2026-05-25 fix search_books(): replace separate author=/title= params with a
+#              single q="author:X title:Y" query string. Open Library's search API
+#              returns 403 when author= and title= are passed as independent
+#              parameters together; the structured-field q= syntax is accepted and
+#              also produces tighter results (e.g. "rockefeller" + "chernow" now
+#              finds Titan correctly) (@claude).
 # * 2026-05-23 fix get_latest_edition_isbn(): prefer the latest English edition
 #              whose title matches the work title (case-insensitive prefix match)
 #              over variant titles such as "Body - Illustrated". Editions with no
@@ -296,10 +302,12 @@ def search_books(
         "fields":   "key,title,subtitle,author_name,subject,first_publish_year",
         "language": "eng",
     }
+    q_parts = []
     if author:
-        params["author"] = author
+        q_parts.append(f"author:{author}")
     if title:
-        params["title"] = title
+        q_parts.append(f"title:{title}")
+    params["q"] = " ".join(q_parts)
 
     data = get_json(OL_SEARCH_URL, **params)
     if not data or not data.get("docs"):
