@@ -42,11 +42,12 @@
 #       Machine 3 (Windows): export BOOKS_ROOT="/h/books"
 
 import os
+from pathlib import Path
 import sys
 import shutil
 
-ROOT = os.environ["BOOKS_ROOT"].replace("\\", "/")
-WORKING_DIR = os.path.join(ROOT, "working")
+ROOT = Path(os.environ["BOOKS_ROOT"])
+WORKING_DIR = ROOT / "working"
 
 # Guard against running the script interactively without piped input.
 # Without this check, sys.stdin would block indefinitely waiting for
@@ -62,9 +63,9 @@ if not os.path.isdir(WORKING_DIR):
     os.makedirs(WORKING_DIR)
 
 for line in sys.stdin:
-    src = os.path.realpath(line.strip())
+    src = Path(line.strip()).resolve()
 
-    if not src.endswith(".pdf"):
+    if src.suffix.lower() != ".pdf":
         continue
 
     if not os.path.isfile(src):
@@ -72,13 +73,13 @@ for line in sys.stdin:
         continue
 
     fname = os.path.basename(src)
-    dst = os.path.join(WORKING_DIR, fname)
+    dst = WORKING_DIR / fname
 
     if not os.path.isfile(dst):
         shutil.copy2(src, dst)
-        print(f"Copied (new): {src} -> {dst}")
+        print(f"Copied (new): {src.as_posix()} -> {dst.as_posix()}")
     elif os.path.getmtime(src) > os.path.getmtime(dst):
         shutil.copy2(src, dst)
-        print(f"Copied (updated): {src} -> {dst}")
+        print(f"Copied (updated): {src.as_posix()} -> {dst.as_posix()}")
     else:
         print(f"Skipped (up to date): {fname}")
