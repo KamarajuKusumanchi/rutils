@@ -30,6 +30,10 @@
 #     $ find ~/books -iname '*python*cook*' | python.exe stage_pdfs.py
 #     $ find . -iname '*python*cook*'       | python.exe stage_pdfs.py
 #
+#   Use --dry-run to preview what would happen without making any changes:
+#
+#     $ find ~/books -iname '*python*cook*' | python.exe stage_pdfs.py --dry-run
+#
 # CROSS-PLATFORM USAGE:
 #   This script runs on Linux and Windows (via Git Bash). Set the BOOKS_ROOT
 #   environment variable in ~/.bashrc on each machine to point to the local
@@ -41,45 +45,92 @@
 #       Machine 2 (Linux):   export BOOKS_ROOT="/opt/rajulocal/books"
 #       Machine 3 (Windows): export BOOKS_ROOT="/h/books"
 
+import argparse
 import os
 from pathlib import Path
 import sys
 import shutil
 
-ROOT = Path(os.environ["BOOKS_ROOT"])
-WORKING_DIR = ROOT / "working"
 
-# Guard against running the script interactively without piped input.
-# Without this check, sys.stdin would block indefinitely waiting for
-# input, causing the script to hang with no prompt or error message.
-# sys.stdin.isatty() returns True when stdin is connected to a terminal
-# (i.e., no pipe), and False when data is being piped in.
-if sys.stdin.isatty():
-    print("Usage: find <path> -iname '*.pdf' | python stage_pdfs.py")
-    sys.exit(1)
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=(
+            "Stage PDF books into a working directory as the first step in a "
+            "read-annotate-export pipeline using pdfannots. Reads a list of "
+            "file paths from stdin; only .pdf files are processed."
+        ),
+        epilog=(
+            "Examples:\n"
+            "  find ~/books -iname '*python*cook*' | python stage_pdfs.py\n"
+            "  find . -iname '*python*cook*'       | python stage_pdfs.py --dry-run"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "Show what would be done without making any changes. "
+            "No files are copied and no directories are created."
+        ),
+    )
+    return parser.parse_args()
 
-if not os.path.isdir(WORKING_DIR):
-    print(f"Creating: {WORKING_DIR}")
-    os.makedirs(WORKING_DIR)
 
-for line in sys.stdin:
-    src = Path(line.strip()).resolve()
+def main():
+    args = parse_args()
+    dry_run = args.dry_run
 
-    if src.suffix.lower() != ".pdf":
-        continue
+    if dry_run:
+        print("[dry-run] No files will be copied and no directories will be created.")
 
-    if not os.path.isfile(src):
-        print(f"Warning: File not found, skipping: {src}")
-        continue
+    ROOT = Path(os.environ["BOOKS_ROOT"])
+    WORKING_DIR = ROOT / "working"
 
-    fname = os.path.basename(src)
-    dst = WORKING_DIR / fname
+    # Guard against running the script interactively without piped input.
+    # Without this check, sys.stdin would block indefinitely waiting for
+    # input, causing the script to hang with no prompt or error message.
+    # sys.stdin.isatty() returns True when stdin is connected to a terminal
+    # (i.e., no pipe), and False when data is being piped in.
+    if sys.stdin.isatty():
+        print("Usage: find <path> -iname '*.pdf' | python stage_pdfs.py [--dry-run]")
+        sys.exit(1)
 
-    if not os.path.isfile(dst):
-        shutil.copy2(src, dst)
-        print(f"Copied (new): {src.as_posix()} -> {dst.as_posix()}")
-    elif os.path.getmtime(src) > os.path.getmtime(dst):
-        shutil.copy2(src, dst)
-        print(f"Copied (updated): {src.as_posix()} -> {dst.as_posix()}")
-    else:
-        print(f"Skipped (up to date): {fname}")
+    if not os.path.isdir(WORKING_DIR):
+        if dry_run:
+            print(f"[dry-run] Would create: {WORKING_DIR.as_posix()}")
+        else:
+            os.makedirs(WORKING_DIR)
+            print(f"Created: {WORKING_DIR.as_posix()}")
+
+    for line in sys.stdin:
+        src = Path(line.strip()).resolve()
+
+        if src.suffix.lower() != ".pdf":
+            continue
+
+        if not os.path.isfile(src):
+            print(f"Warning: File not found, skipping: {src}")
+            continue
+
+        fname = os.path.basename(src)
+        dst = WORKING_DIR / fname
+
+        if not os.path.isfile(dst):
+            if dry_run:
+                print(f"[dry-run] Would copy (new): {src.as_posix()} -> {dst.as_posix()}")
+            else:
+                shutil.copy2(src, dst)
+                print(f"Copied (new): {src.as_posix()} -> {dst.as_posix()}")
+        elif os.path.getmtime(src) > os.path.getmtime(dst):
+            if dry_run:
+                print(f"[dry-run] Would copy (updated): {src.as_posix()} -> {dst.as_posix()}")
+            else:
+                shutil.copy2(src, dst)
+                print(f"Copied (updated): {src.as_posix()} -> {dst.as_posix()}")
+        else:
+            print(f"Skipped (up to date): {fname}")
+
+
+if __name__ == "__main__":
+    main()
