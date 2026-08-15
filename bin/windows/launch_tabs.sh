@@ -12,7 +12,7 @@ set -euo pipefail
 DIRS=(
     "$learning"
     "$software"
-    "$HOME/x/foo bar baz/abc"
+    "$HOME/x"
 )
 
 # ---- pick which list to use ----
