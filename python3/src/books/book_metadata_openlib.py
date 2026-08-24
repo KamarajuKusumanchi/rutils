@@ -90,6 +90,16 @@ Results are capped at 7 by default (override with --max-results), deduplicated b
 #              Universe" edition with an unset physical_format and a
 #              suspiciously low page count was still outranking the 2016
 #              hardcover under the previous print-vs-audio-only split) (@claude).
+# * 2026-08-24 fix _classify_format(): physical_format can name more than one
+#              format for a single edition (e.g. OL's "paperback; eBook" for
+#              a combo print/ebook record). Check print keywords before
+#              ebook/audio keywords so such a string is classified "print",
+#              not "ebook". Previously the 2017 second edition of "bash
+#              Cookbook" (ISBN 9781491975336, physical_format "paperback;
+#              eBook") was misclassified as ebook on the "ebook" substring
+#              alone and lost to the plain 2007 "Paperback" first edition,
+#              which is exactly the kind of regression this whole format-tier
+#              mechanism was meant to prevent (@claude).
 
 import argparse
 import re
@@ -181,6 +191,11 @@ def _titles_match(work_title: str, edition_title: str) -> bool:
     return et == wt or et.startswith(wt + ":") or et.startswith(wt + " ")
 
 
+_PRINT_FORMAT_KEYWORDS  = (
+    "hardcover", "hardback", "paperback", "trade paper", "mass market",
+    "spiral", "board book", "library binding", "pamphlet", "leather bound",
+    "plastic comb", "loose leaf", "unknown binding", "perfect",
+)
 _AUDIO_FORMAT_KEYWORDS  = ("audio", "mp3 cd", "playaway", "cassette")
 _EBOOK_FORMAT_KEYWORDS  = ("ebook", "e-book", "kindle", "nook", "epub")
 
@@ -194,6 +209,13 @@ def _classify_format(physical_format: str) -> str:
     """
     Classify an OL edition's physical_format string as one of _FORMAT_PRIORITY.
 
+    physical_format can list more than one format for a single edition (e.g.
+    OL's "paperback; eBook" for a print/ebook combo record). Print keywords
+    are checked first so any edition that names a physical print format is
+    classified "print" even if the same string also mentions an ebook or
+    audio companion format — the string is naming what the edition *is*,
+    not ruling out the other formats it's also available in.
+
     An empty/missing physical_format is classified "unspecified" rather than
     assumed to be print: some editions with no format on record turn out to
     be ebook-like scans (e.g. an edition with a suspiciously low page count
@@ -206,6 +228,8 @@ def _classify_format(physical_format: str) -> str:
     fmt = (physical_format or "").strip().lower()
     if not fmt:
         return "unspecified"
+    if any(kw in fmt for kw in _PRINT_FORMAT_KEYWORDS):
+        return "print"
     if any(kw in fmt for kw in _AUDIO_FORMAT_KEYWORDS):
         return "audio"
     if any(kw in fmt for kw in _EBOOK_FORMAT_KEYWORDS):

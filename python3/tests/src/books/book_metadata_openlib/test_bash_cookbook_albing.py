@@ -52,6 +52,7 @@ def test_bash_cookbook_returns_second_edition():
     assert row["publisher"] == "O'Reilly Media"
     assert row["year"] == 2017
     assert row["edition"] is None
+    assert row["physical_format"] == "paperback; eBook"
     assert row["pages"] == 726
     assert row["isbn"] == "9781491975336"
     assert row["subjects"] == [
@@ -64,6 +65,31 @@ def test_bash_cookbook_returns_second_edition():
     assert row["ol_url"] == "https://openlibrary.org/books/OL26834170M"
     assert row["work_url"] == "https://openlibrary.org/works/OL7951526W"
     assert row["amazon_link"] == "https://www.amazon.com/s?k=9781491975336"
+
+
+@pytest.mark.integration
+def test_bash_cookbook_combo_format_beats_older_plain_paperback():
+    """
+    get_latest_edition_isbn() must return the 2017 second edition (ISBN
+    9781491975336), not the 2007 first edition (ISBN 9780596526788).
+
+    Corner case: the 2017 edition's physical_format is the compound string
+    "paperback; eBook" (a single OL record covering both a paperback and an
+    ebook release), not the bare "Paperback" the 2007 edition uses.
+    _classify_format() must recognise the print keyword inside a compound
+    format string and classify the edition as "print" — not "ebook" just
+    because the string also happens to contain "eBook". Misclassifying it as
+    "ebook" would drop it a full priority tier below the plain-"Paperback"
+    2007 edition and return the wrong (older, shorter) edition.
+    """
+    isbn = bmo.get_latest_edition_isbn("/works/OL7951526W", "bash Cookbook")
+
+    assert isbn == "9781491975336", (
+        f"Expected the 2017 second edition ISBN 9781491975336, got {isbn!r}. "
+        "This likely means a compound physical_format like 'paperback; eBook' "
+        "is being misclassified as ebook again and losing to the older, "
+        "plain-'Paperback' 2007 first edition (9780596526788)."
+    )
 
 
 @pytest.mark.integration
