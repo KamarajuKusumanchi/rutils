@@ -99,16 +99,22 @@ def test_welcome_to_the_universe_tyson_prefers_print_over_unspecified_format():
 @pytest.mark.integration
 def test_welcome_to_the_universe_tyson_search_also_prefers_print():
     """
-    End-to-end check: search_books(author="tyson", title="welcome universe")
-    must surface the 2016 print edition of "Welcome to the Universe: An
-    Astrophysical Tour", not a later audiobook or unspecified-format edition,
-    confirming the fix in get_latest_edition_isbn() is actually reflected in
-    search results.
+    End-to-end check: search_books(author="tyson", title="welcome universe
+    astrophysical") must surface the 2016 print edition of "Welcome to the
+    Universe: An Astrophysical Tour", not a later audiobook or
+    unspecified-format edition, confirming the fix in
+    get_latest_edition_isbn() is actually reflected in search results.
     """
-    df = bmo.search_books(author="tyson", title="welcome universe")
-    row = df[df["work_url"] == "https://openlibrary.org/works/OL17593191W"].iloc[0]
+    df = bmo.search_books(author="tyson", title="welcome universe astrophysical")
 
-    assert row["isbn"] == "9780691157245"
+    row = df.iloc[0]
+
+    assert row["title"] == "Welcome to the Universe: An Astrophysical Tour"
     assert row["publisher"] == "Princeton University Press"
     assert row["year"] == 2016
     assert row["physical_format"] == "Hardcover"
+    assert row["pages"] == 472
+    assert row["isbn"] == "9780691157245"
+    assert row["ol_url"] == "https://openlibrary.org/books/OL26196435M"
+    assert row["work_url"] == "https://openlibrary.org/works/OL17593191W"
+    assert row["amazon_link"] == "https://www.amazon.com/s?k=9780691157245"
