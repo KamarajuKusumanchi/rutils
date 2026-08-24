@@ -67,6 +67,29 @@ Results are capped at 7 by default (override with --max-results), deduplicated b
 #              which was removed in the May 17 refactor but is still used by
 #              tests. Pass work_title from _format_search_doc() into
 #              get_latest_edition_isbn() (@claude).
+# * 2026-08-23 fix get_latest_edition_isbn(): within each match tier, prefer
+#              non-audio editions (print/ebook) over audio editions regardless
+#              of year, so a later audiobook release no longer displaces an
+#              earlier print edition of the same work (e.g. Tyson's "Welcome
+#              to the Universe: An Astrophysical Tour" was returning the 2018
+#              Audible edition instead of the 2016 Princeton hardcover). Audio
+#              is only returned as a last resort. Also fix fetch_edition_details():
+#              jscmd=data does not reliably include a "works" field, so --isbn
+#              lookups were missing Work URL; fall back to fetching the
+#              edition's own record (which always has "works") when jscmd=data
+#              omits it (@claude).
+# * 2026-08-24 add "physical_format" to COLUMNS/output (printed as "Format").
+#              fetch_edition_details() now always fetches the edition's own
+#              .json record (previously only when work_url was missing) so
+#              physical_format is populated reliably. Fix get_latest_edition_isbn():
+#              generalise the print/audio split into a 4-way _classify_format()
+#              (print > unspecified > ebook > audio); editions with no
+#              physical_format on record are no longer treated as equivalent
+#              to explicit print editions, since they're sometimes ebook-like
+#              scans with no format label (e.g. a 2017 Tyson "Welcome to the
+#              Universe" edition with an unset physical_format and a
+#              suspiciously low page count was still outranking the 2016
+#              hardcover under the previous print-vs-audio-only split) (@claude).
 
 import argparse
 import re
@@ -95,6 +118,7 @@ COLUMNS = [
     "publisher",
     "year",
     "edition",
+    "physical_format",
     "pages",
     "isbn",
     "subjects",
@@ -157,6 +181,38 @@ def _titles_match(work_title: str, edition_title: str) -> bool:
     return et == wt or et.startswith(wt + ":") or et.startswith(wt + " ")
 
 
+_AUDIO_FORMAT_KEYWORDS  = ("audio", "mp3 cd", "playaway", "cassette")
+_EBOOK_FORMAT_KEYWORDS  = ("ebook", "e-book", "kindle", "nook", "epub")
+
+# Priority order when choosing between editions of the same match tier: a
+# confirmed physical print edition beats one with no format on record, which
+# beats a confirmed ebook, which beats a confirmed audio edition.
+_FORMAT_PRIORITY = ("print", "unspecified", "ebook", "audio")
+
+
+def _classify_format(physical_format: str) -> str:
+    """
+    Classify an OL edition's physical_format string as one of _FORMAT_PRIORITY.
+
+    An empty/missing physical_format is classified "unspecified" rather than
+    assumed to be print: some editions with no format on record turn out to
+    be ebook-like scans (e.g. an edition with a suspiciously low page count
+    and no borrow/preview options), so they shouldn't automatically outrank
+    an edition explicitly labelled "Hardcover" or "Paperback" just for being
+    newer. They still outrank confirmed ebook/audio editions, since most
+    unlabelled editions genuinely are ordinary print books with incomplete
+    metadata.
+    """
+    fmt = (physical_format or "").strip().lower()
+    if not fmt:
+        return "unspecified"
+    if any(kw in fmt for kw in _AUDIO_FORMAT_KEYWORDS):
+        return "audio"
+    if any(kw in fmt for kw in _EBOOK_FORMAT_KEYWORDS):
+        return "ebook"
+    return "print"
+
+
 # ── Open Library: edition detail lookup ───────────────────────────────────────
 
 
@@ -174,19 +230,33 @@ def fetch_edition_details(isbn: str) -> Optional[dict]:
     if not rec:
         return None
 
+    # jscmd=data does not reliably include "works" or "physical_format" (see
+    # internetarchive/openlibrary#1816 for the "works" gap), so a direct ISBN
+    # lookup often can't derive them from `rec` alone. Fetch the edition's own
+    # record, which always includes both.
+    edition_rec = get_json(f"{OL_BASE}{rec['key']}.json") if rec.get("key") else None
+    work_url = (
+        f"{OL_BASE}{rec['works'][0]['key']}" if rec.get("works")
+        else f"{OL_BASE}{edition_rec['works'][0]['key']}"
+        if edition_rec and edition_rec.get("works")
+        else ""
+    )
+    physical_format = rec.get("physical_format") or (edition_rec or {}).get("physical_format")
+
     publishers = rec.get("publishers") or []
     return {
-        "title":        join_title(rec.get("title"), rec.get("subtitle")),
-        "authors":      [a["name"] for a in rec.get("authors", [])],
-        "publisher":    publishers[0].get("name") if publishers else None,
-        "year":         extract_year(rec.get("publish_date", "")),
-        "edition_name": rec.get("edition_name"),
-        "pages":        rec.get("number_of_pages"),
-        "subjects":     [s["name"] for s in rec.get("subjects", [])][:5],
+        "title":           join_title(rec.get("title"), rec.get("subtitle")),
+        "authors":         [a["name"] for a in rec.get("authors", [])],
+        "publisher":       publishers[0].get("name") if publishers else None,
+        "year":            extract_year(rec.get("publish_date", "")),
+        "edition_name":    rec.get("edition_name"),
+        "physical_format": physical_format,
+        "pages":           rec.get("number_of_pages"),
+        "subjects":        [s["name"] for s in rec.get("subjects", [])][:5],
         # Bare /books/OL…M key — no slugged title — for a stable URL.
-        "ol_url":       f"{OL_BASE}{rec['key']}" if rec.get("key") else rec.get("url", ""),
-        "work_url":     f"{OL_BASE}{rec['works'][0]['key']}" if rec.get("works") else "",
-        "isbn13":       isbn13,
+        "ol_url":          f"{OL_BASE}{rec['key']}" if rec.get("key") else rec.get("url", ""),
+        "work_url":        work_url,
+        "isbn13":          isbn13,
     }
 
 
@@ -207,18 +277,27 @@ def get_latest_edition_isbn(
     Editions with no languages field are treated as English (missing data, not
     confirmed non-English). Explicitly non-English editions only compete in tier 3.
 
+    Within each of the three tiers above, editions are further split by
+    _classify_format() into _FORMAT_PRIORITY order (print beats unspecified
+    beats ebook beats audio), and the latest year wins within that format
+    class. A lower-priority format class is only returned when no candidate
+    exists in any higher one. Without this, a book's audiobook or ebook
+    release — which often comes out a year or two after the original print
+    edition — would silently displace the print edition just for being newer
+    (e.g. a 2018 audiobook, or an unlabelled 2017 digital scan, outranking a
+    2016 hardcover of the same work).
+
     We don't rely on sort=publish_date desc because OL's ordering is
     unreliable — a 2007 French edition can sort ahead of a 2017 English one.
     """
     url       = f"{OL_BASE}{work_key}/editions.json"
     page_size = 50
 
-    best_match_isbn: Optional[str] = None
-    best_match_year: int           = -1
-    best_eng_isbn:   Optional[str] = None
-    best_eng_year:   int           = -1
-    best_any_isbn:   Optional[str] = None
-    best_any_year:   int           = -1
+    # best[tier][format_class] = (isbn, year)
+    best: dict = {
+        tier: {fmt_class: (None, -1) for fmt_class in _FORMAT_PRIORITY}
+        for tier in ("match", "eng", "any")
+    }
 
     offset = 0
     while True:
@@ -231,29 +310,32 @@ def get_latest_edition_isbn(
             if not isbn:
                 continue
 
-            year    = extract_year(ed.get("publish_date", "")) or 0
-            langs   = [lang.get("key", "") for lang in ed.get("languages", [])]
+            year      = extract_year(ed.get("publish_date", "")) or 0
+            langs     = [lang.get("key", "") for lang in ed.get("languages", [])]
             # Unlabelled editions (no languages field) are treated as English.
-            is_eng  = not langs or any("eng" in k for k in langs)
-            matches = work_title and _titles_match(work_title, ed.get("title", ""))
+            is_eng    = not langs or any("eng" in k for k in langs)
+            matches   = work_title and _titles_match(work_title, ed.get("title", ""))
+            fmt_class = _classify_format(ed.get("physical_format", ""))
 
-            if year > best_any_year:
-                best_any_year = year
-                best_any_isbn = isbn
+            if year > best["any"][fmt_class][1]:
+                best["any"][fmt_class] = (isbn, year)
 
-            if is_eng and year > best_eng_year:
-                best_eng_year = year
-                best_eng_isbn = isbn
+            if is_eng and year > best["eng"][fmt_class][1]:
+                best["eng"][fmt_class] = (isbn, year)
 
-            if is_eng and matches and year > best_match_year:
-                best_match_year = year
-                best_match_isbn = isbn
+            if is_eng and matches and year > best["match"][fmt_class][1]:
+                best["match"][fmt_class] = (isbn, year)
 
         if len(data.get("entries", [])) < page_size:
             break
         offset += page_size
 
-    return best_match_isbn or best_eng_isbn or best_any_isbn
+    for tier in ("match", "eng", "any"):
+        for fmt_class in _FORMAT_PRIORITY:
+            isbn, _ = best[tier][fmt_class]
+            if isbn:
+                return isbn
+    return None
 
 
 # ── Open Library: search ───────────────────────────────────────────────────────
@@ -277,17 +359,18 @@ def _format_search_doc(doc: dict) -> Optional[dict]:
     work_url = ed.get("work_url") or (f"{OL_BASE}{work_key}" if work_key else "")
 
     return {
-        "title":       title,
-        "authors":     doc.get("author_name", []),
-        "publisher":   ed.get("publisher") or "Unknown",
-        "year":        ed.get("year") or doc.get("first_publish_year"),
-        "edition":     ed.get("edition_name"),
-        "pages":       ed.get("pages"),
-        "isbn":        isbn,
-        "subjects":    doc.get("subject", [])[:5],
-        "ol_url":      ol_url,
-        "work_url":    work_url,
-        "amazon_link": amazon_link(isbn) if isbn else None,
+        "title":           title,
+        "authors":         doc.get("author_name", []),
+        "publisher":       ed.get("publisher") or "Unknown",
+        "year":            ed.get("year") or doc.get("first_publish_year"),
+        "edition":         ed.get("edition_name"),
+        "physical_format": ed.get("physical_format"),
+        "pages":           ed.get("pages"),
+        "isbn":            isbn,
+        "subjects":        doc.get("subject", [])[:5],
+        "ol_url":          ol_url,
+        "work_url":        work_url,
+        "amazon_link":     amazon_link(isbn) if isbn else None,
     }
 
 
@@ -377,6 +460,8 @@ def print_book(row: pd.Series, index: int) -> None:
     print(f"  Year        : {int(row['year']) if pd.notna(row['year']) else 'Unknown'}")
     if row["edition"] and pd.notna(row["edition"]):
         print(f"  Edition     : {row['edition']}")
+    if row["physical_format"] and pd.notna(row["physical_format"]):
+        print(f"  Format      : {row['physical_format']}")
     if pd.notna(row["pages"]) and row["pages"]:
         print(f"  Pages       : {int(row['pages'])} (this edition)")
     if row["isbn"]:
@@ -448,17 +533,18 @@ def main() -> None:
                 print("  No book found for that ISBN.")
             else:
                 row = {
-                    "title":       ed["title"],
-                    "authors":     ed["authors"],
-                    "publisher":   ed["publisher"] or "Unknown",
-                    "year":        ed["year"],
-                    "edition":     ed["edition_name"],
-                    "pages":       ed["pages"],
-                    "isbn":        isbn13,
-                    "subjects":    ed["subjects"],
-                    "ol_url":      ed["ol_url"],
-                    "work_url":    ed["work_url"],
-                    "amazon_link": amazon_link(isbn13),
+                    "title":           ed["title"],
+                    "authors":         ed["authors"],
+                    "publisher":       ed["publisher"] or "Unknown",
+                    "year":            ed["year"],
+                    "edition":         ed["edition_name"],
+                    "physical_format": ed["physical_format"],
+                    "pages":           ed["pages"],
+                    "isbn":            isbn13,
+                    "subjects":        ed["subjects"],
+                    "ol_url":          ed["ol_url"],
+                    "work_url":        ed["work_url"],
+                    "amazon_link":     amazon_link(isbn13),
                 }
                 frames.append(pd.DataFrame([row], columns=COLUMNS))
                 seen_isbns.add(isbn13)
