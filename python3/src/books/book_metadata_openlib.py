@@ -100,11 +100,30 @@ Results are capped at 7 by default (override with --max-results), deduplicated b
 #              alone and lost to the plain 2007 "Paperback" first edition,
 #              which is exactly the kind of regression this whole format-tier
 #              mechanism was meant to prevent (@claude).
+# * 2026-08-24 fix get_latest_edition_isbn()/_format_search_doc(): the "match"
+#              tier only matched an edition's title against the OL *work's*
+#              own title (doc["title"]), which can itself be an outdated,
+#              since-renamed title. E.g. OL work OL1879162W's canonical title
+#              is still "The Psychology of Everyday Things" (Norman's 1988
+#              original title) even though the book has been sold as "The
+#              Design of Everyday Things" since 2002/2013 -- so
+#              `--title "The Design of Everyday Things"` matched the work via
+#              full-text search but then the match tier only accepted
+#              editions titled like the *old* name, returning the 1989
+#              edition (9780465067091, 272pp) instead of the 2013 edition the
+#              user actually asked for (9780465050659, 368pp). Both editions
+#              share the same work, so tier "any"/"eng" never got a chance to
+#              contribute the newer one, since "match" is checked first.
+#              get_latest_edition_isbn() now accepts a list of candidate
+#              titles (still accepts a single string for backward
+#              compatibility) and _format_search_doc() passes both the work's
+#              own title *and* the user's original query title, so an edition
+#              matching either one qualifies for the match tier (@claude).
 
 import argparse
 import re
 import sys
-from typing import Optional
+from typing import Optional, Sequence, Union
 
 import isbnlib
 import pandas as pd
@@ -189,6 +208,21 @@ def _titles_match(work_title: str, edition_title: str) -> bool:
     wt = work_title.strip().lower()
     et = edition_title.strip().lower()
     return et == wt or et.startswith(wt + ":") or et.startswith(wt + " ")
+
+
+def _title_matches_any(candidate_titles: Sequence[str], edition_title: str) -> bool:
+    """
+    True if edition_title matches ANY of candidate_titles via _titles_match().
+
+    A work can have more than one legitimate "current" title to match
+    against: the OL work's own (possibly outdated/since-renamed) title, and
+    the title the caller actually searched for. Checking against the union
+    of both means a renamed edition — like Norman's "The Design of Everyday
+    Things", sold under that title since 2002/2013 even though OL work
+    OL1879162W's canonical title is still the original "The Psychology of
+    Everyday Things" — can still win the match tier.
+    """
+    return any(_titles_match(t, edition_title) for t in candidate_titles if t)
 
 
 _PRINT_FORMAT_KEYWORDS  = (
@@ -289,14 +323,26 @@ def fetch_edition_details(isbn: str) -> Optional[dict]:
 
 def get_latest_edition_isbn(
     work_key: str,
-    work_title: str = "",
+    work_title: Union[str, Sequence[str]] = "",
 ) -> Optional[str]:
     """
     Walk all paginated editions for a work and return the best ISBN using
     this priority:
-      1. Latest English-or-unlabelled edition whose title matches the work title.
+      1. Latest English-or-unlabelled edition whose title matches one of the
+         candidate titles.
       2. Latest English-or-unlabelled edition (any title).
       3. Latest any-language edition as last resort.
+
+    work_title may be a single title string, or a sequence of candidate
+    titles to match against (an edition matches tier 1 if its title matches
+    ANY of them). Passing multiple candidates matters because the OL work's
+    own canonical title can itself be outdated: e.g. work OL1879162W's title
+    is still "The Psychology of Everyday Things" (Norman's original 1988
+    title) even though the book has been retitled "The Design of Everyday
+    Things" since 2002/2013. Callers should pass both the work's own title
+    and the title actually being searched for, so an edition matching either
+    name qualifies for the match tier rather than losing to a same-work
+    edition under the old name.
 
     Editions with no languages field are treated as English (missing data, not
     confirmed non-English). Explicitly non-English editions only compete in tier 3.
@@ -314,6 +360,9 @@ def get_latest_edition_isbn(
     We don't rely on sort=publish_date desc because OL's ordering is
     unreliable — a 2007 French edition can sort ahead of a 2017 English one.
     """
+    candidate_titles = [work_title] if isinstance(work_title, str) else list(work_title)
+    candidate_titles = [t for t in candidate_titles if t]
+
     url       = f"{OL_BASE}{work_key}/editions.json"
     page_size = 50
 
@@ -338,7 +387,7 @@ def get_latest_edition_isbn(
             langs     = [lang.get("key", "") for lang in ed.get("languages", [])]
             # Unlabelled editions (no languages field) are treated as English.
             is_eng    = not langs or any("eng" in k for k in langs)
-            matches   = work_title and _titles_match(work_title, ed.get("title", ""))
+            matches   = candidate_titles and _title_matches_any(candidate_titles, ed.get("title", ""))
             fmt_class = _classify_format(ed.get("physical_format", ""))
 
             if year > best["any"][fmt_class][1]:
@@ -365,10 +414,15 @@ def get_latest_edition_isbn(
 # ── Open Library: search ───────────────────────────────────────────────────────
 
 
-def _format_search_doc(doc: dict) -> Optional[dict]:
+def _format_search_doc(doc: dict, query_title: Optional[str] = None) -> Optional[dict]:
     work_key   = doc.get("key", "")
     work_title = doc.get("title", "")
-    isbn = get_latest_edition_isbn(work_key, work_title) if work_key else None
+    # Match against both the OL work's own title AND the title the caller
+    # actually searched for — the work's title can itself be an outdated,
+    # since-renamed title (see get_latest_edition_isbn() docstring), in which
+    # case only the query title will match the edition the user expects.
+    candidate_titles = [work_title, query_title]
+    isbn = get_latest_edition_isbn(work_key, candidate_titles) if work_key else None
     ed   = fetch_edition_details(isbn) if isbn else {}
 
     # Title: prefer the Books API value (has subtitle merged); fall back to
@@ -420,7 +474,7 @@ def search_books(
     if not data or not data.get("docs"):
         return pd.DataFrame(columns=COLUMNS)
 
-    rows = [r for doc in data["docs"] if (r := _format_search_doc(doc))]
+    rows = [r for doc in data["docs"] if (r := _format_search_doc(doc, title))]
     if not rows:
         return pd.DataFrame(columns=COLUMNS)
 
