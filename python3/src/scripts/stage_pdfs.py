@@ -118,13 +118,17 @@ def main():
 
         if not os.path.isfile(dst):
             if dry_run:
-                print(f"[dry-run] Would copy (new): {src.as_posix()} -> {dst.as_posix()}")
+                print(
+                    f"[dry-run] Would copy (new): {src.as_posix()} -> {dst.as_posix()}"
+                )
             else:
                 shutil.copy2(src, dst)
                 print(f"Copied (new): {src.as_posix()} -> {dst.as_posix()}")
         elif os.path.getmtime(src) > os.path.getmtime(dst):
             if dry_run:
-                print(f"[dry-run] Would copy (updated): {src.as_posix()} -> {dst.as_posix()}")
+                print(
+                    f"[dry-run] Would copy (updated): {src.as_posix()} -> {dst.as_posix()}"
+                )
             else:
                 shutil.copy2(src, dst)
                 print(f"Copied (updated): {src.as_posix()} -> {dst.as_posix()}")
