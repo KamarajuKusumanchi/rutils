@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+import sys
+import subprocess
+from pathlib import Path
+from datetime import datetime
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: zim_edit.py <file.txt>", file=sys.stderr)
+        sys.exit(1)
+
+    filepath = Path(sys.argv[1])
+    name = filepath.stem
+
+    if not filepath.exists():
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+
+        now = datetime.now().astimezone()
+        creation_date = now.strftime("%Y-%m-%dT%H:%M:%S%z")
+        creation_date = creation_date[:-2] + ":" + creation_date[-2:]
+
+        day_name = now.strftime("%A")
+        day = now.day
+        month = now.strftime("%B")
+        year = now.year
+
+        content = f"""Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.6
+Creation-Date: {creation_date}
+
+====== {name} ======
+Created {day_name} {day} {month} {year}
+
+```
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+```
+"""
+        filepath.write_text(content)
+
+    subprocess.run(["vim", str(filepath)])
+
+if __name__ == "__main__":
+    main()
