@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# Opens a zim wiki file in vim.
+# If the file already exists, the script will just open it.
+# If the file does not exist, the script will create it with standard
+# zim-formatted header and add some predefined extra lines at the end.
+#
+# Usage: zim_edit.py <file.txt> or zim_edit.py <dir/file.txt>
 import sys
 import subprocess
 from pathlib import Path
