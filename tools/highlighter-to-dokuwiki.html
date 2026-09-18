@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Highlighter to DokuWiki</title>
+<!--
+  Highlighter -> DokuWiki clipboard converter
+  ============================================
+  Purpose:
+    Converts markdown-formatted highlight exports from the "Super Simple
+    Highlighter" Chrome extension into DokuWiki-formatted nested bullet lists.
+
+  Example input (as exported by the extension):
+
+    # [Defense tech firm Covenant opens U.S. missile factory, exits stealth](https://www.cnbc.com/2026/09/09/defense-tech-covenant-anthem-missile.html)
+
+    ## Yellow
+
+    - Defense tech startup Covenant
+    - Lux, 8VC, Aleph, Lightspeed and Altimeter Capital
+    - Anthem long-range missiles
+    - Peter Thiel's Founders Fund
+    - aum $1 mln - $10 mln
+
+  Produces (DokuWiki list syntax, with $ escaped so DokuWiki doesn't
+  interpret it):
+
+      * https://www.cnbc.com/2026/09/09/defense-tech-covenant-anthem-missile.html - Defense tech firm Covenant opens U.S. missile factory, exits stealth
+        * Defense tech startup Covenant
+        * Lux, 8VC, Aleph, Lightspeed and Altimeter Capital
+        * Anthem long-range missiles
+        * Peter Thiel's Founders Fund
+        * aum \$1 mln - \$10 mln
+
+  Transform rules (see transform() below):
+    1. Blank lines are dropped.
+    2. Any "## <highlight color>" heading line (e.g. "## Yellow") is dropped.
+    3. "# [title](url)" becomes "  * url - title".
+    4. "- item" becomes "    * item" (nested DokuWiki bullet).
+    5. Any other line passes through unchanged.
+    6. "$" is escaped to "\$" everywhere, last, so DokuWiki renders it literally.
+
+  Usage:
+    1. Copy a highlight block from the Super Simple Highlighter extension.
+    2. Open this file in Chrome and click "Copy from clipboard" (conversion
+       runs automatically), or paste directly into the Input box.
+    3. Edit the Output box by hand if needed.
+    4. Click "Copy result" and paste into your DokuWiki page.
+
+  Note: opening this as a local file:// page means Chrome may re-prompt for
+  clipboard permission each session. Serving it via `python3 -m http.server`
+  and opening it through http://localhost instead avoids the repeated prompt.
+-->
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fafafa;
+    --fg: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #ddd;
+    --accent: #2f5d50;
+    --panel: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181a;
+      --fg: #eaeaea;
+      --muted: #9a9a9a;
+      --border: #333;
+      --accent: #7fbfae;
+      --panel: #1f2022;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 10px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .row { display: flex; gap: 8px; }
+  .row.buttons { flex-wrap: wrap; }
+  button {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--fg);
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #fff; border-color: transparent; }
+  button:active { opacity: 0.85; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  textarea {
+    flex: 1;
+    resize: none;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+  #status {
+    font-size: 12px;
+    color: var(--muted);
+    min-height: 1.2em;
+  }
+</style>
+</head>
+<body>
+  <div class="pane" style="flex: 1;">
+    <label for="input">Input (Super Simple Highlighter markdown)</label>
+    <textarea id="input" placeholder="Paste here, or click Copy from clipboard"></textarea>
+  </div>
+
+  <div class="row buttons">
+    <button id="fromClipboard">Copy from clipboard</button>
+    <button id="convert">Convert</button>
+    <button id="toClipboard" class="primary">Copy result</button>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="pane" style="flex: 1;">
+    <label for="output">Output (DokuWiki list)</label>
+    <textarea id="output" placeholder="Result appears here"></textarea>
+  </div>
+
+<script>
+// See the header comment above for the full spec of these rules.
+function transform(input) {
+  const lines = input.split(/\r?\n/);
+  const out = [];
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (line === "") continue;                 // rule 1: drop blank lines
+    if (/^##\s+/.test(line)) continue;          // rule 2: drop "## <color>" heading
+
+    let m = line.match(/^#\s+\[(.*)\]\((.*)\)$/); // rule 3: "# [title](url)"
+    if (m) {
+      out.push(`  * ${m[2]} - ${m[1]}`);
+      continue;
+    }
+
+    m = line.match(/^-\s+(.*)$/);               // rule 4: "- item"
+    if (m) {
+      out.push(`    * ${m[1]}`);
+      continue;
+    }
+
+    out.push(line);                             // rule 5: pass through
+  }
+
+  return out.join("\n").split("$").join("\\$"); // rule 6: escape $ for DokuWiki
+}
+
+const input = document.getElementById("input");
+const output = document.getElementById("output");
+const status = document.getElementById("status");
+
+function setStatus(msg) {
+  status.textContent = msg;
+}
+
+function runConvert() {
+  output.value = transform(input.value);
+}
+
+// Convert live as you type or paste, so a separate click usually isn't needed.
+input.addEventListener("input", runConvert);
+
+document.getElementById("convert").addEventListener("click", () => {
+  runConvert();
+  setStatus("Converted.");
+});
+
+document.getElementById("fromClipboard").addEventListener("click", async () => {
+  try {
+    input.value = await navigator.clipboard.readText();
+    runConvert();
+    setStatus("Pasted from clipboard and converted.");
+  } catch (err) {
+    setStatus("Read failed: " + err.message);
+  }
+});
+
+document.getElementById("toClipboard").addEventListener("click", async () => {
+  try {
+    runConvert();
+    await navigator.clipboard.writeText(output.value);
+    setStatus("Result copied to clipboard.");
+  } catch (err) {
+    setStatus("Write failed: " + err.message);
+  }
+});
+</script>
+</body>
+</html>
