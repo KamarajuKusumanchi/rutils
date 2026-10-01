@@ -32,13 +32,18 @@
         * Peter Thiel's Founders Fund
         * aum \$1 mln - \$10 mln
 
+  (followed by one extra empty line)
+
   Transform rules (see transform() below):
     1. Blank lines are dropped.
     2. Any "## <highlight color>" heading line (e.g. "## Yellow") is dropped.
     3. "# [title](url)" becomes "  * url - title".
     4. "- item" becomes "    * item" (nested DokuWiki bullet).
     5. Any other line passes through unchanged.
-    6. "$" is escaped to "\$" everywhere, last, so DokuWiki renders it literally.
+    6. "$" is escaped to "\$" everywhere so DokuWiki renders it literally.
+    7. A blank line is inserted before every "# [title](url)" except the first,
+       so consecutive entries are separated by one empty line.
+    8. An extra empty line is appended at the very end (output ends with a single "\n").
 
   Usage:
     1. Copy a highlight block from the Super Simple Highlighter extension.
@@ -164,6 +169,7 @@ function transform(input) {
 
     let m = line.match(/^#\s+\[(.*)\]\((.*)\)$/); // rule 3: "# [title](url)"
     if (m) {
+      if (out.length) out.push("");             // rule 7: blank line between entries
       out.push(`  * ${m[2]} - ${m[1]}`);
       continue;
     }
@@ -177,7 +183,8 @@ function transform(input) {
     out.push(line);                             // rule 5: pass through
   }
 
-  return out.join("\n").split("$").join("\\$"); // rule 6: escape $ for DokuWiki
+  const text = out.join("\n").split("$").join("\\$"); // rule 6: escape $ for DokuWiki
+  return text + "\n";                         // rule 8: trailing empty line
 }
 
 const input = document.getElementById("input");
